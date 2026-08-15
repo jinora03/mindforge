@@ -1,0 +1,38 @@
+{
+  "name": "mindforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "description": "MindForge — a reusable browser-based animation platform for cinematic vertical educational videos.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @mindforge/studio dev",
+    "dev:studio": "pnpm --filter @mindforge/studio dev",
+    "dev:player": "pnpm --filter @mindforge/player dev",
+    "build": "pnpm typecheck && pnpm --filter @mindforge/player build && pnpm --filter @mindforge/studio build",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "validate:episodes": "tsx tools/validate-episodes.ts",
+    "generate:catalog": "tsx tools/generate-library-catalog.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@mindforge/engine": "workspace:*",
+    "@mindforge/library": "workspace:*",
+    "@mindforge/schema": "workspace:*",
+    "@types/node": "^20.17.0",
+    "@types/three": "^0.169.0",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "three": "^0.169.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "vite": "^5.4.11",
+    "vitest": "^2.1.8"
+  }
+}

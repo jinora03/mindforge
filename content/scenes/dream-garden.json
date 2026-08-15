@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "0.1",
+  "id": "scene.dream-garden",
+  "title": "The Dream Garden",
+  "environment": "environment.dreamGarden",
+  "entities": [
+    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0] }
+  ],
+  "metadata": {
+    "domain": "dream-garden",
+    "note": "Reusable staging for mind / perception / prediction / memory episodes."
+  }
+}

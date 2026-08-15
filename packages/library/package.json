@@ -1,0 +1,16 @@
+{
+  "name": "@mindforge/library",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@mindforge/cameras": "workspace:*",
+    "@mindforge/engine": "workspace:*",
+    "@mindforge/motions": "workspace:*",
+    "@mindforge/themes": "workspace:*"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    { "id": "hook", "content": "Why can't you tickle yourself?", "style": "question", "placement": "upper" },
+    { "id": "predict", "content": "Your brain predicts your own touch.", "style": "explanation", "placement": "lower" },
+    { "id": "answer", "content": "An unexpected touch still lands.", "style": "explanation", "placement": "lower" },
+    { "id": "label", "content": "Artifact 002 / The Prediction Engine", "style": "artifactLabel", "placement": "bottom" }
+  ]
+}

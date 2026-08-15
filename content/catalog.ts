@@ -1,0 +1,42 @@
+import heatEpisode from './episodes/artifact-001-heat/episode.json';
+import heatText from './episodes/artifact-001-heat/text.json';
+import predictionEpisode from './episodes/artifact-002-prediction/episode.json';
+import predictionText from './episodes/artifact-002-prediction/text.json';
+
+type Json = Record<string, unknown>;
+interface TextFile {
+  entries: unknown[];
+}
+
+export interface EpisodeEntry {
+  readonly id: string;
+  readonly title: string;
+  /** Raw, unvalidated episode input (text merged in) for the Engine to load. */
+  readonly input: Json;
+}
+
+/** Merge the sidecar text file into the episode as its `text` list. */
+function withText(episode: Json, text: TextFile): Json {
+  return { ...episode, text: text.entries };
+}
+
+/**
+ * Single application-facing content catalogue. Studio and Player both consume
+ * this list so adding an episode never requires updating two app-local files.
+ */
+export const EPISODES: readonly EpisodeEntry[] = [
+  {
+    id: heatEpisode.id,
+    title: heatEpisode.title,
+    input: withText(heatEpisode as Json, heatText as TextFile),
+  },
+  {
+    id: predictionEpisode.id,
+    title: predictionEpisode.title,
+    input: withText(predictionEpisode as Json, predictionText as TextFile),
+  },
+];
+
+export function getEpisode(id: string): EpisodeEntry | undefined {
+  return EPISODES.find((entry) => entry.id === id);
+}

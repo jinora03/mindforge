@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-002-prediction",
+  "title": "Why Can't You Tickle Yourself?",
+  "artifactName": "The Prediction Engine",
+  "artifactNumber": 2,
+  "artifactType": "engine",
+  "domain": "dream-garden",
+  "duration": 15,
+  "environment": "environment.dreamGarden",
+  "metadata": {
+    "concept": "The brain predicts self-generated touch and cancels the sensation; an external touch is unpredicted and lands.",
+    "beats": ["arrival", "predictionFocus", "sensorySuppression", "unexpectedBurst", "resolution"],
+    "staging": "Chest-up three-quarter; character 55-70% of frame; one screen direction; external hand enters from foreground right."
+  },
+  "entities": [
+    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0], "rotation": [0, -0.15, 0] },
+    {
+      "id": "externalHand",
+      "type": "group",
+      "position": [2.4, 1.2, 0.9],
+      "rotation": [0, -1.5708, 0],
+      "visible": false,
+      "children": [
+        { "id": "palm", "type": "primitive", "geometry": "box", "size": [0.13, 0.16, 0.05], "color": "#FF7ABF", "emissive": "#FF7ABF", "emissiveIntensity": 0.5 },
+        {
+          "id": "fingers",
+          "type": "group",
+          "position": [0, 0.02, 0.08],
+          "children": [
+            { "id": "finger1", "type": "primitive", "geometry": "box", "size": [0.03, 0.03, 0.11], "color": "#FF7ABF", "emissive": "#FF7ABF", "emissiveIntensity": 0.5, "position": [-0.045, 0, 0.055], "rotation": [-0.1, 0, 0] },
+            { "id": "finger2", "type": "primitive", "geometry": "box", "size": [0.03, 0.03, 0.12], "color": "#FF7ABF", "emissive": "#FF7ABF", "emissiveIntensity": 0.5, "position": [0, 0, 0.06], "rotation": [-0.1, 0, 0] },
+            { "id": "finger3", "type": "primitive", "geometry": "box", "size": [0.03, 0.03, 0.11], "color": "#FF7ABF", "emissive": "#FF7ABF", "emissiveIntensity": 0.5, "position": [0.045, 0, 0.055], "rotation": [-0.1, 0, 0] }
+          ]
+        }
+      ]
+    },
+    { "id": "moodLight", "type": "light", "light": "point", "color": "#b48cff", "intensity": 8, "distance": 18, "position": [1.4, 2.5, 2.8] }
+  ],
+  "timeline": [
+    { "id": "idle", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.idle" },
+    { "id": "breathe", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.breathe" },
+    { "id": "face-focused", "type": "face", "at": 0, "target": "observer", "state": "focused" },
+
+    { "id": "cam-arrival", "type": "camera", "at": 0, "duration": 2.4, "preset": "camera.pushIn", "target": "observer", "from": [1.3, 1.25, 2.9], "to": [1.05, 1.18, 2.15], "fov": 38, "framingOffset": [0, 1.15, 0], "easing": "easeInOut" },
+    { "id": "hook", "type": "text", "at": 0.4, "duration": 2.2, "textId": "hook" },
+
+    { "id": "cam-hold", "type": "camera", "at": 2.4, "duration": 9, "preset": "camera.reactionCloseup", "target": "observer", "from": [1.05, 1.16, 2.05], "to": [1.0, 1.14, 2.0], "fov": 34, "framingOffset": [0, 1.15, 0] },
+
+    { "id": "self-tickle", "type": "motion", "at": 2.5, "duration": 4.4, "target": "observer", "motion": "motion.humanoid.selfTickle" },
+    { "id": "mood-focus", "type": "property", "at": 2.3, "duration": 0.6, "target": "moodLight", "property": "intensity", "from": 8, "to": 12 },
+    { "id": "ghost", "type": "effect", "at": 2.4, "duration": 1.15, "effect": "effect.ghostMovement", "from": "observer.handRight", "to": "observer.ribRight", "color": "#8A6BFF", "intensity": 1.0, "parameters": { "lead": 0.45, "size": 0.15, "shape": "hand" } },
+    { "id": "prediction-signal", "type": "effect", "at": 2.7, "duration": 2.2, "effect": "effect.signal.prediction", "through": ["observer.head", "observer.chest", "observer.handRight"], "color": "#6737FF", "intensity": 1.0 },
+    { "id": "predict", "type": "text", "at": 4.6, "duration": 2.2, "textId": "predict" },
+
+    { "id": "face-flat", "type": "face", "at": 6.4, "target": "observer", "state": "disappointed" },
+    { "id": "mood-suppress", "type": "property", "at": 6.4, "duration": 0.5, "target": "moodLight", "property": "intensity", "to": 4 },
+    { "id": "suppression", "type": "effect", "at": 6.5, "duration": 1.6, "effect": "effect.contour.pressure", "target": "observer.ribRight", "color": "#6737FF", "intensity": 0.5, "parameters": { "scale": 0.7, "releaseAt": 0.95 } },
+
+    { "id": "face-relax", "type": "face", "at": 8.1, "target": "observer", "state": "neutral" },
+    { "id": "mood-calm", "type": "property", "at": 8.1, "duration": 0.5, "target": "moodLight", "property": "intensity", "to": 8 },
+    { "id": "hand-show", "type": "visibility", "at": 8.2, "target": "externalHand", "visible": true },
+    { "id": "hand-approach", "type": "property", "at": 8.3, "duration": 0.8, "target": "externalHand", "property": "position", "to": [0.52, 1.17, 0.34], "easing": "easeInOut" },
+
+    { "id": "finger-curls", "type": "objectMotion", "at": 9.0, "duration": 0.7, "target": "fingers", "motion": "motion.object.curl", "intensity": 1.0, "parameters": { "curls": 2, "amount": 1.1 } },
+
+    { "id": "face-surprised", "type": "face", "at": 9.2, "target": "observer", "state": "surprised" },
+    { "id": "mood-burst", "type": "property", "at": 9.2, "duration": 0.25, "target": "moodLight", "property": "intensity", "to": 22 },
+    { "id": "squirm", "type": "motion", "at": 9.2, "duration": 3.0, "target": "observer", "motion": "motion.humanoid.surprisedSquirm" },
+    { "id": "burst", "type": "effect", "at": 9.3, "duration": 1.5, "effect": "effect.reaction.burst", "target": "observer.ribRight", "color": "#FFF7FC", "intensity": 1.0, "parameters": { "count": 46, "radius": 1.3, "size": 0.05 } },
+    { "id": "face-laughing", "type": "face", "at": 10.1, "target": "observer", "state": "laughing" },
+
+    { "id": "hand-retract", "type": "property", "at": 11.6, "duration": 1.0, "target": "externalHand", "property": "position", "to": [2.4, 1.2, 0.9], "easing": "easeInOut" },
+    { "id": "mood-resolve", "type": "property", "at": 11.6, "duration": 1.4, "target": "moodLight", "property": "intensity", "to": 9 },
+    { "id": "cam-pull", "type": "camera", "at": 11.6, "duration": 3.0, "preset": "camera.pullBack", "target": "observer", "from": [1.0, 1.14, 2.05], "to": [0.8, 1.35, 3.7], "fov": 34, "framingOffset": [0, 1.05, 0], "easing": "easeInOut" },
+    { "id": "answer", "type": "text", "at": 12.2, "duration": 2.2, "textId": "answer" },
+    { "id": "hand-hide", "type": "visibility", "at": 12.9, "target": "externalHand", "visible": false },
+    { "id": "face-settle", "type": "face", "at": 13.6, "target": "observer", "state": "neutral" },
+    { "id": "label", "type": "text", "at": 14.2, "duration": 0.8, "textId": "label" }
+  ]
+}

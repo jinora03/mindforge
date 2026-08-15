@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "0.1",
+  "id": "scene.crucible",
+  "title": "The Crucible",
+  "environment": "environment.artifactStage",
+  "entities": [
+    {
+      "id": "artifact",
+      "type": "group",
+      "position": [0, 1.2, 0],
+      "children": [
+        { "id": "artifactCore", "type": "primitive", "geometry": "icosahedron", "size": 0.65, "color": "#2a1a55", "emissive": "#FF4FC8", "emissiveIntensity": 0.2 }
+      ]
+    }
+  ],
+  "metadata": {
+    "domain": "crucible",
+    "note": "Reusable staging for science / energy / computation artifacts."
+  }
+}

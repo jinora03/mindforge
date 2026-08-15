@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    { "id": "hook", "content": "Why does thinking cost heat?", "style": "question", "placement": "upper" },
+    { "id": "enters", "content": "Information enters the engine.", "style": "explanation", "placement": "lower" },
+    { "id": "cost", "content": "Every switch and resistance costs energy.", "style": "explanation", "placement": "lower" },
+    { "id": "answer", "content": "Computation moves energy — some escapes as heat.", "style": "explanation", "placement": "lower" },
+    { "id": "label", "content": "Artifact 001 / The Heat Engine", "style": "artifactLabel", "placement": "bottom" }
+  ]
+}

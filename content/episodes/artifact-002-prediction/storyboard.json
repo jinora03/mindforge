@@ -1,0 +1,101 @@
+{
+  "episode": "artifact-002-prediction",
+  "title": "Why Can't You Tickle Yourself?",
+  "aspect": "9:16",
+  "durationSeconds": 15,
+  "contactPoint": "observer.ribRight",
+  "screenDirection": "Camera holds the character's near (screen-right) side for the whole piece. The external hand enters from the foreground on that same side, so it never crosses the axis. Face, incoming hand and rib contact stay visible together.",
+  "framingRule": "Chest-up, three-quarter. Character occupies 55-70% of frame during the explanation. Look-at ~1.05m, distance ~2.4-2.6m, fov ~34.",
+  "states": [
+    { "name": "calm", "t": [0.0, 2.2], "light": "soft even (mood ~7)", "contours": "none", "intent": "Arrive relaxed and curious." },
+    { "name": "predictionFocus", "t": [2.2, 6.4], "light": "lift (mood ~10)", "contours": "ghost hand + head-to-hand prediction signal", "intent": "Reveal the forward model leading the real hand." },
+    { "name": "sensorySuppression", "t": [6.4, 8.2], "light": "dip (mood ~3.5)", "contours": "rib contour compresses then damps to nothing", "intent": "The predicted touch is canceled; the tickle fails visibly." },
+    { "name": "unexpectedBurst", "t": [9.0, 12.0], "light": "spike (mood ~18)", "contours": "pink-to-white reaction burst at ribs", "intent": "An unpredicted touch lands; no ghost precedes it." },
+    { "name": "resolution", "t": [12.0, 15.0], "light": "settle warm (mood ~8)", "contours": "none", "intent": "The laugh settles; the field is calm." }
+  ],
+  "shots": [
+    {
+      "id": "s1-arrival",
+      "t": [0.0, 2.2],
+      "beat": "Arrival",
+      "envState": "calm",
+      "camera": { "preset": "camera.pushIn", "movement": "gentle medium-close push on the near 3/4", "occupancyPct": "≈55→62", "notes": "No distant establish. Opens already close on the character." },
+      "performance": { "pose": "idle + breathe, studying own hands", "face": "focused", "notes": "Relaxed, inquisitive." },
+      "effects": [],
+      "text": [{ "id": "hook", "content": "Why can't you tickle yourself?" }]
+    },
+    {
+      "id": "s2-prediction",
+      "t": [2.2, 6.4],
+      "beat": "Prediction focus",
+      "envState": "predictionFocus",
+      "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold, near 3/4", "occupancyPct": "≈65", "notes": "Hold so the ghost reach is unmistakable." },
+      "performance": { "pose": "selfTickle: right hand to ribs, fingers wiggle clearly", "face": "focused", "notes": "Reaction stays tiny — the point is it will fail." },
+      "effects": [
+        { "id": "ghost", "purpose": "Translucent violet ghost HAND travels handRight→ribRight, arriving ~0.3s before the real hand, then dissolves before contact. THE unforgettable visual." },
+        { "id": "prediction-signal", "purpose": "Head→hand signal: the brain issuing the forward model." }
+      ],
+      "text": [{ "id": "predict", "content": "Your brain predicts your own touch." }]
+    },
+    {
+      "id": "s3-suppression",
+      "t": [6.4, 8.2],
+      "beat": "Sensory suppression / failed tickle",
+      "envState": "sensorySuppression",
+      "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold", "occupancyPct": "≈65", "notes": "We must SEE nothing happen." },
+      "performance": { "pose": "fingers still wiggling at ribs, body relaxed, no squirm", "face": "disappointed", "notes": "Obvious failure: the tickle produces almost nothing." },
+      "effects": [{ "id": "suppression", "purpose": "Rib contour compresses inward and damps to nothing — the sensation is canceled." }],
+      "text": []
+    },
+    {
+      "id": "s4-offguard",
+      "t": [8.2, 9.0],
+      "beat": "Relaxed gap",
+      "envState": "calm",
+      "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold, same axis", "occupancyPct": "≈63", "notes": "External hand enters from foreground right. NO ghost appears — the comparison." },
+      "performance": { "pose": "hands lower, body settles", "face": "neutral", "notes": "Genuinely off-guard." },
+      "effects": [{ "id": "external-hand-enter", "purpose": "External hand travels in from the foreground; unpredicted, so no prediction visual precedes it." }],
+      "text": []
+    },
+    {
+      "id": "s5-contact",
+      "t": [9.0, 9.5],
+      "beat": "Contact",
+      "envState": "unexpectedBurst",
+      "camera": { "preset": "camera.reactionCloseup", "movement": "STABLE during touch — no shake", "occupancyPct": "≈63", "notes": "Face + hand + rib contact all in frame." },
+      "performance": { "pose": "still relaxed at the instant of contact", "face": "neutral", "notes": "Reaction is delayed until just after contact." },
+      "effects": [{ "id": "finger-curls", "purpose": "External hand does two fast finger curls at the ribs (motion.object.curl)." }],
+      "text": []
+    },
+    {
+      "id": "s6-burst",
+      "t": [9.4, 12.0],
+      "beat": "Unexpected burst",
+      "envState": "unexpectedBurst",
+      "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold", "occupancyPct": "≈66", "notes": "Let the performance carry it." },
+      "performance": { "pose": "playful squirm: torso twist, shoulder compression, bent knees, defensive arm pull-in", "face": "surprised → laughing", "notes": "Eased onset. Delighted flinch, NOT electrocution or pain." },
+      "effects": [{ "id": "burst", "purpose": "Pink→white reaction burst at the ribs; light spikes." }],
+      "text": []
+    },
+    {
+      "id": "s7-resolution",
+      "t": [12.0, 14.2],
+      "beat": "Resolution",
+      "envState": "resolution",
+      "camera": { "preset": "camera.pullBack", "movement": "small pull to breathe", "occupancyPct": "≈66→55", "notes": "Only move now, at the release." },
+      "performance": { "pose": "settle, still amused", "face": "laughing → neutral", "notes": "External hand retracts." },
+      "effects": [],
+      "text": [{ "id": "answer", "content": "An unexpected touch still lands." }]
+    },
+    {
+      "id": "s8-echo",
+      "t": [14.2, 15.0],
+      "beat": "Echo",
+      "envState": "resolution",
+      "camera": { "preset": "camera.pullBack", "movement": "settled", "occupancyPct": "≈55", "notes": "Brand echo." },
+      "performance": { "pose": "calm", "face": "neutral", "notes": "" },
+      "effects": [],
+      "text": [{ "id": "label", "content": "Artifact 002 / The Prediction Engine" }]
+    }
+  ]
+}

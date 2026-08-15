@@ -1,0 +1,30 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@mindforge/schema": ["packages/schema/src/index.ts"],
+      "@mindforge/engine": ["packages/engine/src/index.ts"],
+      "@mindforge/style": ["packages/style/src/index.ts"],
+      "@mindforge/characters": ["packages/characters/src/index.ts"],
+      "@mindforge/motions": ["packages/motions/src/index.ts"],
+      "@mindforge/effects": ["packages/effects/src/index.ts"],
+      "@mindforge/cameras": ["packages/cameras/src/index.ts"],
+      "@mindforge/environments": ["packages/environments/src/index.ts"],
+      "@mindforge/library": ["packages/library/src/index.ts"],
+      "@mindforge/themes": ["packages/themes/src/index.ts"],
+      "@content/*": ["content/*"]
+    }
+  },
+  "include": [
+    "packages/*/src/**/*.ts",
+    "packages/*/src/**/*.tsx",
+    "apps/*/src/**/*.ts",
+    "apps/*/src/**/*.tsx",
+    "content/**/*.ts",
+    "tools/**/*.ts",
+    "tests/**/*.ts"
+  ],
+  "exclude": ["**/dist/**", "**/node_modules/**"]
+}
