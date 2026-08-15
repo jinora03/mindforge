@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type { LightEntity, PrimitiveEntity, Vec3 } from '@mindforge/schema';
-import type { Entity, EntityKind, FrameContext } from './EngineTypes';
+import type { Entity, EntityKind, FrameContext, PrefabInstance } from './EngineTypes';
 import { disposeObject3D } from './DisposalManager';
 
 type Scaleable = number | Vec3 | undefined;
@@ -74,6 +74,33 @@ abstract class BaseEntity implements Entity {
   dispose(): void {
     disposeObject3D(this.object3d);
     this.object3d.removeFromParent();
+  }
+}
+
+
+export class PrefabEntityImpl extends BaseEntity {
+  readonly kind = 'prefab' as const;
+  private readonly anchors: Readonly<Record<string, THREE.Object3D>>;
+
+  constructor(
+    id: string,
+    private readonly instance: PrefabInstance,
+  ) {
+    super(id, instance.object3d);
+    this.anchors = instance.anchors ?? {};
+  }
+
+  override getAnchor(name: string): THREE.Object3D | undefined {
+    return this.anchors[name];
+  }
+
+  override anchorNames(): string[] {
+    return Object.keys(this.anchors).sort();
+  }
+
+  override dispose(): void {
+    this.instance.dispose?.();
+    super.dispose();
   }
 }
 

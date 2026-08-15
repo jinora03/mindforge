@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { HexColorSchema, RegistryIdSchema, Vec3Schema } from './common';
 
 /** Entity kinds the Engine knows how to build. */
-export const ENTITY_TYPES = ['character', 'primitive', 'group', 'light'] as const;
+export const ENTITY_TYPES = ['character', 'prefab', 'primitive', 'group', 'light'] as const;
 
 /** Procedural primitive shapes. All default to faceted / flat-shaded forms. */
 export const PRIMITIVE_GEOMETRIES = [
@@ -31,6 +31,18 @@ const CharacterEntitySchema = z
     id: z.string().min(1),
     type: z.literal('character'),
     /** Registry id of the character factory, e.g. `character.observer`. */
+    factory: RegistryIdSchema,
+    parameters: z.record(z.unknown()).optional(),
+    ...TransformFields,
+  })
+  .strict();
+
+
+const PrefabEntitySchema = z
+  .object({
+    id: z.string().min(1),
+    type: z.literal('prefab'),
+    /** Semantic visual factory resolved by the active theme, e.g. `prefab.externalHand`. */
     factory: RegistryIdSchema,
     parameters: z.record(z.unknown()).optional(),
     ...TransformFields,
@@ -84,6 +96,7 @@ export interface GroupEntity {
 
 export type EntityDefinition =
   | z.infer<typeof CharacterEntitySchema>
+  | z.infer<typeof PrefabEntitySchema>
   | z.infer<typeof PrimitiveEntitySchema>
   | z.infer<typeof LightEntitySchema>
   | GroupEntity;
@@ -92,6 +105,7 @@ export const EntityDefinitionSchema: z.ZodType<EntityDefinition, z.ZodTypeDef, u
   () =>
     z.discriminatedUnion('type', [
       CharacterEntitySchema,
+      PrefabEntitySchema,
       PrimitiveEntitySchema,
       LightEntitySchema,
       GroupEntitySchema,
@@ -108,11 +122,13 @@ const GroupEntitySchema = z
   .strict();
 
 export type CharacterEntity = z.infer<typeof CharacterEntitySchema>;
+export type PrefabEntity = z.infer<typeof PrefabEntitySchema>;
 export type PrimitiveEntity = z.infer<typeof PrimitiveEntitySchema>;
 export type LightEntity = z.infer<typeof LightEntitySchema>;
 
 export {
   CharacterEntitySchema,
+  PrefabEntitySchema,
   PrimitiveEntitySchema,
   LightEntitySchema,
   GroupEntitySchema,

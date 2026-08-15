@@ -14,6 +14,18 @@ export const TIMELINE_EVENT_TYPES = [
 ] as const;
 
 /** Face states the procedural humanoid can express. */
+export const VISUAL_TONES = [
+  'neutral',
+  'information',
+  'prediction',
+  'suppression',
+  'reaction',
+  'insight',
+  'heat',
+] as const;
+
+export const VisualToneSchema = z.enum(VISUAL_TONES);
+
 export const FACE_STATES = [
   'neutral',
   'confused',
@@ -81,6 +93,9 @@ const EffectEventSchema = z
     from: z.string().optional(),
     to: z.string().optional(),
     through: z.array(z.string()).optional(),
+    /** Semantic visual meaning interpreted by the active theme. */
+    tone: VisualToneSchema.optional(),
+    /** Low-level override retained for tooling/debug content; production episodes should prefer `tone`. */
     color: HexColorSchema.optional(),
   })
   .strict();
@@ -160,6 +175,7 @@ export const TimelineEventSchema = z.discriminatedUnion('type', [
   CallbackEventSchema,
 ]);
 
+export type VisualTone = z.infer<typeof VisualToneSchema>;
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 export type MotionEvent = z.infer<typeof MotionEventSchema>;
 export type ObjectMotionEvent = z.infer<typeof ObjectMotionEventSchema>;

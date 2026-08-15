@@ -5,6 +5,7 @@
  */
 export { AssetRegistry } from './AssetRegistry';
 export { CharacterRegistry } from './CharacterRegistry';
+export { PrefabRegistry } from './PrefabRegistry';
 export { MotionRegistry } from './MotionRegistry';
 export { EffectRegistry } from './EffectRegistry';
 export { CameraRegistry } from './CameraRegistry';

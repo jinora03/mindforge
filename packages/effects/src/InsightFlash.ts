@@ -1,7 +1,6 @@
 import * as THREE from 'three';
-import { PALETTE } from '@mindforge/style';
 import type { ActionContext, EffectFactory, EffectInstance } from '@mindforge/engine';
-import { readNumber } from './EffectTypes';
+import { effectColor, readNumber } from './EffectTypes';
 
 /**
  * A controlled white flash marking a key answer. Opacity is capped and brief so
@@ -11,7 +10,7 @@ import { readNumber } from './EffectTypes';
 export const createInsightFlash: EffectFactory = ({ event }): EffectInstance => {
   const maxOpacity = Math.min(0.55, readNumber(event, 'maxOpacity', 0.45)) * (event.intensity ?? 1);
   const material = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(event.color ?? PALETTE.insightWhite),
+    color: effectColor(event, 'insight'),
     side: THREE.BackSide,
     transparent: true,
     opacity: 0,

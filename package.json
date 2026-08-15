@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "validate:episodes": "tsx tools/validate-episodes.ts",
-    "generate:catalog": "tsx tools/generate-library-catalog.ts"
+    "generate:catalog": "tsx tools/generate-library-catalog.ts",
+    "check": "pnpm lint && pnpm test && pnpm validate:episodes && pnpm build"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

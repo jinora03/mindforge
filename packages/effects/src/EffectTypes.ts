@@ -1,6 +1,6 @@
 import * as THREE from 'three';
-import { PALETTE, type PaletteToken } from '@mindforge/style';
-import type { EffectEvent, SceneServices } from '@mindforge/engine';
+import { PALETTE } from '@mindforge/style';
+import type { EffectEvent, SceneServices, VisualTone } from '@mindforge/engine';
 
 const UP = new THREE.Vector3(0, 1, 0);
 
@@ -10,10 +10,30 @@ export function readNumber(event: EffectEvent, key: string, fallback: number): n
   return typeof value === 'number' ? value : fallback;
 }
 
-/** Resolve an effect colour: explicit event colour, else a palette token. */
-export function effectColor(event: EffectEvent, fallback: PaletteToken): THREE.Color {
-  return new THREE.Color(event.color ?? PALETTE[fallback]);
+/**
+ * Transitional colour resolution for the retired prototype renderer. Episodes
+ * now express semantic tones; Phase 1's Voxel factories will map the same tones
+ * to an entirely different palette and effect language.
+ */
+const LEGACY_TONE_COLORS: Record<VisualTone, string> = {
+  neutral: PALETTE.insightWhite,
+  information: PALETTE.forgeViolet,
+  prediction: PALETTE.forgeViolet,
+  suppression: PALETTE.deepViolet,
+  reaction: PALETTE.signalPink,
+  insight: PALETTE.insightWhite,
+  heat: PALETTE.signalPink,
+};
+
+export function legacyToneColor(tone: VisualTone): THREE.Color {
+  return new THREE.Color(LEGACY_TONE_COLORS[tone]);
 }
+
+/** Explicit debug colour wins; otherwise the active semantic tone is used. */
+export function effectColor(event: EffectEvent, fallback: VisualTone): THREE.Color {
+  return new THREE.Color(event.color ?? LEGACY_TONE_COLORS[event.tone ?? fallback]);
+}
+
 
 /**
  * Resolve the ordered anchor list an effect should follow: `through` if given,

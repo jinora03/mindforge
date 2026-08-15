@@ -19,6 +19,28 @@ describe('MindForge Script schema', () => {
     expect(() => parseEpisode(validEpisode)).not.toThrow();
   });
 
+
+  it('accepts semantic prefab entities and effect tones', () => {
+    const themed = {
+      ...validEpisode,
+      entities: [
+        { id: 'hand', type: 'prefab', factory: 'prefab.externalHand' },
+      ],
+      timeline: [
+        {
+          id: 'reaction',
+          type: 'effect',
+          at: 1,
+          duration: 1,
+          effect: 'effect.reaction.burst',
+          target: 'hand',
+          tone: 'reaction',
+        },
+      ],
+    };
+    expect(safeParseEpisode(themed).success).toBe(true);
+  });
+
   it('rejects an episode missing a required field (duration)', () => {
     const { duration: _omit, ...invalid } = validEpisode;
     const result = safeParseEpisode(invalid);

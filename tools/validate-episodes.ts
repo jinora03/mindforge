@@ -8,7 +8,7 @@ import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createDefaultLibrary } from '@mindforge/library';
-import { loadEpisode } from '@mindforge/engine';
+import { loadEpisode, SceneRuntime } from '@mindforge/engine';
 import { parseScene, parseTextFile } from '@mindforge/schema';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -31,6 +31,12 @@ for (const entry of listDirs(episodesDir)) {
       episode.text = parseTextFile(readJson(textPath)).entries;
     }
     const loaded = loadEpisode(episode, library);
+    const runtime = new SceneRuntime();
+    try {
+      runtime.load(episode, library);
+    } finally {
+      runtime.dispose();
+    }
     console.log(`  ✓ episode ${loaded.script.id} (${loaded.script.timeline.length} events)`);
   } catch (error) {
     failures++;

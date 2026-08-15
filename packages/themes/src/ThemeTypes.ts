@@ -3,6 +3,7 @@ import type {
   CharacterFactory,
   EffectFactory,
   EnvironmentFactory,
+  PrefabFactory,
   PostProcessingConfig,
 } from '@mindforge/engine';
 import type { TextPlacement, TextStyle } from '@mindforge/schema';
@@ -39,6 +40,7 @@ export interface MindForgeTheme {
   readonly label: string;
   readonly description: string;
   readonly characters: Readonly<Record<string, CharacterFactory>>;
+  readonly prefabs: Readonly<Record<string, PrefabFactory>>;
   readonly effects: Readonly<Record<string, EffectFactory>>;
   readonly environments: Readonly<Record<string, EnvironmentFactory>>;
   readonly assets: readonly AssetDescriptor[];

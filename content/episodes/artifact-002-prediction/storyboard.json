@@ -10,7 +10,7 @@
     { "name": "calm", "t": [0.0, 2.2], "light": "soft even (mood ~7)", "contours": "none", "intent": "Arrive relaxed and curious." },
     { "name": "predictionFocus", "t": [2.2, 6.4], "light": "lift (mood ~10)", "contours": "ghost hand + head-to-hand prediction signal", "intent": "Reveal the forward model leading the real hand." },
     { "name": "sensorySuppression", "t": [6.4, 8.2], "light": "dip (mood ~3.5)", "contours": "rib contour compresses then damps to nothing", "intent": "The predicted touch is canceled; the tickle fails visibly." },
-    { "name": "unexpectedBurst", "t": [9.0, 12.0], "light": "spike (mood ~18)", "contours": "pink-to-white reaction burst at ribs", "intent": "An unpredicted touch lands; no ghost precedes it." },
+    { "name": "unexpectedBurst", "t": [9.0, 12.0], "light": "spike (mood ~18)", "contours": "strong theme-owned reaction burst at ribs", "intent": "An unpredicted touch lands; no ghost precedes it." },
     { "name": "resolution", "t": [12.0, 15.0], "light": "settle warm (mood ~8)", "contours": "none", "intent": "The laugh settles; the field is calm." }
   ],
   "shots": [
@@ -32,7 +32,7 @@
       "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold, near 3/4", "occupancyPct": "≈65", "notes": "Hold so the ghost reach is unmistakable." },
       "performance": { "pose": "selfTickle: right hand to ribs, fingers wiggle clearly", "face": "focused", "notes": "Reaction stays tiny — the point is it will fail." },
       "effects": [
-        { "id": "ghost", "purpose": "Translucent violet ghost HAND travels handRight→ribRight, arriving ~0.3s before the real hand, then dissolves before contact. THE unforgettable visual." },
+        { "id": "ghost", "purpose": "Translucent predicted ghost HAND travels handRight→ribRight, arriving ~0.3s before the real hand, then dissolves before contact. THE unforgettable visual." },
         { "id": "prediction-signal", "purpose": "Head→hand signal: the brain issuing the forward model." }
       ],
       "text": [{ "id": "predict", "content": "Your brain predicts your own touch." }]
@@ -74,7 +74,7 @@
       "envState": "unexpectedBurst",
       "camera": { "preset": "camera.reactionCloseup", "movement": "stable hold", "occupancyPct": "≈66", "notes": "Let the performance carry it." },
       "performance": { "pose": "playful squirm: torso twist, shoulder compression, bent knees, defensive arm pull-in", "face": "surprised → laughing", "notes": "Eased onset. Delighted flinch, NOT electrocution or pain." },
-      "effects": [{ "id": "burst", "purpose": "Pink→white reaction burst at the ribs; light spikes." }],
+      "effects": [{ "id": "burst", "purpose": "Theme-owned reaction burst at the ribs; light spikes." }],
       "text": []
     },
     {

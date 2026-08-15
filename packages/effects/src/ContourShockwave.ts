@@ -13,7 +13,7 @@ export const createContourShockwave: EffectFactory = ({ event, services }): Effe
   const thickness = readNumber(event, 'thickness', 0.05);
 
   const material = new THREE.MeshBasicMaterial({
-    color: effectColor(event, 'signalPink'),
+    color: effectColor(event, 'heat'),
     transparent: true,
     toneMapped: false,
   });

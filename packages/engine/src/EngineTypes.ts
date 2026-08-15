@@ -54,7 +54,7 @@ export interface Disposable {
   dispose(): void;
 }
 
-export type EntityKind = 'character' | 'primitive' | 'group' | 'light';
+export type EntityKind = 'character' | 'prefab' | 'primitive' | 'group' | 'light';
 
 /**
  * A generic scene participant. The Engine never knows what an entity *means*;
@@ -186,6 +186,25 @@ export interface CharacterBuildContext {
 
 export type CharacterFactory = (ctx: CharacterBuildContext) => Entity;
 
+/* ---------------------------------------------------------------- prefabs -- */
+
+export interface PrefabBuildContext {
+  readonly id: string;
+  readonly parameters: Readonly<Record<string, unknown>>;
+}
+
+/**
+ * Theme-owned visual assembly for a semantic scene object. Anchors are named
+ * parts that episode choreography may target without knowing the mesh tree.
+ */
+export interface PrefabInstance {
+  readonly object3d: THREE.Object3D;
+  readonly anchors?: Readonly<Record<string, THREE.Object3D>>;
+  dispose?(): void;
+}
+
+export type PrefabFactory = (ctx: PrefabBuildContext) => PrefabInstance;
+
 /* ---------------------------------------------------------------- assets --- */
 
 /**
@@ -213,6 +232,7 @@ export interface ReadonlyRegistry<T> {
 /** The full set of capability registries the Engine executes against. */
 export interface CapabilityRegistries {
   readonly characters: ReadonlyRegistry<CharacterFactory>;
+  readonly prefabs: ReadonlyRegistry<PrefabFactory>;
   readonly motions: ReadonlyRegistry<MotionFactory>;
   readonly effects: ReadonlyRegistry<EffectFactory>;
   readonly cameras: ReadonlyRegistry<CameraFactory>;

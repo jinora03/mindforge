@@ -3,16 +3,18 @@ import { createDefaultLibrary, createLibraryForTheme } from '@mindforge/library'
 import { DEFAULT_THEME_ID, getTheme, listThemes } from '@mindforge/themes';
 
 describe('MindForge visual themes', () => {
-  it('keeps Original as the backwards-compatible default', () => {
-    expect(DEFAULT_THEME_ID).toBe('original');
-    expect(listThemes()).toContain('original');
-    expect(getTheme('original').label).toBe('MindForge Original');
-    expect(createDefaultLibrary().themeId).toBe('original');
+  it('keeps the retired visuals only as a transitional legacy theme', () => {
+    expect(DEFAULT_THEME_ID).toBe('legacy');
+    expect(listThemes()).toEqual(['legacy']);
+    expect(getTheme('legacy').label).toBe('Legacy Prototype');
+    expect(createDefaultLibrary().themeId).toBe('legacy');
   });
 
-  it('builds the same semantic capability ids through a named theme', () => {
-    const library = createLibraryForTheme('original');
+  it('registers semantic visual capabilities through the active theme', () => {
+    const library = createLibraryForTheme('legacy');
     expect(library.characters.has('character.observer')).toBe(true);
+    expect(library.prefabs.has('prefab.externalHand')).toBe(true);
+    expect(library.prefabs.has('prefab.heatEngine')).toBe(true);
     expect(library.effects.has('effect.reaction.burst')).toBe(true);
     expect(library.environments.has('environment.dreamGarden')).toBe(true);
     expect(library.motions.has('motion.humanoid.selfTickle')).toBe(true);

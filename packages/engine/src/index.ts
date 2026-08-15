@@ -27,6 +27,8 @@ export type {
   FaceEvent,
   CallbackEvent,
   EntityDefinition,
+  PrefabEntity,
+  VisualTone,
   EpisodeScript,
 } from '@mindforge/schema';
 export * from './errors';

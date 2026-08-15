@@ -1,6 +1,6 @@
 # Bible integration
 
-The MindForge Bibles (`docs/bibles/`) are the creative source of truth. They **guide** the
+The current MindForge creative documents (`docs/bibles/`) guide the platform. The **v1 Design Bible is retired**; `MindForge_Visual_Direction_v2.md` is the visual authority. They **guide** the
 platform's architecture, library design, and episode creation, but they are **never a runtime
 dependency**: the generic Engine does not import, parse, or load the Bible documents. Compiled
 runtime code uses the resulting style modules, motion systems, effects, environments, schemas,
@@ -10,7 +10,7 @@ and episode content.
 
 | Bible | Primary implementation areas |
 | --- | --- |
-| Design Bible | `packages/style`, `packages/effects`, Studio preview, Player presentation |
+| Visual Direction v2 | `packages/themes`, theme-owned prefabs/effects/environments, Studio/Player presentation |
 | Motion Bible | `packages/motions`, `packages/cameras`, `packages/effects`, `packages/engine/src/Timeline.ts` |
 | Universe Bible | `packages/environments`, `content/scenes`, `content/episodes`, episode metadata, artifact naming |
 | Implementation Map | Responsibility assignment and enforcement type (this document) |
@@ -26,9 +26,9 @@ and episode content.
 
 | Rule | Implementation | Enforcement |
 | --- | --- | --- |
-| Void Ink / violet-pink palette tokens | `packages/style/src/palette.ts` | Automatic |
-| Brand materials (Forge Ceramic, Signal Light, …) | `packages/style/src/materials.ts` | Automatic |
-| Restrained bloom, silhouette-preserving rim light | `packages/style/src/{post-processing,lighting}.ts` + Engine composer | Guided |
+| Theme-owned palette/materials | `packages/themes` (Voxel in Phase 1) | Automatic / Guided |
+| Semantic prefab ids instead of episode-authored mesh trees | Schema + `PrefabRegistry` + theme factories | Automatic / Guided |
+| Semantic effect tones instead of global color meanings | Effect event `tone` + theme effect implementation | Guided |
 | 9:16 aspect and safe zones | Engine viewport + `style/typography.ts` `SAFE_ZONES` | Automatic / Guided |
 | Contours reveal hidden forces (never wallpaper) | Effect APIs require a semantic state (pressure, prediction, heat, …) + episode review | Guided |
 | Named contour behaviours (compress, rupture, settle) | Effect parameters/presets | Automatic / Guided |
@@ -50,8 +50,8 @@ does not pretend to judge whether a frame is beautiful or a metaphor is apt.
 
 ## Guardrails already in place
 
-- The schema rejects non-canon `artifactType`/`domain` values and unknown palette usage is
-  discouraged by exposing only the palette tokens from `style`.
+- The schema rejects non-canon `artifactType`/`domain` values and supports semantic prefab and
+  effect-tone vocabulary so production episodes do not need to encode a theme palette.
 - The `EpisodeLoader` rejects unknown registry ids, missing entities/anchors, duplicate event
   ids, and unsupported event types — so content cannot silently drift from the library.
 - `pnpm generate:catalog` regenerates the library catalog from the actual registrations, so

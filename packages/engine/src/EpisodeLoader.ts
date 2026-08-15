@@ -41,9 +41,12 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
     const loc = { episodeId, eventId: event.id };
     switch (event.type) {
       case 'motion':
-      case 'objectMotion':
         requireRegistry(registries, 'motion', event.motion, loc);
         requireEntity(entityIds, event.target, loc);
+        break;
+      case 'objectMotion':
+        requireRegistry(registries, 'motion', event.motion, loc);
+        requireEntity(entityIds, splitRef(event.target)[0], loc);
         break;
       case 'effect':
         requireRegistry(registries, 'effect', event.effect, loc);
@@ -82,6 +85,12 @@ function validateEntities(
   for (const entity of entities) {
     if (entity.type === 'character' && !registries.characters.has(entity.factory)) {
       throw new UnknownRegistryIdError('character', entity.factory, {
+        episodeId,
+        entityId: entity.id,
+      });
+    }
+    if (entity.type === 'prefab' && !registries.prefabs.has(entity.factory)) {
+      throw new UnknownRegistryIdError('prefab', entity.factory, {
         episodeId,
         entityId: entity.id,
       });

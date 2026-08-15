@@ -23,6 +23,33 @@ describe('loadEpisode', () => {
     expect(loaded.entityIds.has('observer')).toBe(true);
   });
 
+
+  it('loads semantic prefabs and permits object motions on prefab anchors', () => {
+    const themed = {
+      ...baseEpisode,
+      entities: [{ id: 'hand', type: 'prefab', factory: 'prefab.externalHand' }],
+      timeline: [
+        {
+          id: 'curl',
+          type: 'objectMotion',
+          at: 0,
+          duration: 1,
+          target: 'hand.fingers',
+          motion: 'motion.object.curl',
+        },
+      ],
+    };
+    expect(() => loadEpisode(themed, library)).not.toThrow();
+  });
+
+  it('reports an unknown prefab id', () => {
+    const bad = {
+      ...baseEpisode,
+      entities: [{ id: 'thing', type: 'prefab', factory: 'prefab.missing' }],
+    };
+    expect(() => loadEpisode(bad, library)).toThrow(/prefab.*missing/);
+  });
+
   it('reports an unknown motion id', () => {
     const bad = {
       ...baseEpisode,

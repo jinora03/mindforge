@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 import type { ActionContext, EffectFactory, EffectInstance } from '@mindforge/engine';
-import { PALETTE } from '@mindforge/style';
-import { readNumber } from './EffectTypes';
+
+import { effectColor, legacyToneColor, readNumber } from './EffectTypes';
 
 const RING_COUNT = 6;
 
 /**
  * Contour rings that surround an object and communicate pressure. As pressure
- * rises the rings compress inward and their colour shifts violet → pink; in the
+ * rises the rings compress inward and their colour shifts from baseline → active theme tone; in the
  * final release they expand and rupture outward, then fade. This is a truth
  * layer, not decoration (Design Bible §5, Motion Bible §5).
  */
@@ -19,8 +19,8 @@ export const createContourPressure: EffectFactory = ({ event, services }): Effec
   const group = new THREE.Group();
   group.visible = false;
 
-  const violet = new THREE.Color(PALETTE.forgeViolet);
-  const pink = new THREE.Color(event.color ?? PALETTE.signalPink);
+  const base = legacyToneColor(event.tone === 'heat' ? 'information' : 'prediction');
+  const active = effectColor(event, event.tone ?? 'suppression');
   const rings: THREE.Mesh[] = [];
   const materials: THREE.MeshBasicMaterial[] = [];
 
@@ -53,7 +53,7 @@ export const createContourPressure: EffectFactory = ({ event, services }): Effec
         // Compress inward with pressure, then expand outward on release.
         const factor = releasing ? 1 + release * 1.4 : 1 - pressure * 0.35;
         rings[i].scale.setScalar(factor);
-        materials[i].color.copy(violet).lerp(pink, pressure);
+        materials[i].color.copy(base).lerp(active, pressure);
         materials[i].opacity = intensity * (releasing ? 0.6 * (1 - release) : 0.35 + 0.45 * pressure);
       }
     },

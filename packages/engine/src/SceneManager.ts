@@ -31,13 +31,14 @@ import {
 import {
   GroupEntityImpl,
   LightEntityImpl,
+  PrefabEntityImpl,
   PrimitiveEntityImpl,
   applyTransform,
   createLight,
   createPrimitiveGeometry,
   createPrimitiveMaterial,
 } from './entities';
-import { InstanceCreationError } from './errors';
+import { InstanceCreationError, type ErrorLocation } from './errors';
 import { hashSeed } from './rng';
 import type { LoadedEpisode } from './EpisodeLoader';
 
@@ -127,6 +128,20 @@ export class SceneManager {
         applyTransform(entity.object3d, def);
         return entity;
       }
+      case 'prefab': {
+        const factory = registries.prefabs.get(def.factory);
+        let instance;
+        try {
+          instance = factory({ id: def.id, parameters: def.parameters ?? {} });
+        } catch (cause) {
+          throw new InstanceCreationError(`prefab "${def.factory}"`, cause, {
+            entityId: def.id,
+          });
+        }
+        const entity = new PrefabEntityImpl(def.id, instance);
+        applyTransform(entity.object3d, def);
+        return entity;
+      }
       case 'primitive': {
         const geometry = createPrimitiveGeometry(def.geometry, def.size);
         const material = createPrimitiveMaterial(def);
@@ -165,9 +180,25 @@ export class SceneManager {
     for (const event of script.timeline) {
       const at = event.at + (event.delay ?? 0);
       switch (event.type) {
-        case 'motion':
-        case 'objectMotion': {
+        case 'motion': {
           const target = entities.get(event.target, { episodeId: script.id, eventId: event.id });
+          const factory = registries.motions.get(event.motion);
+          const instance = this.tryCreate(
+            () => factory({ target, event, services: context }),
+            `motion "${event.motion}"`,
+            script.id,
+            event.id,
+          );
+          timeline.addMotion(
+            new MotionAction(event.id, at, event.duration ?? DEFAULT_DURATIONS.motion, event.easing, instance),
+          );
+          break;
+        }
+        case 'objectMotion': {
+          const target = resolveObjectMotionTarget(entities, event.target, {
+            episodeId: script.id,
+            eventId: event.id,
+          });
           const factory = registries.motions.get(event.motion);
           const instance = this.tryCreate(
             () => factory({ target, event, services: context }),
@@ -312,6 +343,29 @@ export class SceneManager {
       throw new InstanceCreationError(what, cause, { episodeId, eventId });
     }
   }
+}
+
+/**
+ * Object motions may target either a top-level entity id or a semantic prefab
+ * anchor such as `machine.core`. Anchor adapters are intentionally non-owning:
+ * disposing the parent prefab remains the prefab entity's responsibility.
+ */
+function resolveObjectMotionTarget(
+  entities: EntityManager,
+  ref: string,
+  location: ErrorLocation,
+): Entity {
+  const direct = entities.tryGet(ref);
+  if (direct) return direct;
+  const object3d = entities.resolveAnchor(ref, location);
+  return {
+    id: ref,
+    kind: 'group',
+    object3d,
+    getAnchor: () => undefined,
+    anchorNames: () => [],
+    dispose: () => {},
+  };
 }
 
 /* --------------------------------------------------------- property values */

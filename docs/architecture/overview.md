@@ -53,12 +53,13 @@ The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibl
 
 ## MindForge Library (`packages/library` + component packages)
 
-- `library` holds the registries (`AssetRegistry`, `CharacterRegistry`, `MotionRegistry`,
+- `library` holds the registries (`AssetRegistry`, `CharacterRegistry`, `PrefabRegistry`, `MotionRegistry`,
   `EffectRegistry`, `CameraRegistry`, `EnvironmentRegistry`) and builds a library for a theme.
 - Shared `motions` and `cameras` keep choreography stable across visual skins.
-- `themes` selects character, effect, environment, asset, typography, safe-zone, and
+- `themes` selects character, prefab, effect, environment, asset, typography, safe-zone, and
   post-processing implementations for the same semantic ids.
-- `style` currently encodes the MindForge Original Design Bible tokens and factories.
+- `style` is currently a **legacy prototype implementation dependency**. Its violet/pink tokens
+  are retired and will be replaced by theme-owned Voxel presentation in Phase 1.
 
 ## MindForge Content (`content/`)
 
@@ -82,6 +83,6 @@ playback is reproducible under pause, restart, scrubbing, reverse-seek, and slow
 ## Visual-theme boundary
 
 `createLibraryForTheme(themeId)` selects a visual skin before runtime construction. Episodes
-continue to say `character.observer` or `environment.dreamGarden`; they never say how those
-objects are drawn. The Engine therefore stays unchanged as Voxel, Toybox, or future themes
+continue to say `character.observer`, `prefab.heatEngine`, or
+`environment.dreamGarden`; they never say how those objects are drawn. The Engine therefore stays unchanged as Voxel, Toybox, or future themes
 are added. See [`themes.md`](themes.md).

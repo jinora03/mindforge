@@ -42,7 +42,7 @@ These laws keep the universe coherent while allowing each episode to feel new.
 
 1.  Concepts become mechanisms. A visual object must behave like the idea it represents.
 2.  Fields reveal truth. Contours can be distorted, hidden, or incomplete, but they do not lie.
-3.  Color is state. Violet is dormant depth, pink is active transformation, white is resolved understanding, and warm spark is rare discovery.
+3.  Visual state is semantic and theme-owned. Episodes describe states such as prediction, reaction, heat, or insight; the active visual theme chooses their colors and material language.
 4.  Nothing is merely decorative. Every recurring element must support concept, scale, mood, or navigation.
 5.  Transformation is normal. Objects can unfold, divide, invert, merge, and change scale when the concept demands it.
 6.  The Observer can witness but does not directly control the Forge unless an interactive decision episode explicitly allows it.

@@ -11,7 +11,7 @@ Examples:
 - `motion.humanoid.selfTickle`
 - `camera.reactionCloseup`
 
-A visual theme supplies the character, effect, environment, asset, typography, safe-zone,
+A visual theme supplies the character, prefab, effect, environment, asset, typography, safe-zone,
 and post-processing implementations for those semantic ids. Motions and cameras remain
 shared by default so changing a theme does not silently change episode meaning or timing.
 
@@ -44,6 +44,7 @@ stable semantic ids. Episodes should remain reusable across themes.
 
 ## v0.1 state
 
-`original` is the only registered theme and reproduces the existing violet faceted visuals.
-The architecture is intentionally ready for later `voxel` and `toybox` themes without making
-those incomplete skins available in Studio yet.
+`legacy` is the only registered theme during the migration and exists solely to keep the two
+prototype episodes runnable. It is **not** the target MindForge identity. Phase 1 adds `voxel`
+and makes it the production/default theme; `toybox` follows later. New code must not add new
+dependencies on the legacy violet/pink palette.

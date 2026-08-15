@@ -31,6 +31,11 @@ const files: Record<string, string> = {
     'Registered character factories. Reference these ids from episode `entities[].factory`.',
     library.characters.list(),
   ),
+  'prefabs.md': page(
+    'Prefabs',
+    'Registered theme-owned semantic scene assemblies. Reference from `prefab` entities via `factory`.',
+    library.prefabs.list(),
+  ),
   'motions.md': page(
     'Motions',
     'Registered humanoid and object motions. Reference from `motion`/`objectMotion` events.',

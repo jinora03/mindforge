@@ -86,16 +86,18 @@ See [`docs/architecture/episode-format.md`](docs/architecture/episode-format.md)
 ## Visual themes
 
 Episodes use stable semantic ids and do not encode a renderer skin. `packages/themes/` selects
-visual implementations for those ids while the Engine stays theme-blind. v0.1 registers only
-`original`; Voxel and Toybox are planned as separate skins. See
+visual implementations for those ids while the Engine stays theme-blind. The old violet/pink
+prototype is registered temporarily as `legacy`; **Voxel is the next production theme** and will
+replace it as the default. Toybox follows later. See
 [`docs/architecture/themes.md`](docs/architecture/themes.md).
 
 ## Library IDs
 
 Episodes reference capabilities by stable id (never by import). The authoritative list is
 generated into [`docs/library-catalog/`](docs/library-catalog/). Examples:
-`character.observer`, `motion.humanoid.walk`, `effect.contour.pressure`,
-`camera.reactionCloseup`, `environment.dreamGarden`.
+`character.observer`, `prefab.externalHand`, `prefab.heatEngine`,
+`motion.humanoid.walk`, `effect.contour.pressure`, `camera.reactionCloseup`,
+`environment.dreamGarden`.
 
 ## Assets
 

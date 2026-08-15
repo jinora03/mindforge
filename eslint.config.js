@@ -52,6 +52,7 @@ export default tseslint.config(
       'packages/environments/**/*.ts',
       'packages/characters/**/*.ts',
       'packages/style/**/*.ts',
+      'packages/themes/**/*.ts',
     ],
     rules: {
       'no-restricted-properties': [

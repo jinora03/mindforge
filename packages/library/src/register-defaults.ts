@@ -37,6 +37,9 @@ function registerThemeCapabilities(library: MindForgeLibrary, theme: MindForgeTh
   for (const [id, factory] of Object.entries(theme.characters)) {
     library.characters.register(id, factory);
   }
+  for (const [id, factory] of Object.entries(theme.prefabs)) {
+    library.prefabs.register(id, factory);
+  }
   for (const [id, factory] of Object.entries(theme.effects)) {
     library.effects.register(id, factory);
   }
@@ -58,8 +61,8 @@ export function createLibraryForTheme(themeId: string = DEFAULT_THEME_ID): MindF
 }
 
 /**
- * Backwards-compatible v0.1 entry point. Existing tests and consumers continue
- * to receive the MindForge Original visual theme unless they opt into another.
+ * Transitional v0.1 entry point. The legacy prototype visuals remain only so
+ * existing episodes can run until the Voxel theme replaces them in Phase 1.
  */
 export function createDefaultLibrary(): MindForgeLibrary {
   return createLibraryForTheme(DEFAULT_THEME_ID);

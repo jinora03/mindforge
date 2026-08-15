@@ -20,7 +20,7 @@ export const createGhostMovement: EffectFactory = ({ event, services }): EffectI
   const shape = event.parameters?.shape === 'hand' ? 'hand' : 'limb';
 
   const material = createContourEnergy({});
-  material.color = effectColor(event, 'forgeViolet');
+  material.color = effectColor(event, 'prediction');
   material.opacity = 0;
 
   const root = shape === 'hand' ? buildGhostHand(size, material) : buildGhostLimb(size, material);

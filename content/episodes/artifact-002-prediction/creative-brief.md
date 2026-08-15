@@ -16,7 +16,7 @@ character and one contact point (the ribs).
 
 ## 2. The unforgettable visual (non-negotiable)
 
-**A translucent violet ghost hand reaches the character's ribs a beat _before_
+**A translucent predicted ghost hand reaches the character's ribs a beat _before_
 their real hand arrives.** The ghost is the prediction. It leads the real motion
 and dissolves just before real contact.
 
@@ -65,7 +65,7 @@ no drift, no shake during the touch.
 
 ## 6. Environment as a storyteller (Dream Garden)
 
-Dream Garden stays the calm violet base. Five authored **states**, expressed
+Dream Garden remains a calm staging space; its actual palette and geometry are owned by the active theme. Five authored **states**, expressed
 through the timeline (mood light + contour effects + performance) — not through a
 uniform decorative background. Contours appear **only** to reveal prediction or
 sensation.
@@ -75,7 +75,7 @@ sensation.
 | `calm` | 0.0–2.2 | Soft even light, gentle motes, no contours. |
 | `predictionFocus` | 2.2–6.4 | Light lifts on the character; ghost hand + head→hand prediction signal reveal the forward model. |
 | `sensorySuppression` | 6.4–8.2 | Light dips; a contour compresses at the ribs and **damps to nothing** — the felt sensation is canceled. Reaction is near-zero. |
-| `unexpectedBurst` | 9.0–12.0 | Light spikes; a pink→white reaction burst at the ribs. The prediction machinery is absent. |
+| `unexpectedBurst` | 9.0–12.0 | Light spikes; a strong theme-owned reaction burst at the ribs. The prediction machinery is absent. |
 | `resolution` | 12.0–15.0 | Light settles warm; contours gone; the field is calm again. |
 
 ## 7. Text (minimal — action explains first)
