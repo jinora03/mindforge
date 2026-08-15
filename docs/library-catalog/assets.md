@@ -4,15 +4,15 @@
 
 Registered asset descriptors. v0.1 content is procedural; these ids reserve stable names for the future Renderer / GLB path.
 
-- `model.character.observer` — model (procedural) — The Observer humanoid
-- `model.character.externalHand` — model (procedural) — External touching hand
-- `model.machine.heatEngine` — model (procedural) — The Heat Engine artifact
-- `model.prop.cube` — model (procedural)
-- `model.prop.lever` — model (procedural)
-- `model.prop.door` — model (procedural)
-- `model.environment.laboratory` — model (procedural)
 - `animation.humanoid.walk` — animation (procedural)
 - `animation.humanoid.run` — animation (procedural)
 - `animation.humanoid.laugh` — animation (procedural)
 - `audio.impact.soft` — audio
 - `audio.transition.rise` — audio
+- `model.character.observer` — model (procedural) — Original MindForge block-built Observer character
+- `model.character.externalHand` — model (procedural) — Original MindForge block-built external hand
+- `model.machine.heatEngine` — model (procedural) — Original MindForge block-built Heat Engine
+- `model.prop.cube` — model (procedural)
+- `model.prop.lever` — model (procedural)
+- `model.prop.door` — model (procedural)
+- `model.environment.laboratory` — model (procedural)

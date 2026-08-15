@@ -86,9 +86,9 @@ See [`docs/architecture/episode-format.md`](docs/architecture/episode-format.md)
 ## Visual themes
 
 Episodes use stable semantic ids and do not encode a renderer skin. `packages/themes/` selects
-visual implementations for those ids while the Engine stays theme-blind. The old violet/pink
-prototype is registered temporarily as `legacy`; **Voxel is the next production theme** and will
-replace it as the default. Toybox follows later. See
+visual implementations for those ids while the Engine stays theme-blind. The original block-built **Voxel** system is now the production/default theme. The retired
+violet/pink prototype remains registered temporarily as `legacy` only for migration/debug
+comparison. Toybox follows later. See
 [`docs/architecture/themes.md`](docs/architecture/themes.md).
 
 ## Library IDs

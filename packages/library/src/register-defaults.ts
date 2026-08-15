@@ -13,7 +13,7 @@ export const SHARED_ASSETS: AssetDescriptor[] = [
   { id: 'audio.transition.rise', kind: 'audio' },
 ];
 
-/** Compatibility catalogue for the default (Original) theme. */
+/** Compatibility catalogue for whichever visual theme is the production default. */
 export const DEFAULT_ASSETS: AssetDescriptor[] = [
   ...SHARED_ASSETS,
   ...getTheme(DEFAULT_THEME_ID).assets,
@@ -60,10 +60,7 @@ export function createLibraryForTheme(themeId: string = DEFAULT_THEME_ID): MindF
   return library;
 }
 
-/**
- * Transitional v0.1 entry point. The legacy prototype visuals remain only so
- * existing episodes can run until the Voxel theme replaces them in Phase 1.
- */
+/** Build the production-default library. Theme selection remains outside the Engine. */
 export function createDefaultLibrary(): MindForgeLibrary {
   return createLibraryForTheme(DEFAULT_THEME_ID);
 }

@@ -58,8 +58,9 @@ The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibl
 - Shared `motions` and `cameras` keep choreography stable across visual skins.
 - `themes` selects character, prefab, effect, environment, asset, typography, safe-zone, and
   post-processing implementations for the same semantic ids.
-- `style` is currently a **legacy prototype implementation dependency**. Its violet/pink tokens
-  are retired and will be replaced by theme-owned Voxel presentation in Phase 1.
+- `style` is now a **legacy prototype implementation dependency only**. Production Voxel
+  presentation lives inside `packages/themes/src/voxel/`; new production visuals must not depend
+  on the retired violet/pink tokens.
 
 ## MindForge Content (`content/`)
 

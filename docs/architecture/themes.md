@@ -42,9 +42,12 @@ shared motion code. That would make every future visual skin leak across the run
 Instead, add a new theme definition under `packages/themes/` and provide visual variants for
 stable semantic ids. Episodes should remain reusable across themes.
 
-## v0.1 state
+## Phase 1A state
 
-`legacy` is the only registered theme during the migration and exists solely to keep the two
-prototype episodes runnable. It is **not** the target MindForge identity. Phase 1 adds `voxel`
-and makes it the production/default theme; `toybox` follows later. New code must not add new
-dependencies on the legacy violet/pink palette.
+`voxel` is now the production/default theme. It supplies its own block-built character, semantic
+prefabs, environments, effects, palette, lighting, typography, and post-processing while reusing
+the same episode ids, motions, cameras, Engine contracts, and authoritative timeline.
+
+`legacy` remains registered only as a temporary migration/debug comparison so the old prototype
+can still be inspected while Voxel reaches parity. New production work must target `voxel`; do
+not add new dependencies on the retired violet/pink palette. `toybox` remains a later phase.

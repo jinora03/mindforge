@@ -26,10 +26,10 @@ and episode content.
 
 | Rule | Implementation | Enforcement |
 | --- | --- | --- |
-| Theme-owned palette/materials | `packages/themes` (Voxel in Phase 1) | Automatic / Guided |
+| Theme-owned palette/materials | `packages/themes/src/voxel` | Automatic / Guided |
 | Semantic prefab ids instead of episode-authored mesh trees | Schema + `PrefabRegistry` + theme factories | Automatic / Guided |
 | Semantic effect tones instead of global color meanings | Effect event `tone` + theme effect implementation | Guided |
-| 9:16 aspect and safe zones | Engine viewport + `style/typography.ts` `SAFE_ZONES` | Automatic / Guided |
+| 9:16 aspect and safe zones | Engine viewport + active theme `presentation.safeZones` | Automatic / Guided |
 | Contours reveal hidden forces (never wallpaper) | Effect APIs require a semantic state (pressure, prediction, heat, …) + episode review | Guided |
 | Named contour behaviours (compress, rupture, settle) | Effect parameters/presets | Automatic / Guided |
 | Camera reveals information (no passive orbit default) | Camera presets + review | Guided |

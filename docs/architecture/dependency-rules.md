@@ -45,9 +45,9 @@ Schema → Three.js               Style → episode content
   performs shot *selection* and application. `packages/cameras/CameraDirector` is the reusable
   helper the presets are built from (target resolution, offset interpolation, framing, shake);
   it operates only on Engine types and never touches the renderer.
-- **Post-processing config is data.** The current legacy theme still sources bloom/vignette
-  numbers from `style`; Phase 1 moves production presentation into the Voxel theme. The app
-  passes plain config into the Engine, avoiding `Engine → Theme/Style`.
+- **Post-processing config is data.** The production Voxel theme owns its bloom/vignette
+  numbers and the app passes that plain config into the Engine. Legacy still sources its own
+  transitional values from `style`; the Engine never imports either theme or style.
 - **Motions pose characters without depending on `characters`.** The Engine defines
   `PoseableRig`; characters implement it and expose it as `entity.rig`; motions consume it.
 - **The Bibles are never a runtime dependency.** Compiled code uses the resulting style

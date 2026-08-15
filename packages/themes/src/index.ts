@@ -1,16 +1,18 @@
 export * from './ThemeTypes';
 export * from './legacy';
+export * from './voxel';
 
 import type { MindForgeTheme } from './ThemeTypes';
 import { LEGACY_THEME } from './legacy';
+import { VOXEL_THEME } from './voxel';
 
-/**
- * Transitional default only. Phase 1 will replace this with `voxel`; callers
- * must not treat `legacy` as a permanent or user-facing MindForge theme.
- */
-export const DEFAULT_THEME_ID = LEGACY_THEME.id;
+/** Production default. Legacy remains available only as a migration/debug comparison. */
+export const DEFAULT_THEME_ID = VOXEL_THEME.id;
 
-const THEMES = new Map<string, MindForgeTheme>([[LEGACY_THEME.id, LEGACY_THEME]]);
+const THEMES = new Map<string, MindForgeTheme>([
+  [LEGACY_THEME.id, LEGACY_THEME],
+  [VOXEL_THEME.id, VOXEL_THEME],
+]);
 
 /** Resolve a theme id or fail early with a readable configuration error. */
 export function getTheme(id: string): MindForgeTheme {

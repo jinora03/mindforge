@@ -84,6 +84,8 @@ export class MindForgeEngine {
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.setPixelRatio(this.resolvePixelRatio());
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.renderPass = new RenderPass(this.runtime.scene, this.runtime.camera);
     const post = { ...DEFAULT_POST, ...(config.postProcessing ?? {}) };
