@@ -26,7 +26,7 @@ export class MindForgeLibrary implements CapabilityRegistries {
   readonly cameras = new CameraRegistry();
   readonly environments = new EnvironmentRegistry();
 
-  constructor(readonly themeId: string = 'legacy') {}
+  constructor(readonly themeId: string = 'voxel') {}
 
   /** A flat catalogue of every registered id, grouped by kind. */
   catalog(): Record<string, string[]> {

@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LayerName } from '@mindforge/engine';
+import { DEFAULT_THEME_ID } from '@mindforge/themes';
 import { StudioController, type LayerFlags, type StudioState } from './studio-controller';
 import { Toolbar } from './components/Toolbar';
 import { Inspector } from './components/Inspector';
 
 const INITIAL_STATE: StudioState = {
+  themeId: DEFAULT_THEME_ID,
   time: 0,
   duration: 0,
   playing: false,
@@ -44,11 +46,14 @@ export function App(): JSX.Element {
       <Toolbar
         episodes={controller.episodes}
         episodeId={state.episodeId}
+        themes={controller.themes}
+        themeId={state.themeId}
         playing={state.playing}
         speed={state.speed}
         layers={layers}
         clean={clean}
         onSelect={(id) => controller.load(id)}
+        onSelectTheme={(id) => controller.setTheme(id)}
         onPlayPause={() => (state.playing ? controller.pause() : controller.play())}
         onRestart={() => controller.restart()}
         onSpeed={(speed) => controller.setSpeed(speed)}

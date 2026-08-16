@@ -58,7 +58,7 @@ export class MindForgeEngine {
   /** The renderer-free evaluation core. Owns the scene, camera, and evaluateAt. */
   private readonly runtime = new SceneRuntime();
 
-  private readonly config: EngineConfig;
+  private config: EngineConfig;
   private readonly composer: EffectComposer;
   private readonly renderPass: RenderPass;
   private readonly bloomPass: UnrealBloomPass;
@@ -118,6 +118,18 @@ export class MindForgeEngine {
   }
   get registries(): CapabilityRegistries {
     return this.config.registries;
+  }
+
+  /**
+   * Swap the active capability registries — i.e. change theme.
+   *
+   * The Engine stays theme-blind: it never learns what a theme *is*, only that
+   * a different set of factories now backs the same semantic ids. The caller is
+   * responsible for reloading the episode afterwards, because scene state must
+   * be rebuilt from the new factories.
+   */
+  setRegistries(registries: CapabilityRegistries): void {
+    this.config = { ...this.config, registries };
   }
   get currentEpisodeId(): string | undefined {
     return this.runtime.currentEpisodeId;

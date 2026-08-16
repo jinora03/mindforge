@@ -229,3 +229,14 @@ body,
 .studio.clean .toolbar > *:not(.clean-btn) {
   display: none;
 }
+
+.theme-select {
+  /* Mirrors .episode-select so the theme toggle reads as part of the toolbar. */
+  background: var(--panel, #1b1f24);
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font: inherit;
+  text-transform: capitalize;
+}

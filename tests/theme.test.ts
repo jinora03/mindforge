@@ -1,18 +1,22 @@
 import { describe, expect, it } from 'vitest';
 import { createDefaultLibrary, createLibraryForTheme } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, voxelToneColor } from '@mindforge/themes';
+import { toyboxToneColor } from '@mindforge/themes';
+
+const THEME_IDS = ['toybox', 'voxel'] as const;
 
 describe('MindForge visual themes', () => {
-  it('uses Voxel as production default while retaining legacy only for migration comparison', () => {
+  it('ships Voxel as production default alongside Toybox', () => {
     expect(DEFAULT_THEME_ID).toBe('voxel');
-    expect(listThemes()).toEqual(['legacy', 'voxel']);
+    expect(listThemes()).toEqual(['toybox', 'voxel']);
     expect(getTheme('voxel').label).toBe('MindForge Voxel');
-    expect(getTheme('legacy').label).toBe('Legacy Prototype');
+    expect(getTheme('toybox').label).toBe('MindForge Toybox');
     expect(createDefaultLibrary().themeId).toBe('voxel');
   });
 
-  it('registers the complete semantic visual surface through Voxel', () => {
-    const library = createLibraryForTheme('voxel');
+  it.each(THEME_IDS)('registers the complete semantic visual surface through %s', (themeId) => {
+    const library = createLibraryForTheme(themeId);
+    expect(library.themeId).toBe(themeId);
     expect(library.characters.has('character.observer')).toBe(true);
     expect(library.prefabs.has('prefab.externalHand')).toBe(true);
     expect(library.prefabs.has('prefab.heatEngine')).toBe(true);
@@ -27,27 +31,27 @@ describe('MindForge visual themes', () => {
     expect(library.cameras.has('camera.reactionCloseup')).toBe(true);
   });
 
-  it('keeps Voxel capability ids in parity with the migration theme', () => {
-    const legacy = getTheme('legacy');
+  // This is the guardrail that keeps "episodes are theme-blind" true: any theme
+  // that drops or renames a capability id fails here rather than at runtime.
+  it('keeps every theme in capability-id parity', () => {
     const voxel = getTheme('voxel');
-    expect(Object.keys(voxel.characters).sort()).toEqual(Object.keys(legacy.characters).sort());
-    expect(Object.keys(voxel.prefabs).sort()).toEqual(Object.keys(legacy.prefabs).sort());
-    expect(Object.keys(voxel.effects).sort()).toEqual(Object.keys(legacy.effects).sort());
-    expect(Object.keys(voxel.environments).sort()).toEqual(Object.keys(legacy.environments).sort());
+    for (const themeId of THEME_IDS) {
+      const theme = getTheme(themeId);
+      expect(Object.keys(theme.characters).sort()).toEqual(Object.keys(voxel.characters).sort());
+      expect(Object.keys(theme.prefabs).sort()).toEqual(Object.keys(voxel.prefabs).sort());
+      expect(Object.keys(theme.effects).sort()).toEqual(Object.keys(voxel.effects).sort());
+      expect(Object.keys(theme.environments).sort()).toEqual(Object.keys(voxel.environments).sort());
+    }
   });
 
-  it('maps semantic tones to a non-legacy visual palette', () => {
+  it('gives each theme its own independent tone palette', () => {
     expect(voxelToneColor('prediction').getHexString()).toBe('44b8ff');
     expect(voxelToneColor('reaction').getHexString()).toBe('ffd34d');
     expect(voxelToneColor('heat').getHexString()).toBe('ff6a2a');
     expect(voxelToneColor('prediction').equals(voxelToneColor('reaction'))).toBe(false);
-  });
-
-  it('keeps the legacy theme independently constructible during migration', () => {
-    const legacy = createLibraryForTheme('legacy');
-    expect(legacy.themeId).toBe('legacy');
-    expect(legacy.characters.has('character.observer')).toBe(true);
-    expect(legacy.prefabs.has('prefab.heatEngine')).toBe(true);
+    expect(toyboxToneColor('prediction').equals(toyboxToneColor('reaction'))).toBe(false);
+    // Themes are separate art directions, not palette variants of each other.
+    expect(toyboxToneColor('prediction').equals(voxelToneColor('prediction'))).toBe(false);
   });
 
   it('fails early for an unknown theme id', () => {

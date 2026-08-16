@@ -1,16 +1,16 @@
 export * from './ThemeTypes';
-export * from './legacy';
+export * from './toybox';
 export * from './voxel';
 
 import type { MindForgeTheme } from './ThemeTypes';
-import { LEGACY_THEME } from './legacy';
+import { TOYBOX_THEME } from './toybox';
 import { VOXEL_THEME } from './voxel';
 
-/** Production default. Legacy remains available only as a migration/debug comparison. */
+/** Production default. Toybox is a fully-supported alternative art direction. */
 export const DEFAULT_THEME_ID = VOXEL_THEME.id;
 
 const THEMES = new Map<string, MindForgeTheme>([
-  [LEGACY_THEME.id, LEGACY_THEME],
+  [TOYBOX_THEME.id, TOYBOX_THEME],
   [VOXEL_THEME.id, VOXEL_THEME],
 ]);
 
@@ -23,7 +23,7 @@ export function getTheme(id: string): MindForgeTheme {
   return theme;
 }
 
-/** Stable list for Studio selectors and validation. */
+/** Stable list for Studio/Player selectors and validation. */
 export function listThemes(): string[] {
   return [...THEMES.keys()].sort();
 }

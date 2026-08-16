@@ -1,6 +1,6 @@
 import { MindForgeEngine, type EngineFrameInfo } from '@mindforge/engine';
 import { createLibraryForTheme } from '@mindforge/library';
-import { DEFAULT_THEME_ID, getTheme, type MindForgeTheme } from '@mindforge/themes';
+import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
 import { getEpisode } from '@content/catalog';
 
 /**
@@ -10,7 +10,9 @@ import { getEpisode } from '@content/catalog';
  */
 export class PlayerController {
   private readonly engine: MindForgeEngine;
-  private readonly theme: MindForgeTheme;
+  // Reassigned by cycleTheme(); no longer readonly.
+  private theme: MindForgeTheme;
+  private currentEpisodeId?: string;
   private readonly frame: HTMLDivElement;
   private readonly captions: HTMLDivElement;
   private readonly status: HTMLDivElement;
@@ -55,8 +57,48 @@ export class PlayerController {
     this.frame.appendChild(this.captions);
     this.frame.appendChild(this.status);
 
+    const themeButton = document.createElement('button');
+    themeButton.textContent = 'Theme';
+    Object.assign(themeButton.style, {
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      zIndex: '5',
+      padding: '6px 12px',
+      borderRadius: '999px',
+      border: '1px solid rgba(255,255,255,0.35)',
+      background: 'rgba(0,0,0,0.45)',
+      color: '#fff',
+      font: '600 12px system-ui, sans-serif',
+      cursor: 'pointer',
+    });
+    themeButton.addEventListener('click', (event: MouseEvent) => {
+      event.stopPropagation();
+      this.cycleTheme();
+    });
+    this.frame.appendChild(themeButton);
+
     this.frame.addEventListener('click', () => this.engine.restart());
     window.addEventListener('keydown', this.onKeyDown);
+  }
+
+  /**
+   * Cycle to the next visual theme, holding the current timestamp.
+   *
+   * The Player is a viewer, so this is a single control rather than a dropdown:
+   * the same episode re-renders under the next art direction at the same beat.
+   */
+  cycleTheme(): void {
+    const themes = listThemes();
+    const next = themes[(themes.indexOf(this.theme.id) + 1) % themes.length];
+    const time = this.engine.time;
+    this.theme = getTheme(next);
+    this.engine.setRegistries(createLibraryForTheme(next));
+    if (this.currentEpisodeId) {
+      this.load(this.currentEpisodeId);
+      this.engine.seek(time);
+    }
+    this.showStatus(`Theme: ${next}`);
   }
 
   load(episodeId: string): void {
@@ -65,6 +107,7 @@ export class PlayerController {
       this.showStatus(`Episode "${episodeId}" not found.`);
       return;
     }
+    this.currentEpisodeId = episodeId;
     this.showStatus('Loading…');
     try {
       this.engine.loadEpisode(entry.input);
@@ -85,6 +128,11 @@ export class PlayerController {
       event.preventDefault();
       if (this.engine.playing) this.engine.pause();
       else this.engine.resume();
+    }
+    // T cycles the visual theme in place.
+    if (event.code === 'KeyT') {
+      event.preventDefault();
+      this.cycleTheme();
     }
   };
 

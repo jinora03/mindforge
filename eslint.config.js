@@ -66,4 +66,27 @@ export default tseslint.config(
       ],
     },
   },
+  ...['voxel', 'toybox', 'legacy'].map((theme) => ({
+    // Themes must be independent art directions, not variations of each other.
+    // A theme that imports another theme's palette, geometry, or helpers stops
+    // being a real test of the semantic boundary: changing one would silently
+    // change the other. Shared code belongs in the Engine or a neutral module,
+    // never borrowed sideways between themes.
+    files: [`packages/themes/src/${theme}.ts`, `packages/themes/src/${theme}/**/*.ts`],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['voxel', 'toybox', 'legacy']
+            .filter((other) => other !== theme)
+            .flatMap((other) => [`**/${other}`, `**/${other}/*`])
+            .map((group) => ({
+              group: [group],
+              message:
+                'Cross-theme imports are not allowed. Each theme owns its own palette, geometry, materials, and helpers.',
+            })),
+        },
+      ],
+    },
+  })),
 );

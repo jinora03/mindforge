@@ -33,7 +33,7 @@ const VOXEL_ASSETS: AssetDescriptor[] = [
 
 /**
  * Primary MindForge visual system: an original, block-built gameplay language.
- * It maps the same semantic capability ids as legacy without changing episode
+ * It maps the same semantic capability ids as every other theme without changing episode
  * meaning, shared motions, cameras, or Engine behavior.
  */
 export const VOXEL_THEME: MindForgeTheme = {

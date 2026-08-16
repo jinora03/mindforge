@@ -1,10 +1,11 @@
 import { MindForgeEngine, type EngineFrameInfo, type LayerName, type ResolvedText } from '@mindforge/engine';
 import { createLibraryForTheme, type MindForgeLibrary } from '@mindforge/library';
-import { DEFAULT_THEME_ID, getTheme, type MindForgeTheme } from '@mindforge/themes';
+import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
 import { EPISODES, getEpisode } from '@content/catalog';
 
 export interface StudioState {
   episodeId?: string;
+  themeId: string;
   time: number;
   duration: number;
   playing: boolean;
@@ -24,11 +25,13 @@ type Listener = (state: StudioState) => void;
 export class StudioController {
   readonly episodes = EPISODES.map((e) => ({ id: e.id, title: e.title }));
   private readonly engine: MindForgeEngine;
-  private readonly library: MindForgeLibrary;
-  private readonly theme: MindForgeTheme;
+  // Both are swapped by setTheme(); no longer readonly.
+  private library: MindForgeLibrary;
+  private theme: MindForgeTheme;
   private readonly listeners = new Set<Listener>();
   private captions?: HTMLDivElement;
   private state: StudioState = {
+    themeId: DEFAULT_THEME_ID,
     time: 0,
     duration: 0,
     playing: false,
@@ -81,6 +84,37 @@ export class StudioController {
       this.engine.play();
     } catch (error) {
       this.patch({ episodeId, error: (error as Error).message });
+    }
+  }
+
+  /** Stable list for the theme selector. */
+  get themes(): string[] {
+    return listThemes();
+  }
+
+  /**
+   * Switch theme without losing your place. The episode has to be rebuilt from
+   * the new theme's factories, so the timestamp and play state are captured and
+   * restored around the reload — otherwise comparing two themes at the same beat
+   * would mean re-scrubbing every time.
+   */
+  setTheme(themeId: string): void {
+    if (themeId === this.state.themeId) return;
+    const time = this.state.time;
+    const wasPlaying = this.state.playing;
+    const episodeId = this.state.episodeId;
+    try {
+      this.theme = getTheme(themeId);
+      this.library = createLibraryForTheme(themeId);
+      this.engine.setRegistries(this.library);
+      this.patch({ themeId, error: undefined });
+      if (episodeId) {
+        this.load(episodeId);
+        this.engine.seek(time);
+        if (!wasPlaying) this.engine.pause();
+      }
+    } catch (error) {
+      this.patch({ error: (error as Error).message });
     }
   }
 

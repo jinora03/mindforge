@@ -11,11 +11,14 @@ const LAYERS: { key: LayerName; label: string }[] = [
 export interface ToolbarProps {
   episodes: { id: string; title: string }[];
   episodeId?: string;
+  themes: string[];
+  themeId: string;
   playing: boolean;
   speed: number;
   layers: Record<LayerName, boolean>;
   clean: boolean;
   onSelect: (id: string) => void;
+  onSelectTheme: (id: string) => void;
   onPlayPause: () => void;
   onRestart: () => void;
   onSpeed: (speed: number) => void;
@@ -34,6 +37,21 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
         {props.episodes.map((episode) => (
           <option key={episode.id} value={episode.id}>
             {episode.title}
+          </option>
+        ))}
+      </select>
+
+      {/* Same episode, different art direction: switching preserves the timestamp
+          so two themes can be compared at the same beat. */}
+      <select
+        className="theme-select"
+        value={props.themeId}
+        onChange={(e) => props.onSelectTheme(e.target.value)}
+        title="Visual theme"
+      >
+        {props.themes.map((id) => (
+          <option key={id} value={id}>
+            {id}
           </option>
         ))}
       </select>
