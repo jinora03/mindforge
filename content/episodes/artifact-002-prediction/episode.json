@@ -23,10 +23,10 @@
     { "id": "breathe", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.breathe" },
     { "id": "face-focused", "type": "face", "at": 0, "target": "observer", "state": "focused" },
 
-    { "id": "cam-arrival", "type": "camera", "at": 0, "duration": 2.4, "preset": "camera.pushIn", "target": "observer", "from": [1.3, 1.25, 2.9], "to": [1.05, 1.18, 2.15], "fov": 38, "framingOffset": [0, 1.15, 0], "easing": "easeInOut" },
+    { "id": "cam-arrival", "type": "camera", "at": 0, "duration": 2.4, "preset": "camera.pushIn", "target": "observer", "from": [3.2, 2.3, 6.4], "to": [2.5, 1.9, 5.0], "fov": 40, "framingOffset": [0, 1.15, 0], "easing": "easeInOut" },
     { "id": "hook", "type": "text", "at": 0.4, "duration": 2.2, "textId": "hook" },
 
-    { "id": "cam-hold", "type": "camera", "at": 2.4, "duration": 9, "preset": "camera.reactionCloseup", "target": "observer", "from": [1.05, 1.16, 2.05], "to": [1.0, 1.14, 2.0], "fov": 34, "framingOffset": [0, 1.15, 0] },
+    { "id": "cam-hold", "type": "camera", "at": 2.4, "duration": 9, "preset": "camera.reactionCloseup", "target": "observer", "from": [2.4, 1.85, 4.9], "to": [2.2, 1.78, 4.55], "fov": 38, "framingOffset": [0, 1.15, 0] },
 
     { "id": "self-tickle", "type": "motion", "at": 2.5, "duration": 4.4, "target": "observer", "motion": "motion.humanoid.selfTickle" },
     { "id": "mood-focus", "type": "property", "at": 2.3, "duration": 0.6, "target": "moodLight", "property": "intensity", "from": 8, "to": 12 },
@@ -53,7 +53,7 @@
 
     { "id": "hand-retract", "type": "property", "at": 11.6, "duration": 1.0, "target": "externalHand", "property": "position", "to": [2.4, 1.2, 0.9], "easing": "easeInOut" },
     { "id": "mood-resolve", "type": "property", "at": 11.6, "duration": 1.4, "target": "moodLight", "property": "intensity", "to": 9 },
-    { "id": "cam-pull", "type": "camera", "at": 11.6, "duration": 3.0, "preset": "camera.pullBack", "target": "observer", "from": [1.0, 1.14, 2.05], "to": [0.8, 1.35, 3.7], "fov": 34, "framingOffset": [0, 1.05, 0], "easing": "easeInOut" },
+    { "id": "cam-pull", "type": "camera", "at": 11.6, "duration": 3.0, "preset": "camera.pullBack", "target": "observer", "from": [2.2, 1.78, 4.6], "to": [1.8, 2.4, 7.6], "fov": 36, "framingOffset": [0, 1.05, 0], "easing": "easeInOut" },
     { "id": "answer", "type": "text", "at": 12.2, "duration": 2.2, "textId": "answer" },
     { "id": "hand-hide", "type": "visibility", "at": 12.9, "target": "externalHand", "visible": false },
     { "id": "face-settle", "type": "face", "at": 13.6, "target": "observer", "state": "neutral" },

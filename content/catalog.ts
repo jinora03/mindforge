@@ -2,6 +2,10 @@ import heatEpisode from './episodes/artifact-001-heat/episode.json';
 import heatText from './episodes/artifact-001-heat/text.json';
 import predictionEpisode from './episodes/artifact-002-prediction/episode.json';
 import predictionText from './episodes/artifact-002-prediction/text.json';
+import skyBlueEpisode from './episodes/artifact-003-sky-blue/episode.json';
+import skyBlueText from './episodes/artifact-003-sky-blue/text.json';
+import coldBatteryEpisode from './episodes/artifact-004-cold-battery/episode.json';
+import coldBatteryText from './episodes/artifact-004-cold-battery/text.json';
 
 type Json = Record<string, unknown>;
 interface TextFile {
@@ -34,6 +38,16 @@ export const EPISODES: readonly EpisodeEntry[] = [
     id: predictionEpisode.id,
     title: predictionEpisode.title,
     input: withText(predictionEpisode as Json, predictionText as TextFile),
+  },
+  {
+    id: skyBlueEpisode.id,
+    title: skyBlueEpisode.title,
+    input: withText(skyBlueEpisode as Json, skyBlueText as TextFile),
+  },
+  {
+    id: coldBatteryEpisode.id,
+    title: coldBatteryEpisode.title,
+    input: withText(coldBatteryEpisode as Json, coldBatteryText as TextFile),
   },
 ];
 

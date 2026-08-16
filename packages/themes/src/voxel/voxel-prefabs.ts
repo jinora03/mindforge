@@ -1,9 +1,13 @@
 import * as THREE from 'three';
-import type { PrefabFactory, PrefabInstance } from '@mindforge/engine';
+import type { PrefabFactory, PrefabInstance, VisualTone } from '@mindforge/engine';
 import {
+  BLOCK,
   VOXEL_PALETTE,
+  createBlockMaterial,
   createVoxelGlow,
   createVoxelMaterial,
+  voxelToneColor,
+  type BlockTextureId,
 } from './voxel-style';
 
 function block(
@@ -18,141 +22,199 @@ function block(
   return mesh;
 }
 
-/** Oversized readable block hand used for external-touch storytelling. */
+function textured(
+  texture: BlockTextureId,
+  size: [number, number, number],
+  options: Parameters<typeof createBlockMaterial>[1] = {},
+): THREE.MeshStandardMaterial {
+  return createBlockMaterial(texture, { ...options, size });
+}
+
+/**
+ * Oversized block hand used for external-touch storytelling. Fingers are
+ * quarter-BLOCK bars so the hand matches the Observer's own limb thickness —
+ * a thin, tapered hand next to a cubic character is one of the fastest ways to
+ * break the illusion that both belong to one world.
+ */
 export const createVoxelExternalHand: PrefabFactory = (): PrefabInstance => {
   const root = new THREE.Group();
   root.name = 'voxel.externalHand';
-  const skin = createVoxelMaterial(VOXEL_PALETTE.skin);
 
-  const palm = block([0.18, 0.21, 0.075], skin);
+  const palmSize: [number, number, number] = [0.26, 0.28, 0.1];
+  const palm = block(palmSize, textured('skin', palmSize));
   root.add(palm);
+
+  // Cuff reads as "someone else's arm" without modelling the whole body.
+  const cuffSize: [number, number, number] = [0.3, 0.1, 0.13];
+  root.add(block(cuffSize, textured('cloth', cuffSize), [0, -0.17, -0.01]));
 
   const fingers = new THREE.Group();
   fingers.name = 'fingers';
-  fingers.position.set(0, 0.045, 0.08);
+  fingers.position.set(0, 0.07, 0.09);
   root.add(fingers);
 
-  const fingerX = [-0.066, -0.022, 0.022, 0.066];
-  const fingerLengths = [0.125, 0.145, 0.14, 0.12];
+  const fingerX = [-0.088, -0.03, 0.03, 0.088];
+  const fingerLengths = [0.16, 0.19, 0.185, 0.155];
   for (let i = 0; i < fingerX.length; i++) {
     const length = fingerLengths[i];
-    const finger = block([0.034, 0.035, length], skin, [fingerX[i], 0, length / 2]);
-    finger.rotation.x = -0.08;
+    const size: [number, number, number] = [0.05, 0.05, length];
+    const finger = block(size, textured('skin', size), [fingerX[i], 0, length / 2]);
+    finger.rotation.x = -0.06;
     fingers.add(finger);
   }
 
-  const thumb = block([0.04, 0.04, 0.105], skin, [-0.115, -0.025, 0.025]);
-  thumb.rotation.y = -0.48;
+  const thumbSize: [number, number, number] = [0.055, 0.055, 0.14];
+  const thumb = block(thumbSize, textured('skin', thumbSize), [-0.155, -0.035, 0.035]);
+  thumb.rotation.y = -0.5;
   root.add(thumb);
 
   return { object3d: root, anchors: { palm, fingers } };
 };
 
 /**
- * Block-built Heat Engine. `core`, `mechanism`, and `shell` remain semantic
- * anchors, so the Heat episode does not know or care about this geometry.
+ * Block-built Heat Engine — a furnace-machine rather than a generic sci-fi
+ * core. `core`, `mechanism`, and `shell` remain semantic anchors, so the Heat
+ * episode still knows nothing about this geometry.
+ *
+ * Every material under `core` is created fresh here on purpose: the episode
+ * animates `machine.core`'s `emissiveIntensity`, and the Engine's property
+ * track walks the whole subtree, so a shared/cached material would leak the
+ * heat animation into unrelated objects.
  */
 export const createVoxelHeatEngine: PrefabFactory = (): PrefabInstance => {
   const root = new THREE.Group();
   root.name = 'voxel.heatEngine';
 
-  const coreMaterial = createVoxelMaterial('#803E2B', {
+  // -- core -----------------------------------------------------------------
+  const coreSize: [number, number, number] = [BLOCK * 0.8, BLOCK * 0.8, BLOCK * 0.8];
+  const coreMaterial = createVoxelMaterial('#FFFFFF', {
+    texture: 'magma',
+    size: coreSize,
     emissive: VOXEL_PALETTE.heat,
     emissiveIntensity: 0.15,
-    roughness: 0.58,
+    roughness: 0.62,
   });
-  const core = block([0.78, 0.78, 0.78], coreMaterial);
+  const core = block(coreSize, coreMaterial);
+  core.name = 'core';
   root.add(core);
 
-  // Bright inset blocks read as hot channels while keeping the core itself the
-  // property-animation target used by the episode.
+  // Bright inset channels read as hot seams. They are children of `core`, so
+  // they heat and cool with it under the episode's property track.
   const channelMaterial = createVoxelMaterial(VOXEL_PALETTE.heatBright, {
+    pixelVariation: 0,
     emissive: VOXEL_PALETTE.heat,
-    emissiveIntensity: 0.75,
+    emissiveIntensity: 0.15,
   });
-  const channelSpecs: Array<{
-    size: [number, number, number];
-    position: [number, number, number];
-  }> = [
-    { size: [0.18, 0.18, 0.81], position: [0, 0, 0] },
-    { size: [0.81, 0.18, 0.18], position: [0, 0, 0] },
-    { size: [0.18, 0.81, 0.18], position: [0, 0, 0] },
+  const channels: Array<[number, number, number]> = [
+    [0.16, 0.16, 0.83],
+    [0.83, 0.16, 0.16],
+    [0.16, 0.83, 0.16],
   ];
-  for (const spec of channelSpecs) core.add(block(spec.size, channelMaterial, spec.position));
+  for (const size of channels) core.add(block(size, channelMaterial));
 
+  // -- mechanism ------------------------------------------------------------
   const mechanism = new THREE.Group();
   mechanism.name = 'mechanism';
-  const metal = createVoxelMaterial(VOXEL_PALETTE.metal, { metalness: 0.18, roughness: 0.72 });
-  const copper = createVoxelMaterial(VOXEL_PALETTE.copper, { metalness: 0.12, roughness: 0.7 });
-  const rotorBars: Array<{
-    size: [number, number, number];
-    rotation: [number, number, number];
-  }> = [
-    { size: [1.65, 0.13, 0.13], rotation: [0, 0, 0] },
-    { size: [0.13, 1.65, 0.13], rotation: [0, 0, 0] },
-    { size: [0.13, 0.13, 1.65], rotation: [0, 0, 0] },
-  ];
-  for (const spec of rotorBars) {
-    const bar = block(spec.size, metal);
-    bar.rotation.set(...spec.rotation);
-    mechanism.add(bar);
+  const barSize: [number, number, number] = [1.7, 0.16, 0.16];
+  const barMaterial = textured('metal', barSize);
+  for (const size of [
+    [1.7, 0.16, 0.16],
+    [0.16, 1.7, 0.16],
+    [0.16, 0.16, 1.7],
+  ] as Array<[number, number, number]>) {
+    mechanism.add(block(size, barMaterial));
   }
-  const pistonPositions: Array<[number, number, number]> = [
-    [0.92, 0, 0],
-    [-0.92, 0, 0],
-    [0, 0.92, 0],
-    [0, -0.92, 0],
-  ];
-  for (const position of pistonPositions) {
-    mechanism.add(block([0.28, 0.28, 0.28], copper, position));
+  const pistonSize: [number, number, number] = [0.32, 0.32, 0.32];
+  const pistonMaterial = createVoxelMaterial(VOXEL_PALETTE.copper, {
+    texture: 'metalPlate',
+    size: pistonSize,
+    roughness: 0.68,
+    metalness: 0.2,
+  });
+  for (const position of [
+    [0.95, 0, 0],
+    [-0.95, 0, 0],
+    [0, 0.95, 0],
+    [0, -0.95, 0],
+  ] as Array<[number, number, number]>) {
+    mechanism.add(block(pistonSize, pistonMaterial, position));
   }
   root.add(mechanism);
 
+  // -- shell ----------------------------------------------------------------
   const shell = new THREE.Group();
   shell.name = 'shell';
-  const shellMaterial = createVoxelMaterial(VOXEL_PALETTE.stone, { roughness: 0.92 });
-  const trimMaterial = createVoxelMaterial(VOXEL_PALETTE.stoneLight, { roughness: 0.9 });
+  const panelSize: [number, number, number] = [1.5, 1.5, 0.14];
+  const sidePanelSize: [number, number, number] = [0.14, 1.5, 1.5];
+  const panelMaterial = textured('forgeBrick', panelSize);
+  const sidePanelMaterial = textured('forgeBrick', sidePanelSize);
+  const trimSize: [number, number, number] = [1.05, 0.18, 0.16];
+  const trimMaterial = textured('metalPlate', trimSize);
+  const sideTrimSize: [number, number, number] = [0.16, 0.18, 1.05];
+  const sideTrimMaterial = textured('metalPlate', sideTrimSize);
 
-  const panelSpecs: Array<{
+  const panels: Array<{
     offset: [number, number, number];
     size: [number, number, number];
+    material: THREE.Material;
     trim: [number, number, number];
     trimOffset: [number, number, number];
+    trimMaterial: THREE.Material;
   }> = [
-    { offset: [0, 0, 1.08], size: [1.45, 1.45, 0.12], trim: [1.0, 0.16, 0.14], trimOffset: [0, 0.52, 1.15] },
-    { offset: [0, 0, -1.08], size: [1.45, 1.45, 0.12], trim: [1.0, 0.16, 0.14], trimOffset: [0, -0.52, -1.15] },
-    { offset: [-1.08, 0, 0], size: [0.12, 1.45, 1.45], trim: [0.14, 0.16, 1.0], trimOffset: [-1.15, 0.52, 0] },
-    { offset: [1.08, 0, 0], size: [0.12, 1.45, 1.45], trim: [0.14, 0.16, 1.0], trimOffset: [1.15, -0.52, 0] },
+    { offset: [0, 0, 1.08], size: panelSize, material: panelMaterial, trim: trimSize, trimOffset: [0, 0.55, 1.17], trimMaterial },
+    { offset: [0, 0, -1.08], size: panelSize, material: panelMaterial, trim: trimSize, trimOffset: [0, -0.55, -1.17], trimMaterial },
+    { offset: [-1.08, 0, 0], size: sidePanelSize, material: sidePanelMaterial, trim: sideTrimSize, trimOffset: [-1.17, 0.55, 0], trimMaterial: sideTrimMaterial },
+    { offset: [1.08, 0, 0], size: sidePanelSize, material: sidePanelMaterial, trim: sideTrimSize, trimOffset: [1.17, -0.55, 0], trimMaterial: sideTrimMaterial },
   ];
 
-  for (const spec of panelSpecs) {
+  for (const spec of panels) {
     const pivot = new THREE.Group();
-    pivot.add(block(spec.size, shellMaterial, spec.offset));
-    pivot.add(block(spec.trim, trimMaterial, spec.trimOffset));
+    pivot.add(block(spec.size, spec.material, spec.offset));
+    pivot.add(block(spec.trim, spec.trimMaterial, spec.trimOffset));
     shell.add(pivot);
   }
   root.add(shell);
 
+  // -- base -----------------------------------------------------------------
   const base = new THREE.Group();
-  base.position.y = -1.08;
-  base.add(block([1.8, 0.28, 1.8], metal));
-  base.add(block([1.2, 0.12, 1.2], copper, [0, 0.2, 0]));
+  base.position.y = -1.1;
+  const plinthSize: [number, number, number] = [2, 0.3, 2];
+  base.add(block(plinthSize, textured('stoneBrick', plinthSize)));
+  const gratingSize: [number, number, number] = [1.3, 0.14, 1.3];
+  base.add(block(gratingSize, textured('metal', gratingSize), [0, 0.22, 0]));
   root.add(base);
 
   return { object3d: root, anchors: { core, mechanism, shell } };
 };
 
-/** Chunky information token — three offset cubes rather than a glowing shard. */
-export const createVoxelInformationShard: PrefabFactory = (): PrefabInstance => {
+const SHARD_TONES: readonly VisualTone[] = [
+  'neutral', 'information', 'prediction', 'suppression', 'reaction', 'insight', 'heat',
+];
+
+/**
+ * Chunky glowing token — three offset cubes rather than a smooth shard.
+ *
+ * Accepts an optional `tone` so one semantic prefab can stand in for sunlight,
+ * drifting ions, or a data packet without the episode naming a colour. The
+ * theme still owns what each tone looks like.
+ */
+export const createVoxelInformationShard: PrefabFactory = ({ parameters }): PrefabInstance => {
+  const requested = parameters.tone;
+  const tone: VisualTone =
+    typeof requested === 'string' && SHARD_TONES.includes(requested as VisualTone)
+      ? (requested as VisualTone)
+      : 'information';
+  const color = voxelToneColor(tone);
   const root = new THREE.Group();
   root.name = 'voxel.informationShard';
-  const material = createVoxelMaterial(VOXEL_PALETTE.information, {
-    emissive: VOXEL_PALETTE.information,
-    emissiveIntensity: 0.28,
+  const material = createVoxelMaterial(`#${color.getHexString()}`, {
+    pixelVariation: 0,
+    emissive: `#${color.getHexString()}`,
+    emissiveIntensity: 0.35,
   });
-  root.add(block([0.18, 0.18, 0.18], material, [-0.1, 0.03, 0]));
-  root.add(block([0.18, 0.18, 0.18], material, [0.1, -0.03, 0]));
-  root.add(block([0.12, 0.12, 0.12], material, [0, 0.14, 0.02]));
+  root.add(block([0.22, 0.22, 0.22], material, [-0.12, 0.04, 0]));
+  root.add(block([0.22, 0.22, 0.22], material, [0.12, -0.04, 0]));
+  root.add(block([0.14, 0.14, 0.14], material, [0, 0.18, 0.02]));
   return { object3d: root };
 };
 
@@ -161,7 +223,7 @@ export const createVoxelStoryLight: PrefabFactory = ({ parameters }): PrefabInst
   const intensity = typeof parameters.intensity === 'number' ? parameters.intensity : 8;
   const distance = typeof parameters.distance === 'number' ? parameters.distance : 18;
   const color = parameters.role === 'subject' ? '#FFE2B3' : VOXEL_PALETTE.cream;
-  const light = new THREE.PointLight(new THREE.Color(color), intensity, distance, 1.6);
+  const light = new THREE.PointLight(new THREE.Color(color), intensity, distance, 2);
   light.name = 'voxel.storyLight';
   return { object3d: light };
 };
@@ -169,8 +231,7 @@ export const createVoxelStoryLight: PrefabFactory = ({ parameters }): PrefabInst
 /** Optional tiny marker used by future voxel scenes without adding a new semantic id. */
 export function createVoxelMarker(color: string): THREE.Group {
   const group = new THREE.Group();
-  const material = createVoxelGlow(color, 0.86);
-  group.add(block([0.08, 0.08, 0.08], material));
+  group.add(block([0.12, 0.12, 0.12], createVoxelGlow(color, 0.86)));
   return group;
 }
 

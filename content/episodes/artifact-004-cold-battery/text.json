@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    { "id": "hook", "content": "Why does cold kill your battery?", "style": "question", "placement": "upper" },
+    { "id": "flow", "content": "Charge moves as ions drifting through a liquid.", "style": "explanation", "placement": "lower" },
+    { "id": "cold", "content": "Cold thickens that liquid and slows every ion down.", "style": "explanation", "placement": "lower" },
+    { "id": "answer", "content": "The charge is still there. It just can't get out fast enough.", "style": "explanation", "placement": "lower" },
+    { "id": "label", "content": "Artifact 004 / The Cell", "style": "artifactLabel", "placement": "bottom" }
+  ]
+}
