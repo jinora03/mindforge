@@ -11,6 +11,7 @@ export const TIMELINE_EVENT_TYPES = [
   'property',
   'face',
   'callback',
+  'audio',
 ] as const;
 
 /** Face states the procedural humanoid can express. */
@@ -47,6 +48,9 @@ export const PROPERTY_TARGETS = [
 ] as const;
 
 export const FaceStateSchema = z.enum(FACE_STATES);
+
+export const AUDIO_BUSES = ['voice', 'music', 'sfx', 'ambience'] as const;
+export const AudioBusSchema = z.enum(AUDIO_BUSES);
 
 /** Fields shared by every timeline event. Only `id`, `type`, and `at` are required. */
 const baseFields = {
@@ -163,6 +167,24 @@ const CallbackEventSchema = z
   })
   .strict();
 
+
+const AudioEventSchema = z
+  .object({
+    ...baseFields,
+    type: z.literal('audio'),
+    /** Stable semantic cue id resolved by the shared audio registry. */
+    cue: RegistryIdSchema,
+    /** Optional caption/text entry spoken by this cue. Used for narration validation/sync metadata. */
+    textId: z.string().min(1).optional(),
+    /** Optional per-event routing override. Most cues use their registered default bus. */
+    bus: AudioBusSchema.optional(),
+    /** Linear gain multiplier for this event. Defaults to 1. */
+    volume: z.number().min(0).max(2).optional(),
+    /** Loop the cue for the event window. Looping events should provide `duration`. */
+    loop: z.boolean().optional(),
+  })
+  .strict();
+
 export const TimelineEventSchema = z.discriminatedUnion('type', [
   MotionEventSchema,
   ObjectMotionEventSchema,
@@ -173,6 +195,7 @@ export const TimelineEventSchema = z.discriminatedUnion('type', [
   PropertyEventSchema,
   FaceEventSchema,
   CallbackEventSchema,
+  AudioEventSchema,
 ]);
 
 export type VisualTone = z.infer<typeof VisualToneSchema>;
@@ -186,6 +209,8 @@ export type VisibilityEvent = z.infer<typeof VisibilityEventSchema>;
 export type PropertyEvent = z.infer<typeof PropertyEventSchema>;
 export type FaceEvent = z.infer<typeof FaceEventSchema>;
 export type CallbackEvent = z.infer<typeof CallbackEventSchema>;
+export type AudioEvent = z.infer<typeof AudioEventSchema>;
+export type AudioBus = z.infer<typeof AudioBusSchema>;
 export type FaceState = z.infer<typeof FaceStateSchema>;
 
 export {
@@ -198,4 +223,5 @@ export {
   PropertyEventSchema,
   FaceEventSchema,
   CallbackEventSchema,
+  AudioEventSchema,
 };

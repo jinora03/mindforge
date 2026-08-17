@@ -10,7 +10,8 @@ Studio ─────┐
             ├──> Engine
 Player ─────┘
 Engine ─────────> Schema
-Library ────────> Themes, Motions, Cameras
+Library ────────> Themes, Motions, Cameras, Audio
+Audio ─────────> Engine contract + Schema types
 Themes ─────────> Characters, Effects, Environments, Style, semantic Prefabs
 Applications ──> Library, Content (as data)
 Content ───────> Schema ids only (by string; never imports)
@@ -40,6 +41,7 @@ Schema → Three.js               Style → episode content
   environment, and presentation implementations for stable semantic ids. Studio / Player may
   replace those generic registries and presentation values at runtime, then rebuild the same
   episode. The Engine never branches on a theme name. See [`themes.md`](themes.md).
+- **Audio is injected, not Engine-owned implementation.** `packages/audio` implements the Engine's generic `AudioRuntime` contract. The Engine mirrors authoritative transport state into it but never imports Web Audio code or semantic cue implementations.
 - **The Engine never imports the component packages.** The apps build a `MindForgeLibrary`
   (which implements the Engine's `CapabilityRegistries`) and hand it to the Engine.
 - **Camera application lives in the Engine.** The Engine owns the authoritative camera, so it

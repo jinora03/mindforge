@@ -11,6 +11,7 @@
     "@mindforge/cameras": "workspace:*",
     "@mindforge/engine": "workspace:*",
     "@mindforge/motions": "workspace:*",
-    "@mindforge/themes": "workspace:*"
+    "@mindforge/themes": "workspace:*",
+    "@mindforge/audio": "workspace:*"
   }
 }

@@ -69,6 +69,12 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
       case 'face':
         requireEntity(entityIds, splitRef(event.target)[0], loc);
         break;
+      case 'audio':
+        requireRegistry(registries, 'audio', event.cue, loc);
+        if (event.textId && !textById.has(event.textId)) {
+          throw new UnknownRegistryIdError('text', event.textId, loc);
+        }
+        break;
       case 'callback':
         break;
     }
@@ -103,7 +109,7 @@ function validateEntities(
 
 function requireRegistry(
   registries: CapabilityRegistries,
-  kind: 'motion' | 'effect' | 'camera',
+  kind: 'motion' | 'effect' | 'camera' | 'audio',
   id: string,
   loc: { episodeId: string; eventId: string },
 ): void {
@@ -112,7 +118,9 @@ function requireRegistry(
       ? registries.motions
       : kind === 'effect'
         ? registries.effects
-        : registries.cameras;
+        : kind === 'camera'
+          ? registries.cameras
+          : registries.audio;
   if (!registry.has(id)) {
     throw new UnknownRegistryIdError(kind, id, loc);
   }

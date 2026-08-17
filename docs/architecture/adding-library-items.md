@@ -2,7 +2,7 @@
 
 Every reusable capability follows the same shape: implement the Engine contract in the
 appropriate component package, export a factory, and expose it under a stable semantic id.
-Shared behavior (motions/cameras) is registered by the Library; theme-specific visual
+Shared behavior (motions/cameras/audio) is registered by the Library; theme-specific visual
 implementations (characters/effects/environments/assets) are selected by `packages/themes/`.
 Then content references only the stable id.
 
@@ -48,9 +48,17 @@ pnpm typecheck && pnpm test && pnpm generate:catalog && pnpm validate:episodes
 2. Export a `CharacterFactory` and add it to `CHARACTER_FACTORIES` in
    `packages/characters/src/index.ts` under `character.<name>`.
 
+
+## Add an audio cue
+
+1. Add a semantic `AudioCueDefinition` in `packages/audio/src/procedural-cues.ts` or register a URL-backed cue.
+2. Choose its default `voice`, `music`, `sfx`, or `ambience` bus and keep procedural PCM generation deterministic.
+3. Reference it from episode timeline JSON with an `audio` event via `cue`; do not hardcode file paths in episodes.
+4. Run `pnpm generate:catalog` so `docs/library-catalog/audio.md` stays aligned with the registry.
+
 ## Add an asset
 
-Add theme-neutral animation/audio descriptors to `SHARED_ASSETS` in
+Add theme-neutral animation descriptors and source-asset reservations to `SHARED_ASSETS` in
 `packages/library/src/register-defaults.ts`. Add visual model/texture descriptors to the
 relevant theme definition in `packages/themes/`. v0.1 descriptors are mostly `procedural`; a
 future `.glb`/audio pipeline will resolve real files. Episodes reference asset **ids**, never

@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LayerName } from '@mindforge/engine';
+import { DEFAULT_AUDIO_MIXER_VOLUMES } from '@mindforge/audio';
 import { DEFAULT_THEME_ID } from '@mindforge/themes';
 import { StudioController, type LayerFlags, type StudioState } from './studio-controller';
 import { Toolbar } from './components/Toolbar';
 import { Inspector } from './components/Inspector';
+import { ShotTrack } from './components/ShotTrack';
 
 const INITIAL_STATE: StudioState = {
   themeId: DEFAULT_THEME_ID,
@@ -12,6 +14,14 @@ const INITIAL_STATE: StudioState = {
   playing: false,
   speed: 1,
   activeTexts: [],
+  audioMuted: false,
+  masterVolume: DEFAULT_AUDIO_MIXER_VOLUMES.master,
+  voiceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.voice,
+  musicVolume: DEFAULT_AUDIO_MIXER_VOLUMES.music,
+  sfxVolume: DEFAULT_AUDIO_MIXER_VOLUMES.sfx,
+  ambienceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.ambience,
+  exporting: false,
+  exportProgress: 0,
 };
 
 const INITIAL_LAYERS: LayerFlags = { text: true, camera: true, effects: true, anchors: false };
@@ -35,6 +45,7 @@ export function App(): JSX.Element {
   }, [controller]);
 
   const catalog = useMemo(() => controller.getCatalog(), [controller, state.themeId]);
+  const production = useMemo(() => controller.getProduction(state.episodeId), [controller, state.episodeId]);
 
   const toggleLayer = (layer: LayerName, enabled: boolean): void => {
     controller.setLayer(layer, enabled);
@@ -50,6 +61,14 @@ export function App(): JSX.Element {
         themeId={state.themeId}
         playing={state.playing}
         speed={state.speed}
+        audioMuted={state.audioMuted}
+        masterVolume={state.masterVolume}
+        voiceVolume={state.voiceVolume}
+        musicVolume={state.musicVolume}
+        sfxVolume={state.sfxVolume}
+        ambienceVolume={state.ambienceVolume}
+        exporting={state.exporting}
+        exportProgress={state.exportProgress}
         layers={layers}
         clean={clean}
         onSelect={(id) => controller.load(id)}
@@ -57,6 +76,14 @@ export function App(): JSX.Element {
         onPlayPause={() => (state.playing ? controller.pause() : controller.play())}
         onRestart={() => controller.restart()}
         onSpeed={(speed) => controller.setSpeed(speed)}
+        onToggleAudio={() => controller.setAudioMuted(!state.audioMuted)}
+        onMasterVolume={(volume) => controller.setMasterVolume(volume)}
+        onVoiceVolume={(volume) => controller.setVoiceVolume(volume)}
+        onMusicVolume={(volume) => controller.setMusicVolume(volume)}
+        onSfxVolume={(volume) => controller.setSfxVolume(volume)}
+        onAmbienceVolume={(volume) => controller.setAmbienceVolume(volume)}
+        onExport={() => void controller.exportCurrentEpisode()}
+        onCancelExport={() => controller.cancelExport()}
         onToggleLayer={toggleLayer}
         onToggleClean={() => setClean((value) => !value)}
       />
@@ -70,19 +97,32 @@ export function App(): JSX.Element {
           error={state.error}
           activeTexts={state.activeTexts}
           catalog={catalog}
+          production={production}
+          time={state.time}
+          onSeek={(time) => controller.seek(time)}
         />
       </main>
 
       <footer className="scrubber-row">
-        <input
-          className="scrubber"
-          type="range"
-          min={0}
-          max={state.duration || 0}
-          step={0.01}
-          value={state.time}
-          onChange={(event) => controller.seek(Number(event.target.value))}
-        />
+        <div className="timeline-stack">
+          <ShotTrack
+            production={production}
+            duration={state.duration}
+            time={state.time}
+            disabled={state.exporting}
+            onSeek={(time) => controller.seek(time)}
+          />
+          <input
+            className="scrubber"
+            type="range"
+            min={0}
+            max={state.duration || 0}
+            step={0.01}
+            value={state.time}
+            disabled={state.exporting}
+            onChange={(event) => controller.seek(Number(event.target.value))}
+          />
+        </div>
         <span className="time">
           {state.time.toFixed(1)}s / {state.duration.toFixed(1)}s
         </span>

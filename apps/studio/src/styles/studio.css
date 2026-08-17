@@ -244,3 +244,207 @@ body,
   min-width: 104px;
   font-weight: 650;
 }
+
+.audio-controls {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.audio-controls .audio-btn {
+  min-width: 78px;
+}
+.audio-controls .audio-btn.muted {
+  color: #9aa6b2;
+  border-color: #3a4653;
+}
+.volume-slider {
+  width: 64px;
+  accent-color: var(--accent);
+}
+.audio-slider {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.audio-slider > span {
+  min-width: 34px;
+  text-align: right;
+}
+
+.export-btn {
+  min-width: 106px;
+  font-weight: 700;
+}
+.export-btn.active {
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
+}
+.toolbar button:disabled,
+.toolbar select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Production workflow */
+.production-heading,
+.shot-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.production-heading h3 {
+  margin-bottom: 0;
+}
+.production-ready {
+  font-size: 10px;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #86d39a;
+  border: 1px solid rgba(134, 211, 154, 0.4);
+  border-radius: 999px;
+  padding: 3px 7px;
+}
+.production-path {
+  display: block;
+  margin: 8px 0;
+  color: #8ea2b8;
+  font-size: 10.5px;
+  overflow-wrap: anywhere;
+}
+.brief-summary {
+  color: #d7dee7;
+  font-size: 12.5px;
+  line-height: 1.5;
+  margin: 8px 0 10px;
+}
+.brief-details {
+  border-top: 1px solid var(--panel-line);
+  border-bottom: 1px solid var(--panel-line);
+  padding: 8px 0;
+  margin-bottom: 10px;
+}
+.brief-details summary {
+  cursor: pointer;
+  color: #9fb0c2;
+  font-size: 12px;
+  font-weight: 650;
+}
+.brief-preview {
+  margin-top: 8px;
+  max-height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  color: #aeb9c5;
+  font: 10.5px/1.45 'JetBrains Mono', ui-monospace, monospace;
+}
+.shot-list-heading {
+  margin: 8px 0 6px;
+  color: #dfe6ee;
+  font-size: 12px;
+}
+.shot-list-heading > span {
+  color: #7f8c9a;
+  font-size: 10.5px;
+}
+.shot-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.shot-list li > p {
+  margin: 4px 4px 0;
+  color: #8492a0;
+  font-size: 10.5px;
+  line-height: 1.4;
+}
+.shot-jump {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 68px 1fr;
+  gap: 7px;
+  align-items: center;
+  text-align: left;
+  background: #10161d;
+  color: #dbe3ec;
+  border: 1px solid #26313d;
+  border-radius: 7px;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+.shot-jump:hover,
+.shot-jump.active {
+  border-color: var(--accent);
+  background: #162131;
+}
+.shot-time {
+  color: #7f94aa;
+  font: 10px 'JetBrains Mono', ui-monospace, monospace;
+}
+.shot-beat {
+  font-size: 11.5px;
+  font-weight: 650;
+}
+.timeline-stack {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.shot-track {
+  position: relative;
+  height: 20px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #0d1218;
+  border: 1px solid #25303b;
+}
+.shot-segment {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  min-width: 2px;
+  overflow: hidden;
+  border: 0;
+  border-right: 1px solid #2e3a47;
+  border-radius: 0;
+  padding: 0 5px;
+  background: #17202a;
+  color: #8293a5;
+  text-align: left;
+  cursor: pointer;
+}
+.shot-segment:nth-child(even) {
+  background: #19242f;
+}
+.shot-segment:hover,
+.shot-segment.active {
+  background: #20344b;
+  color: #e4edf7;
+}
+.shot-segment span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+  line-height: 18px;
+}
+.shot-segment:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+/* Keep Studio neutral: production themes own the visual identity. */
+.panel h3 {
+  color: #8ea2b8;
+}
+.muted {
+  color: #7f8c9a;
+}

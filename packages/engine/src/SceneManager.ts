@@ -266,6 +266,11 @@ export class SceneManager {
           propertyByKey.set(key, bucket);
           break;
         }
+        case 'audio': {
+          // Live audio is mirrored by the Engine's injected AudioRuntime. It is
+          // intentionally excluded from deterministic scene-state evaluation.
+          break;
+        }
         case 'callback': {
           timeline.addCallback(new CallbackAction(event.id, at, event.name));
           break;

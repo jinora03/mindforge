@@ -1,7 +1,11 @@
+import { BrowserAudioRuntime, DEFAULT_AUDIO_MIXER_VOLUMES } from '@mindforge/audio';
 import { MindForgeEngine, type EngineFrameInfo, type LayerName, type ResolvedText } from '@mindforge/engine';
 import { createLibraryForTheme, type MindForgeLibrary } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
+import { exportFilename, exportMindForgeMp4 } from '@mindforge/video-export';
 import { EPISODES, getEpisode } from '@content/catalog';
+import { getProductionEpisode } from '@content/production-catalog';
+import type { EpisodeProductionInfo } from '@content/production-types';
 
 export interface StudioState {
   episodeId?: string;
@@ -12,6 +16,14 @@ export interface StudioState {
   speed: number;
   error?: string;
   activeTexts: ResolvedText[];
+  audioMuted: boolean;
+  masterVolume: number;
+  voiceVolume: number;
+  musicVolume: number;
+  sfxVolume: number;
+  ambienceVolume: number;
+  exporting: boolean;
+  exportProgress: number;
 }
 
 export interface ThemeOption {
@@ -41,6 +53,7 @@ export class StudioController {
   private theme: MindForgeTheme;
   private readonly listeners = new Set<Listener>();
   private captions?: HTMLDivElement;
+  private exportAbort?: AbortController;
   private state: StudioState = {
     themeId: DEFAULT_THEME_ID,
     time: 0,
@@ -48,6 +61,14 @@ export class StudioController {
     playing: false,
     speed: 1,
     activeTexts: [],
+    audioMuted: false,
+    masterVolume: DEFAULT_AUDIO_MIXER_VOLUMES.master,
+    voiceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.voice,
+    musicVolume: DEFAULT_AUDIO_MIXER_VOLUMES.music,
+    sfxVolume: DEFAULT_AUDIO_MIXER_VOLUMES.sfx,
+    ambienceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.ambience,
+    exporting: false,
+    exportProgress: 0,
   };
 
   constructor() {
@@ -56,6 +77,7 @@ export class StudioController {
     this.engine = new MindForgeEngine({
       registries: this.library,
       postProcessing: this.theme.presentation.postProcessing,
+      audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.onFrame(info),
       onError: (error) => this.patch({ error: error.message }),
     });
@@ -81,6 +103,10 @@ export class StudioController {
 
   getCatalog(): Record<string, string[]> {
     return this.library.catalog();
+  }
+
+  getProduction(episodeId: string | undefined = this.state.episodeId): EpisodeProductionInfo | undefined {
+    return episodeId ? getProductionEpisode(episodeId) : undefined;
   }
 
   load(episodeId: string): void {
@@ -168,12 +194,14 @@ export class StudioController {
   }
 
   play(): void {
+    this.engine.unlockAudio();
     this.engine.play();
   }
   pause(): void {
     this.engine.pause();
   }
   restart(): void {
+    this.engine.unlockAudio();
     this.engine.restart();
     this.engine.play();
   }
@@ -183,6 +211,71 @@ export class StudioController {
   setSpeed(speed: number): void {
     this.engine.setSpeed(speed);
   }
+  setAudioMuted(muted: boolean): void {
+    if (!muted) this.engine.unlockAudio();
+    this.engine.setAudioMuted(muted);
+    this.patch({ audioMuted: muted });
+  }
+  setMasterVolume(volume: number): void {
+    this.engine.unlockAudio();
+    this.engine.setAudioBusVolume('master', volume);
+    this.patch({ masterVolume: this.engine.getAudioBusVolume('master') });
+  }
+  setVoiceVolume(volume: number): void {
+    this.setMixerVolume('voice', volume, 'voiceVolume');
+  }
+  setMusicVolume(volume: number): void {
+    this.setMixerVolume('music', volume, 'musicVolume');
+  }
+  setSfxVolume(volume: number): void {
+    this.setMixerVolume('sfx', volume, 'sfxVolume');
+  }
+  setAmbienceVolume(volume: number): void {
+    this.setMixerVolume('ambience', volume, 'ambienceVolume');
+  }
+
+  async exportCurrentEpisode(): Promise<void> {
+    if (this.state.exporting || !this.state.episodeId) return;
+    const entry = getEpisode(this.state.episodeId);
+    if (!entry) return;
+
+    const playback = this.capturePlayback();
+    const abort = new AbortController();
+    this.exportAbort = abort;
+    this.engine.pause();
+    this.patch({ exporting: true, exportProgress: 0, error: undefined });
+
+    try {
+      const blob = await exportMindForgeMp4({
+        episode: entry.input,
+        registries: this.library,
+        theme: this.theme,
+        signal: abort.signal,
+        audioVolumes: {
+          master: this.engine.getAudioBusVolume('master'),
+          voice: this.engine.getAudioBusVolume('voice'),
+          music: this.engine.getAudioBusVolume('music'),
+          sfx: this.engine.getAudioBusVolume('sfx'),
+          ambience: this.engine.getAudioBusVolume('ambience'),
+        },
+        onProgress: ({ ratio }) => this.patch({ exportProgress: ratio }),
+      });
+      downloadBlob(blob, exportFilename(entry.id, this.theme.id));
+      this.patch({ exportProgress: 1 });
+    } catch (error) {
+      if ((error as Error).name !== 'AbortError') {
+        this.patch({ error: `Export failed: ${(error as Error).message}` });
+      }
+    } finally {
+      this.exportAbort = undefined;
+      this.patch({ exporting: false });
+      this.restorePlayback(playback);
+    }
+  }
+
+  cancelExport(): void {
+    this.exportAbort?.abort();
+  }
   setLayer(layer: LayerName, enabled: boolean): void {
     this.engine.setLayerEnabled(layer, enabled);
   }
@@ -191,7 +284,19 @@ export class StudioController {
   }
 
   dispose(): void {
+    this.exportAbort?.abort();
     this.engine.dispose();
+  }
+
+
+  private setMixerVolume(
+    bus: 'voice' | 'music' | 'sfx' | 'ambience',
+    volume: number,
+    stateKey: 'voiceVolume' | 'musicVolume' | 'sfxVolume' | 'ambienceVolume',
+  ): void {
+    this.engine.unlockAudio();
+    this.engine.setAudioBusVolume(bus, volume);
+    this.patch({ [stateKey]: this.engine.getAudioBusVolume(bus) } as Pick<StudioState, typeof stateKey>);
   }
 
   private capturePlayback(): PlaybackSnapshot {
@@ -244,4 +349,15 @@ export class StudioController {
     this.state = { ...this.state, ...partial };
     for (const listener of this.listeners) listener(this.state);
   }
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const anchor = document.createElement('a');
+  anchor.href = url;
+  anchor.download = filename;
+  document.body.appendChild(anchor);
+  anchor.click();
+  anchor.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1_000);
 }

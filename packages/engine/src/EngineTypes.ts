@@ -1,5 +1,7 @@
 import type * as THREE from 'three';
 import type {
+  AudioBus,
+  AudioEvent,
   CameraEvent,
   EffectEvent,
   FaceState,
@@ -220,6 +222,71 @@ export interface AssetDescriptor {
   readonly description?: string;
 }
 
+/* ----------------------------------------------------------------- audio --- */
+
+/** PCM returned by a deterministic procedural cue renderer. */
+export interface AudioPcmData {
+  readonly sampleRate: number;
+  readonly channels: readonly Float32Array[];
+}
+
+export type AudioCueSource =
+  | {
+      readonly kind: 'procedural';
+      /** Pure PCM generator. It must return the same samples for the same rate. */
+      readonly render: (sampleRate: number) => AudioPcmData;
+    }
+  | {
+      readonly kind: 'url';
+      readonly url: string;
+    };
+
+/** Reusable semantic sound registered in the Library. */
+export interface AudioCueDefinition {
+  readonly id: string;
+  readonly bus: AudioBus;
+  /** Guaranteed fallback/source used when no production override is available. */
+  readonly source: AudioCueSource;
+  /** Optional production asset tried before `source`; failure falls back cleanly. */
+  readonly preferredSource?: AudioCueSource;
+  readonly defaultGain?: number;
+  readonly loop?: boolean;
+  /** Short source-level fades used by both live preview and offline export. */
+  readonly fadeIn?: number;
+  readonly fadeOut?: number;
+  readonly description?: string;
+}
+
+export type AudioMixerBus = 'master' | AudioBus;
+export type AudioSyncReason = 'load' | 'play' | 'pause' | 'seek' | 'restart' | 'speed' | 'tick';
+
+export interface AudioTransportState {
+  readonly time: number;
+  readonly duration: number;
+  readonly playing: boolean;
+  readonly speed: number;
+}
+
+/**
+ * Browser/live audio implementation injected into the Engine. The Engine owns
+ * authoritative time; the runtime only mirrors that transport and never owns a
+ * separate episode clock. A future offline renderer can implement the same
+ * semantic cue contract without Web Audio.
+ */
+export interface AudioRuntime extends Disposable {
+  load(
+    events: readonly AudioEvent[],
+    cues: ReadonlyRegistry<AudioCueDefinition>,
+    duration: number,
+  ): void;
+  sync(state: AudioTransportState, reason: AudioSyncReason): void;
+  unlock(): void;
+  setMuted(muted: boolean): void;
+  isMuted(): boolean;
+  setBusVolume(bus: AudioMixerBus, volume: number): void;
+  getBusVolume(bus: AudioMixerBus): number;
+}
+
 /* ------------------------------------------------------------- registries -- */
 
 export interface ReadonlyRegistry<T> {
@@ -238,6 +305,7 @@ export interface CapabilityRegistries {
   readonly cameras: ReadonlyRegistry<CameraFactory>;
   readonly environments: ReadonlyRegistry<EnvironmentFactory>;
   readonly assets: ReadonlyRegistry<AssetDescriptor>;
+  readonly audio: ReadonlyRegistry<AudioCueDefinition>;
 }
 
 /* ---------------------------------------------------------- engine surface -- */
@@ -275,6 +343,10 @@ export interface EngineConfig {
   /** Cap on `devicePixelRatio` to keep fill-rate stable. Defaults to 2. */
   readonly pixelRatioCap?: number;
   readonly postProcessing?: PostProcessingConfig;
+  /** Optional live audio backend. Headless/runtime tests may omit it. */
+  readonly audioRuntime?: AudioRuntime;
+  /** Preserve the WebGL back buffer for exact canvas capture during offline export. */
+  readonly preserveDrawingBuffer?: boolean;
   readonly autoResize?: boolean;
   onFrame?(info: EngineFrameInfo): void;
   onLoaded?(episodeId: string): void;

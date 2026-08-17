@@ -1,5 +1,6 @@
 import type { CapabilityRegistries } from '@mindforge/engine';
 import { AssetRegistry } from './AssetRegistry';
+import { AudioCueRegistry } from './AudioCueRegistry';
 import { CameraRegistry } from './CameraRegistry';
 import { CharacterRegistry } from './CharacterRegistry';
 import { EffectRegistry } from './EffectRegistry';
@@ -19,6 +20,7 @@ import { PrefabRegistry } from './PrefabRegistry';
  */
 export class MindForgeLibrary implements CapabilityRegistries {
   readonly assets = new AssetRegistry();
+  readonly audio = new AudioCueRegistry();
   readonly characters = new CharacterRegistry();
   readonly prefabs = new PrefabRegistry();
   readonly motions = new MotionRegistry();
@@ -38,6 +40,7 @@ export class MindForgeLibrary implements CapabilityRegistries {
       cameras: this.cameras.list(),
       environments: this.environments.list(),
       assets: this.assets.list(),
+      audio: this.audio.list(),
     };
   }
 }

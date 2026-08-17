@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { AudioEvent } from '@mindforge/schema';
 import type {
   CameraState,
   CapabilityRegistries,
@@ -45,6 +46,7 @@ export class SceneRuntime {
   private environment?: EnvironmentInstance;
   private episodeId?: string;
   private durationSeconds = 0;
+  private audioEvents: readonly AudioEvent[] = [];
 
   constructor() {
     this.camera.position.set(0, 1.4, 7);
@@ -68,6 +70,7 @@ export class SceneRuntime {
     this.environment = this.built.environment;
     this.episodeId = loaded.script.id;
     this.durationSeconds = loaded.script.duration;
+    this.audioEvents = loaded.script.timeline.filter((event): event is AudioEvent => event.type === 'audio');
     this.evaluateAt(0);
     return this.episodeId;
   }
@@ -84,6 +87,9 @@ export class SceneRuntime {
   }
   getActiveTexts(): readonly ResolvedText[] {
     return this.built ? this.built.timeline.getActiveTexts() : [];
+  }
+  getAudioEvents(): readonly AudioEvent[] {
+    return this.audioEvents;
   }
 
   /**
@@ -146,6 +152,7 @@ export class SceneRuntime {
     }
     this.episodeId = undefined;
     this.durationSeconds = 0;
+    this.audioEvents = [];
   }
 
   private frameAt(time: number): FrameContext {

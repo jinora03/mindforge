@@ -1,0 +1,44 @@
+{
+  "episode": "artifact-004-cold-battery",
+  "title": "Why does cold kill your battery?",
+  "aspect": "9:16",
+  "durationSeconds": 15,
+  "shots": [
+    {
+      "id": "s1-warm-cell",
+      "t": [0, 3.3],
+      "beat": "Warm battery",
+      "intent": "Establish an intact working cell and show that the system begins energetic rather than depleted.",
+      "camera": { "preset": "camera.establish", "target": "cell" },
+      "effects": [],
+      "text": [{ "id": "hook" }]
+    },
+    {
+      "id": "s2-flow",
+      "t": [3.3, 6.8],
+      "beat": "Ions move freely",
+      "intent": "Push in as the stream makes internal transport visible and easy to compare with the cold state later.",
+      "camera": { "preset": "camera.pushIn", "target": "cell" },
+      "effects": [{ "id": "ion-flow" }],
+      "text": [{ "id": "flow" }]
+    },
+    {
+      "id": "s3-cold-clamp",
+      "t": [6.8, 11.2],
+      "beat": "Cold slows transport",
+      "intent": "Pressure closes around the core, lighting drops and the previous flow visibly loses energy.",
+      "camera": { "preset": "camera.reveal", "target": "cell" },
+      "effects": [{ "id": "cold-clamp" }],
+      "text": [{ "id": "cold" }]
+    },
+    {
+      "id": "s4-output-sag",
+      "t": [11.2, 15],
+      "beat": "Charge remains, delivery sags",
+      "intent": "Pull back after the stall so the intact cell remains visible while the answer reframes the failure as limited output.",
+      "camera": { "preset": "camera.pullBack", "target": "cell" },
+      "effects": [{ "id": "stall" }, { "id": "sag" }],
+      "text": [{ "id": "answer" }]
+    }
+  ]
+}

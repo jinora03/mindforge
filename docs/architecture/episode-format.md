@@ -53,6 +53,7 @@ Every event has `id`, `type`, and `at` (seconds). Optional shared fields: `durat
 | `property` | `target`, `property`, `to`, `from?` | Tween position/rotation/scale/opacity/color/emissiveIntensity/intensity. |
 | `face` | `target`, `state` | Set a character expression. |
 | `callback` | `name` | Edge-triggered hook (forward playback). |
+| `audio` | `cue`, `bus?`, `volume?`, `loop?` | Play a semantic audio cue. Looping ambience should provide an event `duration`. |
 
 Anchor references use `entityId.anchorName` (e.g. `observer.handLeft`) or just `entityId`.
 `easing` is one of `linear`, `easeIn`, `easeOut`, `easeInOut`, `easeInOutCubic`,
@@ -74,6 +75,7 @@ Anchor references use `entityId.anchorName` (e.g. `observer.handLeft`) or just `
   "timeline": [
     { "id": "self-tickle", "at": 1.2, "duration": 5, "type": "motion", "target": "observer", "motion": "motion.humanoid.selfTickle" },
     { "id": "prediction", "at": 2.4, "duration": 2, "type": "effect", "effect": "effect.signal.prediction", "through": ["observer.head", "observer.handLeft"], "tone": "prediction" },
+    { "id": "touch-sfx", "at": 5, "type": "audio", "cue": "audio.sfx.touch" },
     { "id": "reaction-cam", "at": 5, "duration": 6, "type": "camera", "preset": "camera.reactionCloseup", "target": "observer" }
   ]
 }

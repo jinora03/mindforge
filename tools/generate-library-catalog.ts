@@ -56,6 +56,11 @@ const files: Record<string, string> = {
     'Registered domains / stages. Reference from an episode `environment`.',
     library.environments.list(),
   ),
+  'audio.md': page(
+    'Audio',
+    'Registered semantic audio cues. Reference from `audio` timeline events via `cue`.',
+    library.audio.list(),
+  ),
   'assets.md': `${stamp}\n\n# Assets\n\nRegistered asset descriptors. v0.1 content is procedural; these ids reserve stable names for the future Renderer / GLB path.\n\n${assetRows}\n`,
 };
 

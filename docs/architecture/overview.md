@@ -26,7 +26,7 @@ by re-implementing renderers, cameras, characters, or timelines.
                     ┌───────────┴───────────┐
                     ▼                       ▼
               shared behavior          visual theme
-              motions/cameras         packages/themes
+              motions/cameras/audio         packages/themes
                                             │
                               ┌─────────────┼─────────────┐
                               ▼             ▼             ▼
@@ -47,7 +47,7 @@ Owns everything generic and content-agnostic:
   episode loading + validation gate (`EpisodeLoader`), resource disposal.
 - The **plugin contract** every library package implements (`EngineTypes.ts`): `FrameContext`,
   `ActionContext`, `Entity`, `PoseableRig`, and the factory/instance interfaces for motions,
-  effects, cameras, environments, and characters.
+  effects, cameras, environments, characters, and the injected audio runtime contract.
 
 The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibles.
 
@@ -55,7 +55,7 @@ The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibl
 
 - `library` holds the registries (`AssetRegistry`, `CharacterRegistry`, `PrefabRegistry`, `MotionRegistry`,
   `EffectRegistry`, `CameraRegistry`, `EnvironmentRegistry`) and builds a library for a theme.
-- Shared `motions` and `cameras` keep choreography stable across visual skins.
+- Shared `motions`, `cameras`, and semantic `audio` cues keep choreography and sound timing stable across visual skins.
 - `themes` selects character, prefab, effect, environment, asset, typography, safe-zone, and
   post-processing implementations for the same semantic ids.
 - `style` is now a **legacy prototype implementation dependency only**. Production Voxel
@@ -66,7 +66,7 @@ The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibl
 
 Episodes (`episodes/*/episode.json` + `text.json`) and reusable scene presets
 (`scenes/*.json`). Content describes environment, entities, motions, effects, camera events,
-text, visibility, property changes, and timeline choreography. It creates no renderer, clock,
+text, audio cues, visibility, property changes, and timeline choreography. It creates no renderer, clock,
 or infrastructure.
 
 ## MindForge Studio & Player (`apps/`)

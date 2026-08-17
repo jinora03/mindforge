@@ -1,3 +1,4 @@
+import { BrowserAudioRuntime } from '@mindforge/audio';
 import { MindForgeEngine, type EngineFrameInfo } from '@mindforge/engine';
 import { createLibraryForTheme } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
@@ -22,6 +23,7 @@ export class PlayerController {
   private readonly captions: HTMLDivElement;
   private readonly status: HTMLDivElement;
   private readonly themeButton: HTMLButtonElement;
+  private readonly audioButton: HTMLButtonElement;
 
   constructor(stage: HTMLElement, initialThemeId: string = DEFAULT_THEME_ID) {
     this.frame = el('div', {
@@ -56,6 +58,7 @@ export class PlayerController {
     this.engine = new MindForgeEngine({
       registries: createLibraryForTheme(this.theme.id),
       postProcessing: this.theme.presentation.postProcessing,
+      audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.renderCaptions(info),
       onError: (error) => this.showStatus(error.message),
     });
@@ -84,7 +87,32 @@ export class PlayerController {
     });
     this.frame.appendChild(this.themeButton);
 
-    this.frame.addEventListener('click', () => this.engine.restart());
+    this.audioButton = document.createElement('button');
+    Object.assign(this.audioButton.style, {
+      position: 'absolute',
+      top: '10px',
+      left: '10px',
+      zIndex: '5',
+      width: '34px',
+      height: '30px',
+      borderRadius: '999px',
+      border: '1px solid rgba(255,255,255,0.35)',
+      background: 'rgba(0,0,0,0.45)',
+      color: '#fff',
+      font: '600 14px system-ui, sans-serif',
+      cursor: 'pointer',
+    });
+    this.updateAudioButton();
+    this.audioButton.addEventListener('click', (event: MouseEvent) => {
+      event.stopPropagation();
+      this.toggleAudio();
+    });
+    this.frame.appendChild(this.audioButton);
+
+    this.frame.addEventListener('click', () => {
+      this.engine.unlockAudio();
+      this.engine.restart();
+    });
     window.addEventListener('keydown', this.onKeyDown);
   }
 
@@ -169,6 +197,10 @@ export class PlayerController {
       event.preventDefault();
       this.cycleTheme();
     }
+    if (event.code === 'KeyM') {
+      event.preventDefault();
+      this.toggleAudio();
+    }
   };
 
   private capturePlayback(): PlaybackSnapshot {
@@ -189,6 +221,19 @@ export class PlayerController {
   private updateThemeButton(): void {
     this.themeButton.textContent = this.theme.label.replace('MindForge ', '');
     this.themeButton.title = `${this.theme.description} — click or press T to switch theme`;
+  }
+
+  private toggleAudio(): void {
+    this.engine.unlockAudio();
+    this.engine.setAudioMuted(!this.engine.isAudioMuted());
+    this.updateAudioButton();
+  }
+
+  private updateAudioButton(): void {
+    const muted = this.engine.isAudioMuted();
+    this.audioButton.textContent = muted ? '🔇' : '🔊';
+    this.audioButton.title = muted ? 'Enable audio (M)' : 'Mute audio (M)';
+    this.audioButton.setAttribute('aria-pressed', String(muted));
   }
 
   private renderCaptions(info: EngineFrameInfo): void {

@@ -46,6 +46,7 @@ export default tseslint.config(
     // app code is intentionally NOT covered by this rule.
     files: [
       'packages/engine/**/*.ts',
+      'packages/audio/**/*.ts',
       'packages/motions/**/*.ts',
       'packages/effects/**/*.ts',
       'packages/cameras/**/*.ts',
@@ -53,6 +54,7 @@ export default tseslint.config(
       'packages/characters/**/*.ts',
       'packages/style/**/*.ts',
       'packages/themes/**/*.ts',
+      'packages/video-export/**/*.ts',
     ],
     rules: {
       'no-restricted-properties': [
@@ -61,7 +63,7 @@ export default tseslint.config(
           object: 'Math',
           property: 'random',
           message:
-            'Runtime visuals must be deterministic. Use createRng()/hashSeed() from @mindforge/engine with a stable seed instead of Math.random().',
+            'Runtime audio/visuals must be deterministic. Use a stable seeded generator instead of Math.random().',
         },
       ],
     },

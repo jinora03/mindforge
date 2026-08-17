@@ -1,9 +1,10 @@
 /**
  * @mindforge/library — registration and lookup of every reusable capability:
- * assets, characters, motions, effects, cameras, and environments. Episodes
+ * assets, audio cues, characters, motions, effects, cameras, and environments. Episodes
  * reference the stable ids registered here; they never import implementations.
  */
 export { AssetRegistry } from './AssetRegistry';
+export { AudioCueRegistry } from './AudioCueRegistry';
 export { CharacterRegistry } from './CharacterRegistry';
 export { PrefabRegistry } from './PrefabRegistry';
 export { MotionRegistry } from './MotionRegistry';

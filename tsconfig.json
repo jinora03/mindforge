@@ -5,6 +5,8 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@mindforge/schema": ["packages/schema/src/index.ts"],
+      "@mindforge/audio": ["packages/audio/src/index.ts"],
+      "@mindforge/video-export": ["packages/video-export/src/index.ts"],
       "@mindforge/engine": ["packages/engine/src/index.ts"],
       "@mindforge/style": ["packages/style/src/index.ts"],
       "@mindforge/characters": ["packages/characters/src/index.ts"],

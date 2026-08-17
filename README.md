@@ -15,7 +15,7 @@ episodes are mostly *composed* rather than re-coded.
 | **MindForge Studio** | `apps/studio/` | Development interface: preview, inspect, debug episodes |
 | **MindForge Player** | `apps/player/` | Clean playback application |
 | **MindForge Engine** | `packages/engine/` | Runtime: renderer, clock, timeline, entities, playback |
-| **MindForge Library** | `packages/{library,characters,motions,effects,cameras,environments}/` | Reusable, registered systems |
+| **MindForge Library** | `packages/{library,characters,motions,effects,cameras,environments,audio}/` | Reusable, registered systems |
 | **MindForge Themes** | `packages/{themes,style}/` | Swappable visual skins + presentation values |
 | **MindForge Content** | `content/` | Episodes and reusable scenes (MindForge Script JSON) |
 | **MindForge Assets** | `public/assets/` | Models, animations, audio, textures, fonts (future) |
@@ -60,7 +60,7 @@ pnpm dev
 ## Studio
 
 An episode selector, transport controls (play / pause / restart), a timeline scrubber with
-time/duration readout, a playback-speed selector, layer toggles (text, camera, effects,
+time/duration readout, a playback-speed selector, master audio controls, layer toggles (text, camera, effects,
 debug anchors), a clean-preview button, an error panel, and a registry inspector.
 
 ## Player
@@ -71,7 +71,7 @@ A clean 9:16 stage on a black background. Select an episode with a query paramet
 /player/?episode=artifact-001-heat
 ```
 
-Click to restart; press space to pause/resume. Press `T` (or use the on-stage theme button) to switch between Voxel and Toybox without losing the current playback position. The Player also accepts `?theme=voxel` or `?theme=toybox`.
+Click to restart; press space to pause/resume. Press `M` or use the on-stage sound button to mute/unmute. Press `T` (or use the on-stage theme button) to switch between Voxel and Toybox without losing the current playback position. The Player also accepts `?theme=voxel` or `?theme=toybox`.
 
 ## Episodes
 
@@ -99,7 +99,15 @@ Episodes reference capabilities by stable id (never by import). The authoritativ
 generated into [`docs/library-catalog/`](docs/library-catalog/). Examples:
 `character.observer`, `prefab.externalHand`, `prefab.heatEngine`,
 `motion.humanoid.walk`, `effect.contour.pressure`, `camera.reactionCloseup`,
-`environment.dreamGarden`.
+`environment.dreamGarden`, `audio.sfx.reaction`.
+
+## Audio
+
+MindForge audio uses semantic timeline cues with Master / Voice / Music / SFX / Ambience buses.
+Production audio supports URL-backed narration, deterministic stereo SFX fallbacks, optional production
+asset overrides, source fades, and voice ducking shared by preview and offline export. Browser playback
+is reconstructed from Engine time after pause, seek, restart, and speed changes. See
+[`docs/architecture/audio.md`](docs/architecture/audio.md) and [`docs/production-audio.md`](docs/production-audio.md).
 
 ## Assets
 
@@ -108,10 +116,22 @@ textures, and fonts. v0.1 registers asset **ids** (see the catalog) but content 
 procedural; the motion and asset systems are designed so an episode does not care whether a
 motion is procedural TypeScript or a future baked clip.
 
+## Production workflow
+
+Production episodes use a four-file package: `creative-brief.md`, `storyboard.json`, `episode.json`, and `text.json`. Studio discovers complete episode folders automatically and exposes storyboard shot navigation beside the deterministic preview.
+
+Create a new scaffold with:
+
+```bash
+pnpm create:episode -- --id artifact-005-topic --title "Why does this happen?"
+```
+
+Validate creative/shot structure with `pnpm validate:production`; the full `npm run check` gate includes this automatically. See [`docs/production-workflow.md`](docs/production-workflow.md).
+
 ## Current limitations (v0.1)
 
-- All geometry, characters, and effects are procedural; no `.glb`/audio loading yet.
-- No offline video export (MindForge Renderer is deferred to v0.2).
+- Geometry, characters, effects, and demo SFX are procedural; reference narration clips are bundled through the URL-backed audio cue contract and can be replaced with production voice assets.
+- Deterministic browser MP4 export is available in Studio (1080×1920, 60 FPS, H.264 + AAC).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - One character (`character.observer`); the walk cycle is stationary (in-place).
 

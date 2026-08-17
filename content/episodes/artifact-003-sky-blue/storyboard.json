@@ -1,0 +1,44 @@
+{
+  "episode": "artifact-003-sky-blue",
+  "title": "Why is the sky blue?",
+  "aspect": "9:16",
+  "durationSeconds": 15,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [0, 3.5],
+      "beat": "Look up",
+      "intent": "Open with the Observer and enough sky/world context to make the question spatial.",
+      "camera": { "preset": "camera.pullBack", "target": "observer" },
+      "effects": [],
+      "text": [{ "id": "hook" }]
+    },
+    {
+      "id": "s2-white-light",
+      "t": [3.5, 7.4],
+      "beat": "Sunlight arrives",
+      "intent": "Push toward the Observer while the incoming signal reads as a single coherent path.",
+      "camera": { "preset": "camera.pushIn", "target": "observer" },
+      "effects": [{ "id": "sun-path", "purpose": "One incoming light direction before scattering." }],
+      "text": [{ "id": "carry" }]
+    },
+    {
+      "id": "s3-scatter",
+      "t": [7.4, 11.4],
+      "beat": "Blue scatters sideways",
+      "intent": "Widen the visual field so the short-wavelength scatter clearly branches away from the incoming path.",
+      "camera": { "preset": "camera.reveal", "target": "observer" },
+      "effects": [{ "id": "scatter-a" }, { "id": "scatter-b" }],
+      "text": [{ "id": "scatter" }]
+    },
+    {
+      "id": "s4-answer",
+      "t": [11.4, 15],
+      "beat": "Blue from everywhere",
+      "intent": "Land on a wider resolved composition where blue illumination feels distributed around the Observer.",
+      "camera": { "preset": "camera.pullBack", "target": "observer" },
+      "effects": [{ "id": "flash" }],
+      "text": [{ "id": "answer" }]
+    }
+  ]
+}

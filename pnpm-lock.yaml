@@ -53,6 +53,9 @@ importers:
 
   apps/player:
     dependencies:
+      '@mindforge/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
       '@mindforge/engine':
         specifier: workspace:*
         version: link:../../packages/engine
@@ -75,6 +78,9 @@ importers:
 
   apps/studio:
     dependencies:
+      '@mindforge/audio':
+        specifier: workspace:*
+        version: link:../../packages/audio
       '@mindforge/engine':
         specifier: workspace:*
         version: link:../../packages/engine
@@ -84,6 +90,9 @@ importers:
       '@mindforge/themes':
         specifier: workspace:*
         version: link:../../packages/themes
+      '@mindforge/video-export':
+        specifier: workspace:*
+        version: link:../../packages/video-export
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -109,6 +118,15 @@ importers:
       vite:
         specifier: ^5.4.11
         version: 5.4.21(@types/node@20.19.43)
+
+  packages/audio:
+    dependencies:
+      '@mindforge/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@mindforge/schema':
+        specifier: workspace:*
+        version: link:../schema
 
   packages/cameras:
     dependencies:
@@ -186,6 +204,9 @@ importers:
 
   packages/library:
     dependencies:
+      '@mindforge/audio':
+        specifier: workspace:*
+        version: link:../audio
       '@mindforge/cameras':
         specifier: workspace:*
         version: link:../cameras
@@ -255,6 +276,27 @@ importers:
       '@types/three':
         specifier: ^0.169.0
         version: 0.169.0
+
+  packages/video-export:
+    dependencies:
+      '@mediabunny/aac-encoder':
+        specifier: 1.52.2
+        version: 1.52.2(mediabunny@1.52.2)
+      '@mindforge/audio':
+        specifier: workspace:*
+        version: link:../audio
+      '@mindforge/engine':
+        specifier: workspace:*
+        version: link:../engine
+      '@mindforge/schema':
+        specifier: workspace:*
+        version: link:../schema
+      '@mindforge/themes':
+        specifier: workspace:*
+        version: link:../themes
+      mediabunny:
+        specifier: 1.52.2
+        version: 1.52.2
 
 packages:
 
@@ -709,6 +751,11 @@ packages:
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
 
+  '@mediabunny/aac-encoder@1.52.2':
+    resolution: {integrity: sha512-M9wwZC3Ininf4CIHZUkh9SRQh0MLm8d6rkm/jfIn8uMULtSit7y5H/vdRlV/TrIu9lZtosYUm1qxxqxFA2gxIg==}
+    peerDependencies:
+      mediabunny: ^1.0.0
+
   '@rolldown/pluginutils@1.0.0-beta.27':
     resolution: {integrity: sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA==}
 
@@ -851,6 +898,12 @@ packages:
 
   '@types/babel__traverse@7.28.0':
     resolution: {integrity: sha512-8PvcXf70gTDZBgt9ptxJ8elBeBjcLOAcOtoO/mPJjtji1+CdGbHgm77om1GrsPxsiE+uXIpNSK64UYaIwQXd4Q==}
+
+  '@types/dom-mediacapture-transform@0.1.12':
+    resolution: {integrity: sha512-d7/QsLRwF864A5mgIM/YrfiglHoYn7zgCcAoJgW404r+2DwnNr7EBbLnCWpmOMgH8y0te73L1AV6H1bmauaWFw==}
+
+  '@types/dom-webcodecs@0.1.13':
+    resolution: {integrity: sha512-O5hkiFIcjjszPIYyUSyvScyvrBoV3NOEEZx/pMlsu44TKzWNkLVBBxnxJz42in5n3QIolYOcBYFCPZZ0h8SkwQ==}
 
   '@types/estree@1.0.9':
     resolution: {integrity: sha512-GhdPgy1el4/ImP05X05Uw4cw2/M93BCUmnEvWZNStlCzEKME4Fkk+YpoA5OiHNQmoS7Cafb8Xa3Pya8m1Qrzeg==}
@@ -1298,6 +1351,9 @@ packages:
 
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
+
+  mediabunny@1.52.2:
+    resolution: {integrity: sha512-HIgqL2BAWsWJtaqZRrqcrv7cEajQtCT9noR0dO8cGLKZKML9mmL4BjZOtm6j5I9qAp0v/hr/NmRZhuR6HZyQ7Q==}
 
   meshoptimizer@0.18.1:
     resolution: {integrity: sha512-ZhoIoL7TNV4s5B6+rx5mC//fw8/POGyNxS/DZyCJeiZ12ScLfVwRE/GfsxwiTkMYYD5DmK2/JXnEVXqL4rF+Sw==}
@@ -1933,6 +1989,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  '@mediabunny/aac-encoder@1.52.2(mediabunny@1.52.2)':
+    dependencies:
+      mediabunny: 1.52.2
+
   '@rolldown/pluginutils@1.0.0-beta.27': {}
 
   '@rollup/rollup-android-arm-eabi@4.62.2':
@@ -2032,6 +2092,12 @@ snapshots:
   '@types/babel__traverse@7.28.0':
     dependencies:
       '@babel/types': 7.29.7
+
+  '@types/dom-mediacapture-transform@0.1.12':
+    dependencies:
+      '@types/dom-webcodecs': 0.1.13
+
+  '@types/dom-webcodecs@0.1.13': {}
 
   '@types/estree@1.0.9': {}
 
@@ -2542,6 +2608,11 @@ snapshots:
   magic-string@0.30.21:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  mediabunny@1.52.2:
+    dependencies:
+      '@types/dom-mediacapture-transform': 0.1.12
+      '@types/dom-webcodecs': 0.1.13
 
   meshoptimizer@0.18.1: {}
 

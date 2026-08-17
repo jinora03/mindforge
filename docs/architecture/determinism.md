@@ -47,3 +47,17 @@ whatever it last held (history-dependent). This is invisible and therefore not
 part of compared scene state — the snapshot records an effect's position only
 while it is visible. A future phase may canonicalize hidden-effect transforms
 via the existing `EffectInstance.reset()` contract.
+
+## Audio is transport-mirrored side effect state
+
+Live audio is intentionally not part of `SceneRuntime.evaluateAt(t)`: it does not
+change scene snapshots. `MindForgeEngine` mirrors the authoritative
+`PlaybackController` state into an injected `AudioRuntime` on load, play/pause,
+seek, restart, speed changes, and playback ticks. The browser runtime stops and
+reconstructs Web Audio sources from the requested episode timestamp instead of
+keeping an independent timeline.
+
+Procedural audio cues are also deterministic at the sample level: their PCM
+renderers must return the same samples for the same sample rate and may not use
+`Math.random()`. This makes the cue layer suitable for the later offline audio
+mix used by deterministic video export.

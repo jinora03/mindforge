@@ -1,3 +1,4 @@
+import { DEFAULT_AUDIO_CUES, NARRATION_AUDIO_CUES } from '@mindforge/audio';
 import type { AssetDescriptor } from '@mindforge/engine';
 import { CAMERA_FACTORIES } from '@mindforge/cameras';
 import { MOTION_FACTORIES } from '@mindforge/motions';
@@ -29,6 +30,9 @@ function registerSharedCapabilities(library: MindForgeLibrary): void {
   }
   for (const descriptor of SHARED_ASSETS) {
     library.assets.describe(descriptor);
+  }
+  for (const cue of [...DEFAULT_AUDIO_CUES, ...NARRATION_AUDIO_CUES]) {
+    library.audio.describe(cue);
   }
 }
 

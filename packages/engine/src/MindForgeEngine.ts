@@ -5,6 +5,8 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 import type {
+  AudioMixerBus,
+  AudioSyncReason,
   CapabilityRegistries,
   EngineConfig,
   EngineFrameInfo,
@@ -81,7 +83,11 @@ export class MindForgeEngine {
   constructor(config: EngineConfig) {
     this.config = config;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      preserveDrawingBuffer: config.preserveDrawingBuffer ?? false,
+    });
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.setPixelRatio(this.resolvePixelRatio());
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -179,6 +185,12 @@ export class MindForgeEngine {
     try {
       const episodeId = this.runtime.load(raw, this.config.registries);
       this.playback = new PlaybackController(this.runtime.duration);
+      this.config.audioRuntime?.load(
+        this.runtime.getAudioEvents(),
+        this.config.registries.audio,
+        this.runtime.duration,
+      );
+      this.syncAudio('load');
       this.endedFired = false;
       this.callbackBoundary = -Infinity;
       this.buildDebugAnchors();
@@ -193,26 +205,51 @@ export class MindForgeEngine {
 
   play(): void {
     this.playback.play();
+    this.config.audioRuntime?.unlock();
+    this.syncAudio('play');
     this.endedFired = false;
   }
   pause(): void {
     this.playback.pause();
+    this.syncAudio('pause');
   }
   resume(): void {
     this.play();
   }
   restart(): void {
     this.playback.restart();
+    this.syncAudio('restart');
     this.endedFired = false;
     this.evaluateAndRender(0);
   }
   seek(time: number): void {
     this.playback.seek(time);
+    this.syncAudio('seek');
     this.endedFired = false;
     this.evaluateAndRender(this.playback.time);
   }
   setSpeed(speed: number): void {
     this.playback.setSpeed(speed);
+    this.syncAudio('speed');
+  }
+
+  /** Resume/unlock browser audio from an explicit user gesture. */
+  unlockAudio(): void {
+    this.config.audioRuntime?.unlock();
+    this.syncAudio('play');
+  }
+
+  setAudioMuted(muted: boolean): void {
+    this.config.audioRuntime?.setMuted(muted);
+  }
+  isAudioMuted(): boolean {
+    return this.config.audioRuntime?.isMuted() ?? false;
+  }
+  setAudioBusVolume(bus: AudioMixerBus, volume: number): void {
+    this.config.audioRuntime?.setBusVolume(bus, volume);
+  }
+  getAudioBusVolume(bus: AudioMixerBus): number {
+    return this.config.audioRuntime?.getBusVolume(bus) ?? 1;
   }
 
   setLayerEnabled(layer: LayerName, enabled: boolean): void {
@@ -242,6 +279,23 @@ export class MindForgeEngine {
   }
 
   /**
+   * Set an exact render target size without requiring a mounted DOM container.
+   * Offline video export uses pixelRatio=1 so 1080×1920 means exactly that many
+   * encoded pixels. Normal mounted playback continues to use resize().
+   */
+  setRenderSize(width: number, height: number, pixelRatio = 1): void {
+    const w = Math.max(1, Math.floor(width));
+    const h = Math.max(1, Math.floor(height));
+    this.renderer.setPixelRatio(Math.max(0.1, pixelRatio));
+    this.renderer.setSize(w, h, false);
+    this.composer.setSize(w, h);
+    this.bloomPass.setSize(w, h);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.renderComposer();
+  }
+
+  /**
    * Fill the mount container. The app is responsible for giving the container a
    * 9:16 shape (via CSS `aspect-ratio`); the Engine matches the camera aspect to
    * whatever it is handed so nothing is distorted.
@@ -265,6 +319,7 @@ export class MindForgeEngine {
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
     this.runtime.dispose();
+    this.config.audioRuntime?.dispose();
     this.debugAnchors = [];
     this.composer.dispose();
     this.bloomPass.dispose();
@@ -302,6 +357,7 @@ export class MindForgeEngine {
     try {
       // Deterministic scene state via the single shared evaluation path.
       this.runtime.evaluateAt(now);
+      this.syncAudio('tick');
       // Live side effects: fire callbacks crossed while moving forward only.
       if (now > from) {
         for (const cb of this.runtime.callbacksInInterval(from, now)) {
@@ -341,6 +397,18 @@ export class MindForgeEngine {
     } catch (error) {
       this.config.onError?.(error as Error);
     }
+  }
+
+  private syncAudio(reason: AudioSyncReason): void {
+    this.config.audioRuntime?.sync(
+      {
+        time: this.playback.time,
+        duration: this.playback.duration,
+        playing: this.playback.playing,
+        speed: this.playback.speed,
+      },
+      reason,
+    );
   }
 
   private applyPostProcessing(config?: PostProcessingConfig): void {

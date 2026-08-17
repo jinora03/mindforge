@@ -4,7 +4,7 @@
  * The Engine owns time, rendering, the scene lifecycle, entity management, and
  * deterministic timeline evaluation. Library packages implement the exported
  * contracts (MotionFactory, EffectFactory, CameraFactory, EnvironmentFactory,
- * CharacterFactory, PoseableRig). The Engine imports no content and no Bible.
+ * CharacterFactory, AudioRuntime, PoseableRig). The Engine imports no content and no Bible.
  */
 export * from './EngineTypes';
 export * from './humanoid';
@@ -20,6 +20,8 @@ export type {
   MotionEvent,
   ObjectMotionEvent,
   EffectEvent,
+  AudioBus,
+  AudioEvent,
   CameraEvent,
   TextEvent,
   VisibilityEvent,
