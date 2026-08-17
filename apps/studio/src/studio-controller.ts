@@ -12,6 +12,7 @@ import {
 import { EPISODES, getEpisode } from '@content/catalog';
 import { getProductionEpisode } from '@content/production-catalog';
 import type { EpisodeProductionInfo } from '@content/production-types';
+import { createEpisodeAuthoringSource, type EpisodeAuthoringDraft, type EpisodeAuthoringSource } from './authoring';
 import {
   resolveStudioExportRange,
   type ResolvedStudioExportRange,
@@ -124,6 +125,41 @@ export class StudioController {
 
   getProduction(episodeId: string | undefined = this.state.episodeId): EpisodeProductionInfo | undefined {
     return episodeId ? getProductionEpisode(episodeId) : undefined;
+  }
+
+  getAuthoringSource(episodeId: string | undefined = this.state.episodeId): EpisodeAuthoringSource | undefined {
+    if (!episodeId) return undefined;
+    const entry = getEpisode(episodeId);
+    const production = getProductionEpisode(episodeId);
+    return entry && production ? createEpisodeAuthoringSource(entry.input, production) : undefined;
+  }
+
+  previewAuthoringText(draft: EpisodeAuthoringDraft): void {
+    const episodeId = this.state.episodeId;
+    const entry = episodeId ? getEpisode(episodeId) : undefined;
+    if (!entry) return;
+    const playback = this.capturePlayback();
+    try {
+      this.engine.loadEpisode({ ...entry.input, text: draft.textEntries.map((entry) => ({ ...entry })) });
+      this.restorePlayback(playback);
+      this.patch({ error: undefined });
+    } catch (error) {
+      this.patch({ error: `Authoring preview failed: ${(error as Error).message}` });
+    }
+  }
+
+  restoreEpisodeSource(): void {
+    const episodeId = this.state.episodeId;
+    const entry = episodeId ? getEpisode(episodeId) : undefined;
+    if (!entry) return;
+    const playback = this.capturePlayback();
+    try {
+      this.engine.loadEpisode(entry.input);
+      this.restorePlayback(playback);
+      this.patch({ error: undefined });
+    } catch (error) {
+      this.patch({ error: `Could not restore episode source: ${(error as Error).message}` });
+    }
   }
 
   load(episodeId: string): void {

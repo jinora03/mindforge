@@ -1,17 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { EPISODES } from '@content/catalog';
-import { getProductionEpisode } from '@content/production-catalog';
+import { getProductionEpisode, PRODUCTION_EPISODES } from '@content/production-catalog';
 import { activeStoryboardShot, summarizeCreativeBrief } from '@content/production-types';
 
 describe('MindForge production workflow', () => {
   it('discovers every production episode from the four-file folder contract', () => {
-    expect(EPISODES.map((episode) => episode.id)).toEqual([
-      'artifact-001-heat',
-      'artifact-002-prediction',
-      'artifact-003-sky-blue',
-      'artifact-004-cold-battery',
-      'artifact-005-lightning-thunder',
-    ]);
+    const runtimeIds = EPISODES.map((episode) => episode.id);
+    const productionIds = PRODUCTION_EPISODES.map((entry) => entry.storyboard.episode);
+    expect(runtimeIds).toEqual(productionIds);
+    expect(runtimeIds).toContain('artifact-005-lightning-thunder');
 
     for (const episode of EPISODES) {
       const production = getProductionEpisode(episode.id);

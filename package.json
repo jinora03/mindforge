@@ -23,7 +23,8 @@
     "create:episode": "tsx tools/create-episode.ts",
     "validate:audio": "tsx tools/validate-audio.ts",
     "validate:audio:production": "tsx tools/validate-audio.ts --production",
-    "audio:replace": "tsx tools/replace-audio.ts"
+    "audio:replace": "tsx tools/replace-audio.ts",
+    "duplicate:episode": "tsx tools/duplicate-episode.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

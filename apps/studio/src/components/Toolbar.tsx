@@ -38,6 +38,7 @@ export interface ToolbarProps {
   onMusicVolume: (volume: number) => void;
   onSfxVolume: (volume: number) => void;
   onAmbienceVolume: (volume: number) => void;
+  onAuthor: () => void;
   onExport: () => void;
   onCancelExport: () => void;
   onToggleLayer: (layer: LayerName, enabled: boolean) => void;
@@ -122,6 +123,15 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
         <VolumeControl label="Amb" title="Ambience volume" value={props.ambienceVolume} onChange={props.onAmbienceVolume} />
         <VolumeControl label="Music" title="Music volume" value={props.musicVolume} onChange={props.onMusicVolume} />
       </div>
+
+      <button
+        className="author-btn"
+        onClick={props.onAuthor}
+        disabled={props.exporting}
+        title="Open storyboard and text authoring tools"
+      >
+        Author
+      </button>
 
       <button
         className={props.exporting ? 'export-btn active' : 'export-btn'}

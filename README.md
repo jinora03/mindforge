@@ -127,7 +127,7 @@ Create a new scaffold with:
 pnpm create:episode -- --id artifact-005-topic --title "Why does this happen?"
 ```
 
-Validate creative/shot structure with `pnpm validate:production`; the full `npm run check` gate includes this automatically. See [`docs/production-workflow.md`](docs/production-workflow.md).
+Validate creative/shot structure with `pnpm validate:production`; the full `npm run check` gate includes this automatically. See [`docs/production-workflow.md`](docs/production-workflow.md) — includes the Studio Author drawer, four-file workflow, and episode duplication/scaffolding tools.
 
 ## Current limitations (v0.1)
 

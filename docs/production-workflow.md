@@ -156,3 +156,25 @@ Preview / deterministic exporter
 ```
 
 This keeps creative workflow improvements from turning into runtime dependencies.
+
+## Studio authoring drawer
+
+Phase 9 adds an **Author** drawer to Studio. It is intentionally a production-layer tool rather than an Engine editor:
+
+- edit storyboard shot start/end, beat, and intent with immediate gap/overlap diagnostics;
+- edit text referenced by the selected shot and preview that text through the normal Engine timeline;
+- inspect the exact runtime events that start inside a shot, jump to their timestamps, and copy their JSON;
+- download `storyboard.json`, `text.json`, or the source `episode.json` after editing.
+
+The browser does not silently write into the repository. Downloaded drafts are explicit artifacts that you replace in `content/episodes/<id>/`, then run the normal validation gate. This keeps the runtime deployable as a static web app while avoiding a hidden filesystem/server dependency in Studio.
+
+To start from an existing visual grammar instead of an empty scaffold:
+
+```bash
+pnpm duplicate:episode -- \
+  --from artifact-005-lightning-thunder \
+  --id artifact-006-metal-cold \
+  --title "Why does metal feel colder than wood?"
+```
+
+The new folder is automatically discovered. Replace the copied creative direction/content before production, then run `pnpm validate:production && pnpm validate:episodes`.

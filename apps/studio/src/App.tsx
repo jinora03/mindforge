@@ -7,7 +7,9 @@ import { Toolbar } from './components/Toolbar';
 import { Inspector } from './components/Inspector';
 import { ShotTrack } from './components/ShotTrack';
 import { CreatorExportPanel } from './components/CreatorExportPanel';
+import { AuthoringPanel } from './components/AuthoringPanel';
 import { createDefaultStudioCreatorExportOptions } from './creator-export';
+import { createAuthoringDraft, type EpisodeAuthoringDraft } from './authoring';
 
 const INITIAL_STATE: StudioState = {
   themeId: DEFAULT_THEME_ID,
@@ -34,6 +36,8 @@ export function App(): JSX.Element {
   const [layers, setLayers] = useState<LayerFlags>(INITIAL_LAYERS);
   const [clean, setClean] = useState(false);
   const [exportPanelOpen, setExportPanelOpen] = useState(false);
+  const [authoringOpen, setAuthoringOpen] = useState(false);
+  const [authoringDraft, setAuthoringDraft] = useState<EpisodeAuthoringDraft>();
   const [exportOptions, setExportOptions] = useState(() => createDefaultStudioCreatorExportOptions(DEFAULT_THEME_ID));
   const previewRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +66,16 @@ export function App(): JSX.Element {
 
   const catalog = useMemo(() => controller.getCatalog(), [controller, state.themeId]);
   const production = useMemo(() => controller.getProduction(state.episodeId), [controller, state.episodeId]);
+  const authoringSource = useMemo(() => controller.getAuthoringSource(state.episodeId), [controller, state.episodeId]);
+
+  useEffect(() => {
+    setAuthoringDraft(authoringSource ? createAuthoringDraft(authoringSource) : undefined);
+  }, [authoringSource]);
+
+  const authoringProduction = useMemo(() => {
+    if (!production || !authoringDraft) return production;
+    return { ...production, storyboard: authoringDraft.storyboard };
+  }, [production, authoringDraft]);
 
   const toggleLayer = (layer: LayerName, enabled: boolean): void => {
     controller.setLayer(layer, enabled);
@@ -99,10 +113,24 @@ export function App(): JSX.Element {
         onMusicVolume={(volume) => controller.setMusicVolume(volume)}
         onSfxVolume={(volume) => controller.setSfxVolume(volume)}
         onAmbienceVolume={(volume) => controller.setAmbienceVolume(volume)}
-        onExport={() => setExportPanelOpen(true)}
+        onAuthor={() => { setExportPanelOpen(false); setAuthoringOpen(true); }}
+        onExport={() => { setAuthoringOpen(false); setExportPanelOpen(true); }}
         onCancelExport={() => controller.cancelExport()}
         onToggleLayer={toggleLayer}
         onToggleClean={() => setClean((value) => !value)}
+      />
+
+      <AuthoringPanel
+        open={authoringOpen}
+        source={authoringSource}
+        draft={authoringDraft}
+        time={state.time}
+        onDraftChange={setAuthoringDraft}
+        onClose={() => setAuthoringOpen(false)}
+        onSeek={(time) => controller.seek(time)}
+        onPreviewText={(draft) => controller.previewAuthoringText(draft)}
+        onRestorePreview={() => controller.restoreEpisodeSource()}
+        onResetDraft={() => setAuthoringDraft(authoringSource ? createAuthoringDraft(authoringSource) : undefined)}
       />
 
       <CreatorExportPanel
@@ -135,7 +163,7 @@ export function App(): JSX.Element {
           error={state.error}
           activeTexts={state.activeTexts}
           catalog={catalog}
-          production={production}
+          production={authoringProduction}
           time={state.time}
           onSeek={(time) => controller.seek(time)}
         />
@@ -144,7 +172,7 @@ export function App(): JSX.Element {
       <footer className="scrubber-row">
         <div className="timeline-stack">
           <ShotTrack
-            production={production}
+            production={authoringProduction}
             duration={state.duration}
             time={state.time}
             disabled={state.exporting}
