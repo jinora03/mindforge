@@ -1,12 +1,12 @@
 :root {
   color-scheme: dark;
-  --void-ink: #080312;
-  --deep-violet: #1a0b38;
-  --forge-violet: #6737ff;
-  --signal-pink: #ff4fc8;
-  --insight-white: #fff7fc;
-  --panel: #120a26;
-  --panel-line: #2a1a55;
+  --app-bg: #0d1117;
+  --toolbar-bg: #141a22;
+  --accent: #6aa9ff;
+  --accent-secondary: #f2c14e;
+  --text: #f5f7fa;
+  --panel: #151b23;
+  --panel-line: #2a3440;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
@@ -21,8 +21,8 @@ body,
 #root {
   width: 100%;
   height: 100%;
-  background: var(--void-ink);
-  color: var(--insight-white);
+  background: var(--app-bg);
+  color: var(--text);
   overflow: hidden;
 }
 
@@ -38,14 +38,14 @@ body,
   align-items: center;
   gap: 14px;
   padding: 10px 14px;
-  background: linear-gradient(180deg, var(--deep-violet), var(--void-ink));
+  background: linear-gradient(180deg, #171d25, var(--toolbar-bg));
   border-bottom: 1px solid var(--panel-line);
   flex-wrap: wrap;
 }
 .toolbar select,
 .toolbar button {
   background: var(--panel);
-  color: var(--insight-white);
+  color: var(--text);
   border: 1px solid var(--panel-line);
   border-radius: 8px;
   padding: 6px 12px;
@@ -53,7 +53,7 @@ body,
   cursor: pointer;
 }
 .toolbar button:hover {
-  border-color: var(--forge-violet);
+  border-color: var(--accent);
 }
 .episode-select {
   min-width: 240px;
@@ -68,7 +68,7 @@ body,
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  color: #cbb8e6;
+  color: #b9c3cf;
 }
 .layer-toggles {
   display: flex;
@@ -80,11 +80,11 @@ body,
   align-items: center;
   gap: 5px;
   font-size: 13px;
-  color: #cbb8e6;
+  color: #b9c3cf;
 }
 .clean-btn.active {
-  border-color: var(--signal-pink);
-  color: var(--signal-pink);
+  border-color: var(--accent-secondary);
+  color: var(--accent-secondary);
 }
 
 /* Stage row */
@@ -109,12 +109,12 @@ body,
   line-height: 0;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 12px 60px rgba(103, 55, 255, 0.25);
+  box-shadow: 0 12px 60px rgba(0, 0, 0, 0.42);
 }
 
 /* Inspector */
 .inspector {
-  background: var(--void-ink);
+  background: var(--app-bg);
   border-left: 1px solid var(--panel-line);
   overflow-y: auto;
   padding: 12px;
@@ -136,13 +136,13 @@ body,
   margin-bottom: 8px;
 }
 .panel.error {
-  border-color: var(--signal-pink);
+  border-color: var(--accent-secondary);
 }
 .error-text {
   white-space: pre-wrap;
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 12px;
-  color: var(--signal-pink);
+  color: var(--accent-secondary);
 }
 .muted {
   color: #6f5c92;
@@ -160,7 +160,7 @@ body,
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--signal-pink);
+  color: var(--accent-secondary);
   margin-right: 6px;
 }
 .registry details {
@@ -172,7 +172,7 @@ body,
   text-transform: capitalize;
 }
 .registry .count {
-  color: var(--forge-violet);
+  color: var(--accent);
   font-weight: 700;
 }
 .registry ul {
@@ -182,7 +182,7 @@ body,
 .registry code {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 11.5px;
-  color: #cbb8e6;
+  color: #b9c3cf;
 }
 
 /* Scrubber */
@@ -191,17 +191,17 @@ body,
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  background: var(--deep-violet);
+  background: var(--toolbar-bg);
   border-top: 1px solid var(--panel-line);
 }
 .scrubber {
   flex: 1;
-  accent-color: var(--signal-pink);
+  accent-color: var(--accent-secondary);
 }
 .time {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 13px;
-  color: #cbb8e6;
+  color: #b9c3cf;
   min-width: 120px;
   text-align: right;
 }
@@ -230,13 +230,17 @@ body,
   display: none;
 }
 
+.theme-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b9c3cf;
+  font-size: 13px;
+}
+.theme-control > span {
+  font-weight: 650;
+}
 .theme-select {
-  /* Mirrors .episode-select so the theme toggle reads as part of the toolbar. */
-  background: var(--panel, #1b1f24);
-  color: inherit;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 8px;
-  padding: 6px 10px;
-  font: inherit;
-  text-transform: capitalize;
+  min-width: 104px;
+  font-weight: 650;
 }

@@ -77,3 +77,29 @@ export function samplePhase(ctx: ActionContext, cycleSeconds: number, speed: num
     phase: cycles - Math.floor(cycles),
   };
 }
+
+/** Clamp a scalar into the normalized 0..1 interval. */
+export function clamp01(value: number): number {
+  return value < 0 ? 0 : value > 1 ? 1 : value;
+}
+
+/** Smooth cubic easing with zero velocity at both ends. */
+export function smoothstep01(value: number): number {
+  const t = clamp01(value);
+  return t * t * (3 - 2 * t);
+}
+
+/**
+ * A deterministic fade-in / hold / fade-out envelope for finite motion windows.
+ * `fadeInEnd` and `fadeOutStart` are normalized progress positions.
+ */
+export function smoothWindow(
+  progress: number,
+  fadeInEnd = 0.18,
+  fadeOutStart = 0.82,
+): number {
+  const t = clamp01(progress);
+  const fadeIn = fadeInEnd <= 0 ? 1 : smoothstep01(t / fadeInEnd);
+  const fadeOut = fadeOutStart >= 1 ? 1 : 1 - smoothstep01((t - fadeOutStart) / (1 - fadeOutStart));
+  return fadeIn * fadeOut;
+}

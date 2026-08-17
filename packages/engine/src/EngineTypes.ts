@@ -267,7 +267,7 @@ export interface EngineFrameInfo {
 export interface PostProcessingConfig {
   readonly enabled?: boolean;
   readonly bloom?: { strength: number; radius: number; threshold: number };
-  readonly vignette?: { offset: number; darkness: number };
+  readonly vignette?: { offset: number; darkness: number } | null;
 }
 
 export interface EngineConfig {

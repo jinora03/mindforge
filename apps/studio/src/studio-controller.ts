@@ -14,8 +14,20 @@ export interface StudioState {
   activeTexts: ResolvedText[];
 }
 
+export interface ThemeOption {
+  readonly id: string;
+  readonly label: string;
+  readonly description: string;
+}
+
 export type LayerFlags = Record<LayerName, boolean>;
 type Listener = (state: StudioState) => void;
+
+interface PlaybackSnapshot {
+  readonly time: number;
+  readonly playing: boolean;
+  readonly speed: number;
+}
 
 /**
  * Framework-agnostic bridge between React and the Engine. It owns one Engine
@@ -25,7 +37,6 @@ type Listener = (state: StudioState) => void;
 export class StudioController {
   readonly episodes = EPISODES.map((e) => ({ id: e.id, title: e.title }));
   private readonly engine: MindForgeEngine;
-  // Both are swapped by setTheme(); no longer readonly.
   private library: MindForgeLibrary;
   private theme: MindForgeTheme;
   private readonly listeners = new Set<Listener>();
@@ -87,34 +98,72 @@ export class StudioController {
     }
   }
 
-  /** Stable list for the theme selector. */
-  get themes(): string[] {
-    return listThemes();
+  /** Stable metadata for the real Studio theme selector. */
+  get themes(): ThemeOption[] {
+    return listThemes().map((id) => {
+      const theme = getTheme(id);
+      return { id: theme.id, label: theme.label, description: theme.description };
+    });
   }
 
   /**
-   * Switch theme without losing your place. The episode has to be rebuilt from
-   * the new theme's factories, so the timestamp and play state are captured and
-   * restored around the reload — otherwise comparing two themes at the same beat
-   * would mean re-scrubbing every time.
+   * Rebuild the current episode under another visual theme while preserving the
+   * editor session. Registries and renderer presentation change together; the
+   * Engine still receives only generic factories/configuration and never sees a
+   * theme id.
    */
   setTheme(themeId: string): void {
     if (themeId === this.state.themeId) return;
-    const time = this.state.time;
-    const wasPlaying = this.state.playing;
+
+    const previousTheme = this.theme;
+    const previousLibrary = this.library;
     const episodeId = this.state.episodeId;
+    const entry = episodeId ? getEpisode(episodeId) : undefined;
+    const playback = this.capturePlayback();
+
     try {
-      this.theme = getTheme(themeId);
-      this.library = createLibraryForTheme(themeId);
-      this.engine.setRegistries(this.library);
-      this.patch({ themeId, error: undefined });
-      if (episodeId) {
-        this.load(episodeId);
-        this.engine.seek(time);
-        if (!wasPlaying) this.engine.pause();
+      const nextTheme = getTheme(themeId);
+      const nextLibrary = createLibraryForTheme(nextTheme.id);
+
+      // Update the DOM-facing presentation before loadEpisode emits onFrame so
+      // captions from the rebuilt frame immediately use the selected theme.
+      this.theme = nextTheme;
+      this.library = nextLibrary;
+      this.engine.reconfigure(nextLibrary, nextTheme.presentation.postProcessing);
+
+      if (entry) {
+        this.engine.loadEpisode(entry.input);
+        this.restorePlayback(playback);
       }
+
+      this.patch({
+        themeId: nextTheme.id,
+        playing: playback.playing,
+        speed: playback.speed,
+        error: undefined,
+      });
     } catch (error) {
-      this.patch({ error: (error as Error).message });
+      // Theme switching is transactional from the editor's perspective. If a
+      // new theme cannot build the episode, restore the previous visual runtime
+      // rather than leaving a half-switched or empty stage.
+      this.theme = previousTheme;
+      this.library = previousLibrary;
+      this.engine.reconfigure(previousLibrary, previousTheme.presentation.postProcessing);
+      if (entry) {
+        try {
+          this.engine.loadEpisode(entry.input);
+          this.restorePlayback(playback);
+        } catch {
+          // Preserve the original switch error below. A rollback failure will
+          // still be visible through the Engine's onError callback.
+        }
+      }
+      this.patch({
+        themeId: previousTheme.id,
+        playing: playback.playing,
+        speed: playback.speed,
+        error: (error as Error).message,
+      });
     }
   }
 
@@ -143,6 +192,21 @@ export class StudioController {
 
   dispose(): void {
     this.engine.dispose();
+  }
+
+  private capturePlayback(): PlaybackSnapshot {
+    return {
+      time: this.engine.time,
+      playing: this.engine.playing,
+      speed: this.engine.speed,
+    };
+  }
+
+  private restorePlayback(snapshot: PlaybackSnapshot): void {
+    this.engine.setSpeed(snapshot.speed);
+    this.engine.seek(snapshot.time);
+    if (snapshot.playing) this.engine.play();
+    else this.engine.pause();
   }
 
   private onFrame(info: EngineFrameInfo): void {

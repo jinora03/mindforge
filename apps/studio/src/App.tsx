@@ -34,7 +34,7 @@ export function App(): JSX.Element {
     };
   }, [controller]);
 
-  const catalog = useMemo(() => controller.getCatalog(), [controller]);
+  const catalog = useMemo(() => controller.getCatalog(), [controller, state.themeId]);
 
   const toggleLayer = (layer: LayerName, enabled: boolean): void => {
     controller.setLayer(layer, enabled);

@@ -55,11 +55,24 @@ export const createVoxelExternalHand: PrefabFactory = (): PrefabInstance => {
 
   const fingerX = [-0.088, -0.03, 0.03, 0.088];
   const fingerLengths = [0.16, 0.19, 0.185, 0.155];
+  const contact = new THREE.Object3D();
+  contact.name = 'contact';
   for (let i = 0; i < fingerX.length; i++) {
     const length = fingerLengths[i];
     const size: [number, number, number] = [0.05, 0.05, length];
-    const finger = block(size, textured('skin', size), [fingerX[i], 0, length / 2]);
+
+    // The motion system curls direct children of the `fingers` anchor. Give
+    // every finger a pivot at its knuckle rather than rotating a mesh around
+    // its centre, otherwise the tip slides through the palm during contact.
+    const finger = new THREE.Group();
+    finger.position.set(fingerX[i], 0, 0);
     finger.rotation.x = -0.06;
+    finger.add(block(size, textured('skin', size), [0, 0, length / 2]));
+
+    if (i === 2) {
+      contact.position.set(0, 0, length);
+      finger.add(contact);
+    }
     fingers.add(finger);
   }
 
@@ -68,7 +81,7 @@ export const createVoxelExternalHand: PrefabFactory = (): PrefabInstance => {
   thumb.rotation.y = -0.5;
   root.add(thumb);
 
-  return { object3d: root, anchors: { palm, fingers } };
+  return { object3d: root, anchors: { palm, fingers, contact } };
 };
 
 /**

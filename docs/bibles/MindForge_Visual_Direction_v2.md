@@ -13,8 +13,9 @@ materials, lighting, and semantic visual states look.
 1. **Voxel** — primary production theme. Original block-world / voxel gameplay readability:
    chunky characters, block-built environments and props, crisp silhouettes, geometric
    particles, readable lighting, and cinematic game-camera staging.
-2. **Toybox** — later alternative theme. Original modular toy/block-character language with
-   smoother, playful proportions and expressive animation.
+2. **Toybox** — supported alternative theme. Original modular toy-character language with
+   smoother moulded forms, playful proportions, colorful built environments, and expressive
+   animation.
 
 These themes may evoke broad block-game conventions, but MindForge must not copy Minecraft or
 Roblox assets, textures, logos, UI, maps, character skins, or other recognizable proprietary

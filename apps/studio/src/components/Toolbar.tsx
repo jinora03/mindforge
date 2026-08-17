@@ -1,4 +1,5 @@
 import type { LayerName } from '@mindforge/engine';
+import type { ThemeOption } from '../studio-controller';
 
 const SPEEDS = [0.25, 0.5, 1, 1.5, 2];
 const LAYERS: { key: LayerName; label: string }[] = [
@@ -11,7 +12,7 @@ const LAYERS: { key: LayerName; label: string }[] = [
 export interface ToolbarProps {
   episodes: { id: string; title: string }[];
   episodeId?: string;
-  themes: string[];
+  themes: ThemeOption[];
   themeId: string;
   playing: boolean;
   speed: number;
@@ -27,6 +28,8 @@ export interface ToolbarProps {
 }
 
 export function Toolbar(props: ToolbarProps): JSX.Element {
+  const selectedTheme = props.themes.find((theme) => theme.id === props.themeId);
+
   return (
     <header className="toolbar">
       <select
@@ -41,20 +44,21 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
         ))}
       </select>
 
-      {/* Same episode, different art direction: switching preserves the timestamp
-          so two themes can be compared at the same beat. */}
-      <select
-        className="theme-select"
-        value={props.themeId}
-        onChange={(e) => props.onSelectTheme(e.target.value)}
-        title="Visual theme"
-      >
-        {props.themes.map((id) => (
-          <option key={id} value={id}>
-            {id}
-          </option>
-        ))}
-      </select>
+      <label className="theme-control" title={selectedTheme?.description}>
+        <span>Theme</span>
+        <select
+          className="theme-select"
+          value={props.themeId}
+          onChange={(e) => props.onSelectTheme(e.target.value)}
+          aria-label="Visual theme"
+        >
+          {props.themes.map((theme) => (
+            <option key={theme.id} value={theme.id}>
+              {theme.label.replace('MindForge ', '')}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <div className="transport">
         <button onClick={props.onPlayPause}>{props.playing ? '❚❚ Pause' : '► Play'}</button>

@@ -67,6 +67,8 @@ export const createToyboxExternalHand: PrefabFactory = (): PrefabInstance => {
 
   const xs = [-0.093, -0.031, 0.031, 0.093];
   const lengths = [0.16, 0.2, 0.19, 0.155];
+  const contact = new THREE.Object3D();
+  contact.name = 'contact';
   for (let i = 0; i < xs.length; i++) {
     const finger = new THREE.Group();
     const tube = part(tubeGeometry(0.028, lengths[i], 10), skin);
@@ -76,6 +78,11 @@ export const createToyboxExternalHand: PrefabFactory = (): PrefabInstance => {
     finger.add(part(ballGeometry(0.028, 10), skin, [0, 0, lengths[i]]));
     finger.position.set(xs[i], 0, 0);
     finger.rotation.x = -0.05;
+
+    if (i === 2) {
+      contact.position.set(0, 0, lengths[i]);
+      finger.add(contact);
+    }
     fingers.add(finger);
   }
 
@@ -88,7 +95,7 @@ export const createToyboxExternalHand: PrefabFactory = (): PrefabInstance => {
   thumb.rotation.y = -0.55;
   root.add(thumb);
 
-  return { object3d: root, anchors: { palm, fingers } };
+  return { object3d: root, anchors: { palm, fingers, contact } };
 };
 
 /**

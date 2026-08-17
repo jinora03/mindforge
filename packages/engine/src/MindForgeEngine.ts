@@ -9,6 +9,7 @@ import type {
   EngineConfig,
   EngineFrameInfo,
   LayerName,
+  PostProcessingConfig,
 } from './EngineTypes';
 import { PlaybackController } from './PlaybackController';
 import { SceneRuntime, type SceneLayer } from './SceneRuntime';
@@ -88,24 +89,22 @@ export class MindForgeEngine {
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.renderPass = new RenderPass(this.runtime.scene, this.runtime.camera);
-    const post = { ...DEFAULT_POST, ...(config.postProcessing ?? {}) };
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(720, 1280),
-      post.bloom?.strength ?? DEFAULT_POST.bloom.strength,
-      post.bloom?.radius ?? DEFAULT_POST.bloom.radius,
-      post.bloom?.threshold ?? DEFAULT_POST.bloom.threshold,
+      DEFAULT_POST.bloom.strength,
+      DEFAULT_POST.bloom.radius,
+      DEFAULT_POST.bloom.threshold,
     );
     this.vignettePass = new ShaderPass(VignetteShader);
-    this.vignettePass.uniforms.offset.value = post.vignette?.offset ?? DEFAULT_POST.vignette.offset;
-    this.vignettePass.uniforms.darkness.value =
-      post.vignette?.darkness ?? DEFAULT_POST.vignette.darkness;
-    this.vignettePass.enabled = post.vignette !== null;
 
+    // Keep presentation passes in a stable composer chain. Theme/app code may
+    // reconfigure their values at runtime without rebuilding the renderer.
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(this.renderPass);
-    if (post.enabled !== false) this.composer.addPass(this.bloomPass);
+    this.composer.addPass(this.bloomPass);
     this.composer.addPass(this.vignettePass);
     this.composer.addPass(new OutputPass());
+    this.applyPostProcessing(config.postProcessing);
   }
 
   /** The scene owned by the runtime (public API preserved). */
@@ -130,6 +129,19 @@ export class MindForgeEngine {
    */
   setRegistries(registries: CapabilityRegistries): void {
     this.config = { ...this.config, registries };
+  }
+
+  /**
+   * Atomically replace the mutable visual runtime configuration. This remains
+   * theme-blind: callers provide capability factories and plain renderer
+   * presentation numbers, then reload the current episode from those factories.
+   */
+  reconfigure(
+    registries: CapabilityRegistries,
+    postProcessing?: PostProcessingConfig,
+  ): void {
+    this.config = { ...this.config, registries, postProcessing };
+    this.applyPostProcessing(postProcessing);
   }
   get currentEpisodeId(): string | undefined {
     return this.runtime.currentEpisodeId;
@@ -328,6 +340,22 @@ export class MindForgeEngine {
       this.composer.render();
     } catch (error) {
       this.config.onError?.(error as Error);
+    }
+  }
+
+  private applyPostProcessing(config?: PostProcessingConfig): void {
+    const enabled = config?.enabled !== false;
+    const bloom = config?.bloom ?? DEFAULT_POST.bloom;
+    this.bloomPass.strength = bloom.strength;
+    this.bloomPass.radius = bloom.radius;
+    this.bloomPass.threshold = bloom.threshold;
+    this.bloomPass.enabled = enabled;
+
+    const vignette = config?.vignette === undefined ? DEFAULT_POST.vignette : config.vignette;
+    this.vignettePass.enabled = enabled && vignette !== null;
+    if (vignette) {
+      this.vignettePass.uniforms.offset.value = vignette.offset;
+      this.vignettePass.uniforms.darkness.value = vignette.darkness;
     }
   }
 

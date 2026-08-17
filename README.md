@@ -71,7 +71,7 @@ A clean 9:16 stage on a black background. Select an episode with a query paramet
 /player/?episode=artifact-001-heat
 ```
 
-Click to restart; press space to pause/resume.
+Click to restart; press space to pause/resume. Press `T` (or use the on-stage theme button) to switch between Voxel and Toybox without losing the current playback position. The Player also accepts `?theme=voxel` or `?theme=toybox`.
 
 ## Episodes
 
@@ -86,9 +86,11 @@ See [`docs/architecture/episode-format.md`](docs/architecture/episode-format.md)
 ## Visual themes
 
 Episodes use stable semantic ids and do not encode a renderer skin. `packages/themes/` selects
-visual implementations for those ids while the Engine stays theme-blind. The original block-built **Voxel** system is now the production/default theme. The retired
-violet/pink prototype remains registered temporarily as `legacy` only for migration/debug
-comparison. Toybox follows later. See
+visual implementations for those ids while the Engine stays theme-blind. **Voxel** is the
+production/default block-world theme and **Toybox** is the fully-supported modular-toy
+alternative. Studio can switch themes from its toolbar; Player can switch in place with the
+on-stage control or `T`. Theme changes rebuild the same episode while preserving timestamp,
+play/pause state, speed, typography/safe zones, and renderer post-processing. See
 [`docs/architecture/themes.md`](docs/architecture/themes.md).
 
 ## Library IDs
