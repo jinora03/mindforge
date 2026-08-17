@@ -74,5 +74,7 @@ describe('MindForge creator export options', () => {
     expect(source).not.toMatch(/\.captureStream\s*\(/);
     expect(source).not.toMatch(/\bnew\s+MediaRecorder\s*\(/);
     expect(source).toContain('engine.seek(startTime + frame.timestamp)');
+    expect(source).toContain('validateFramePlan(frames, exportDuration)');
+    expect(source).toContain('engine?.dispose()');
   });
 });

@@ -6,6 +6,7 @@ import {
   exportFilename,
   exportMindForgeVideo,
   resolveCreatorEncodingSettings,
+  type ExportDiagnostics,
   type ExportPhase,
 } from '@mindforge/video-export';
 import { EPISODES, getEpisode } from '@content/catalog';
@@ -38,6 +39,7 @@ export interface StudioState {
   exportReadyFilename?: string;
   exportReadyBytes?: number;
   exportResolvedFormat?: 'mp4' | 'webm';
+  exportDiagnostics?: ExportDiagnostics;
 }
 
 export interface ThemeOption {
@@ -138,6 +140,7 @@ export class StudioController {
         exportReadyFilename: undefined,
         exportReadyBytes: undefined,
         exportResolvedFormat: undefined,
+        exportDiagnostics: undefined,
         error: undefined,
       });
       this.engine.play();
@@ -289,6 +292,7 @@ export class StudioController {
       exportReadyFilename: undefined,
       exportReadyBytes: undefined,
       exportResolvedFormat: undefined,
+      exportDiagnostics: undefined,
       error: undefined,
     });
 
@@ -324,11 +328,18 @@ export class StudioController {
         exportReadyFilename: filename,
         exportReadyBytes: result.blob.size,
         exportResolvedFormat: result.container,
+        exportDiagnostics: result.diagnostics,
       });
       if (options.autoDownload) downloadBlob(result.blob, filename);
     } catch (error) {
-      if ((error as Error).name !== 'AbortError') {
-        this.patch({ error: `Export failed: ${(error as Error).message}` });
+      if ((error as Error).name === 'AbortError') {
+        this.patch({ exportProgress: 0, exportPhase: undefined });
+      } else {
+        this.patch({
+          exportProgress: 0,
+          exportPhase: undefined,
+          error: `Export failed: ${(error as Error).message}`,
+        });
       }
     } finally {
       this.exportAbort = undefined;
@@ -343,6 +354,7 @@ export class StudioController {
   }
 
   cancelExport(): void {
+    if (this.state.exportPhase === 'finalizing') return;
     this.exportAbort?.abort();
   }
   setLayer(layer: LayerName, enabled: boolean): void {

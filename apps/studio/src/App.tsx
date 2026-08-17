@@ -85,6 +85,7 @@ export function App(): JSX.Element {
         ambienceVolume={state.ambienceVolume}
         exporting={state.exporting}
         exportProgress={state.exportProgress}
+        exportCancelable={state.exporting && state.exportPhase !== 'finalizing'}
         layers={layers}
         clean={clean}
         onSelect={(id) => controller.load(id)}
@@ -117,6 +118,7 @@ export function App(): JSX.Element {
         exportReadyFilename={state.exportReadyFilename}
         exportReadyBytes={state.exportReadyBytes}
         exportResolvedFormat={state.exportResolvedFormat}
+        exportDiagnostics={state.exportDiagnostics}
         onOptionsChange={setExportOptions}
         onClose={() => setExportPanelOpen(false)}
         onExport={() => void controller.exportCurrentEpisode(exportOptions)}

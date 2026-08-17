@@ -24,6 +24,7 @@ export interface ToolbarProps {
   ambienceVolume: number;
   exporting: boolean;
   exportProgress: number;
+  exportCancelable: boolean;
   layers: Record<LayerName, boolean>;
   clean: boolean;
   onSelect: (id: string) => void;
@@ -125,9 +126,20 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
       <button
         className={props.exporting ? 'export-btn active' : 'export-btn'}
         onClick={props.exporting ? props.onCancelExport : props.onExport}
-        title={props.exporting ? 'Cancel video export' : 'Open creator export settings'}
+        disabled={props.exporting && !props.exportCancelable}
+        title={
+          props.exporting
+            ? props.exportCancelable
+              ? 'Cancel video export'
+              : 'Finalizing encoded file'
+            : 'Open creator export settings'
+        }
       >
-        {props.exporting ? `Cancel ${Math.round(props.exportProgress * 100)}%` : 'Creator Export'}
+        {props.exporting
+          ? props.exportCancelable
+            ? `Cancel ${Math.round(props.exportProgress * 100)}%`
+            : 'Finalizing…'
+          : 'Creator Export'}
       </button>
 
       <div className="layer-toggles">

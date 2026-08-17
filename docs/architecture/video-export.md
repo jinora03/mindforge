@@ -1,19 +1,35 @@
 # Deterministic Video Export
 
-MindForge exports production video by evaluating the same Engine timeline at fixed timestamps. Export does **not** use `captureStream`, `MediaRecorder`, `requestAnimationFrame`, or real-time recording.
+MindForge exports production video by evaluating the same Engine timeline at fixed timestamps. Export does **not** record the live preview or derive media timing from wall-clock rendering speed.
 
-Default production target:
+## Creator pipeline
 
-- 1080 × 1920
-- 60 FPS
-- H.264 / AVC video
-- AAC audio
-- MP4 container
+```text
+Creator Export options
+        ↓
+codec preflight + deterministic range
+        ↓
+offline semantic audio mix
+        ↓
+fixed Engine seeks + caption composition
+        ↓
+MP4 (AVC/AAC) or WebM (VP9/VP8 + Opus)
+        ↓
+finalize → diagnostics → download
+```
 
-The exporter creates an isolated, unmounted `MindForgeEngine`, sets an exact pixel render size, loads the selected semantic episode/theme, and seeks to `frameIndex / fps` for every encoded frame. Text is composited using the active theme's typography and safe-zone configuration.
+Default production target is 1080 × 1920, 60 FPS, H.264/AVC + AAC in MP4. Auto mode prefers that path and falls back to WebM when the browser cannot encode it.
 
-Audio is rendered offline from the same semantic audio cue registry used by browser playback. Procedural SFX, ambience, music, and URL-backed narration are mixed from episode time into one deterministic audio track before encoding.
+## Reliability rules
 
-The Studio's live preview transport is separate from export. Export pauses the live preview only to reduce GPU/audio contention, then restores its timestamp, speed, and play/pause state afterwards.
+- Frame timestamps come only from `createFramePlan`; `validateFramePlan` rejects gaps, overlaps, or a missing final duration before encoding begins.
+- Every export creates an isolated Engine and encoder session. Repeated exports never reuse encoder state.
+- Success, failure, and cancellation all dispose the isolated Engine and shrink the compositor canvas so large backing stores can be reclaimed.
+- Encoder promises attach rejection handlers immediately so simultaneous frame/track failures cannot become unhandled promises.
+- Cancellation is checked before expensive stages and on every rendered frame. Container finalization is atomic: cancellation is accepted immediately before finalization, but once mux finalization begins MindForge finishes the valid file instead of discarding completed encoding work.
+- Auto codec selection is behind an injectable capability probe and is regression-tested independently from browser WebCodecs.
+- The returned artifact contains diagnostics for resolution, codecs, frame count, exact timeline duration, audio/timeline delta, bitrates, output bytes, and phase timings.
 
-`mediabunny` provides the browser-side encoding/muxing path used by Studio. H.264 uses the browser encoder when available; `@mediabunny/aac-encoder` is registered only when native AAC encoding is unavailable. The fixed-frame plan and offline audio mix remain separate from that muxing layer so a future headless/FFmpeg backend can reuse the same deterministic timeline model.
+## Range semantics
+
+A selected clip keeps **episode time** authoritative while media timestamps begin at zero. For a 3–8 second shot, frame zero evaluates `engine.seek(3)`, while the encoded first frame is timestamped `0`. Offline audio uses the same absolute range and clips/offsets sources accordingly.

@@ -10,6 +10,7 @@ describe('MindForge production workflow', () => {
       'artifact-002-prediction',
       'artifact-003-sky-blue',
       'artifact-004-cold-battery',
+      'artifact-005-lightning-thunder',
     ]);
 
     for (const episode of EPISODES) {
@@ -40,7 +41,10 @@ describe('MindForge production workflow', () => {
   });
 
   it('extracts the one-idea prose rather than a markdown heading', () => {
-    expect(summarizeCreativeBrief('# Creative Brief\n\n## 1. The one idea\n\nA useful causal explanation that is long enough.'))
-      .toBe('A useful causal explanation that is long enough.');
+    expect(
+      summarizeCreativeBrief(
+        '# Creative Brief\n\n## 1. The one idea\n\nA useful causal explanation that is long enough.',
+      ),
+    ).toBe('A useful causal explanation that is long enough.');
   });
 });

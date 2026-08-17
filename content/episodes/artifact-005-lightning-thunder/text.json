@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    { "id": "hook", "content": "Why do you see lightning before thunder?", "style": "question", "placement": "upper" },
+    { "id": "together", "content": "The flash and thunder start together.", "style": "explanation", "placement": "lower" },
+    { "id": "light", "content": "Light reaches you almost instantly.", "style": "explanation", "placement": "lower" },
+    { "id": "sound", "content": "Sound moves through air at about 343 m/s.", "style": "explanation", "placement": "lower" },
+    { "id": "answer", "content": "Same event. Different speeds.", "style": "explanation", "placement": "lower" },
+    { "id": "label", "content": "Artifact 005 / The Delay", "style": "artifactLabel", "placement": "bottom" }
+  ]
+}

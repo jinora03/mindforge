@@ -5,6 +5,7 @@ import {
   type CreatorExportLayout,
   type CreatorExportQuality,
   type CreatorExportResolution,
+  type ExportDiagnostics,
   type ExportPhase,
 } from '@mindforge/video-export';
 import { activeStoryboardShot, type EpisodeProductionInfo } from '@content/production-types';
@@ -28,6 +29,7 @@ export interface CreatorExportPanelProps {
   readonly exportReadyFilename?: string;
   readonly exportReadyBytes?: number;
   readonly exportResolvedFormat?: 'mp4' | 'webm';
+  readonly exportDiagnostics?: ExportDiagnostics;
   readonly onOptionsChange: (options: StudioCreatorExportOptions) => void;
   readonly onClose: () => void;
   readonly onExport: () => void;
@@ -203,7 +205,11 @@ export function CreatorExportPanel(props: CreatorExportPanelProps): JSX.Element 
           <div className="creator-progress" aria-live="polite">
             <div className="creator-progress-copy"><span>{phaseLabel(props.exportPhase)}</span><strong>{Math.round(props.exportProgress * 100)}%</strong></div>
             <div className="creator-progress-track"><span style={{ width: `${Math.max(0, Math.min(100, props.exportProgress * 100))}%` }} /></div>
-            <button type="button" className="creator-danger" onClick={props.onCancel}>Cancel export</button>
+            {props.exportPhase === 'finalizing' ? (
+              <p className="creator-finalizing-note">Finalizing is atomic — the encoded file is being sealed and can no longer be cancelled safely.</p>
+            ) : (
+              <button type="button" className="creator-danger" onClick={props.onCancel}>Cancel export</button>
+            )}
           </div>
         ) : (
           <button type="button" className="creator-primary" onClick={props.onExport}>Export video</button>
@@ -214,6 +220,7 @@ export function CreatorExportPanel(props: CreatorExportPanelProps): JSX.Element 
             <span>Ready · {props.exportResolvedFormat?.toUpperCase()} · {formatBytes(props.exportReadyBytes ?? 0)}</span>
             <code>{props.exportReadyFilename}</code>
             <button type="button" onClick={props.onDownload}>{props.options.autoDownload ? 'Download again' : 'Download file'}</button>
+            {props.exportDiagnostics ? <ExportDiagnosticsView diagnostics={props.exportDiagnostics} /> : null}
           </div>
         ) : null}
       </section>
@@ -243,4 +250,25 @@ function formatBitrate(value: number): string {
 function formatBytes(value: number): string {
   if (value < 1024 * 1024) return `${Math.max(1, Math.round(value / 1024))} KB`;
   return `${(value / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function ExportDiagnosticsView(props: { readonly diagnostics: ExportDiagnostics }): JSX.Element {
+  const d = props.diagnostics;
+  return (
+    <details className="creator-diagnostics">
+      <summary>Export diagnostics</summary>
+      <div className="creator-diagnostics-grid">
+        <span>Video</span><strong>{d.container.toUpperCase()} · {d.videoCodec.toUpperCase()} + {d.audioCodec.toUpperCase()}</strong>
+        <span>Frame plan</span><strong>{d.totalFrames} frames · {d.fps} FPS</strong>
+        <span>Canvas</span><strong>{d.width} × {d.height}</strong>
+        <span>Timeline</span><strong>{d.duration.toFixed(3)}s</strong>
+        <span>A/V delta</span><strong>{d.audioTimelineDeltaMs.toFixed(2)} ms</strong>
+        <span>Encode time</span><strong>{formatDurationMs(d.timings.totalMs)}</strong>
+      </div>
+    </details>
+  );
+}
+
+function formatDurationMs(value: number): string {
+  return value >= 1000 ? `${(value / 1000).toFixed(1)}s` : `${Math.round(value)}ms`;
 }

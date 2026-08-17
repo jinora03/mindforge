@@ -698,3 +698,36 @@ body,
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.creator-finalizing-note {
+  margin: 9px 0 0;
+  color: #9aabba;
+  font-size: 10.5px;
+  line-height: 1.45;
+}
+.creator-diagnostics {
+  border-top: 1px solid rgba(159, 203, 174, 0.22);
+  padding-top: 7px;
+}
+.creator-diagnostics summary {
+  cursor: pointer;
+  color: #a9c8b4;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+.creator-diagnostics-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 9px;
+  margin-top: 7px;
+  font-size: 10px;
+}
+.creator-diagnostics-grid span {
+  color: #81928a;
+}
+.creator-diagnostics-grid strong {
+  min-width: 0;
+  color: #d1ded5;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
