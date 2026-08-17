@@ -31,12 +31,18 @@ export function createFramePlan(duration: number, fps = DEFAULT_EXPORT_FPS): Exp
   });
 }
 
-export function exportFilename(episodeId: string, themeId: string): string {
+export function exportFilename(
+  episodeId: string,
+  themeId: string,
+  extension: 'mp4' | 'webm' = 'mp4',
+  suffix?: string,
+): string {
   const safe = (value: string): string =>
     value
       .trim()
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '') || 'mindforge';
-  return `${safe(episodeId)}-${safe(themeId)}.mp4`;
+  const extra = suffix ? `-${safe(suffix)}` : '';
+  return `${safe(episodeId)}-${safe(themeId)}${extra}.${extension}`;
 }

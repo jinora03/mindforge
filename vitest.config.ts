@@ -24,6 +24,7 @@ export default defineConfig({
       '@mindforge/library': pkg('library'),
       '@mindforge/themes': pkg('themes'),
       '@content': fileURLToPath(new URL('./content', import.meta.url)),
+      '@mindforge/video-export': pkg('video-export'),
     },
   },
 });

@@ -6,6 +6,8 @@ import { StudioController, type LayerFlags, type StudioState } from './studio-co
 import { Toolbar } from './components/Toolbar';
 import { Inspector } from './components/Inspector';
 import { ShotTrack } from './components/ShotTrack';
+import { CreatorExportPanel } from './components/CreatorExportPanel';
+import { createDefaultStudioCreatorExportOptions } from './creator-export';
 
 const INITIAL_STATE: StudioState = {
   themeId: DEFAULT_THEME_ID,
@@ -31,6 +33,8 @@ export function App(): JSX.Element {
   const [state, setState] = useState<StudioState>(INITIAL_STATE);
   const [layers, setLayers] = useState<LayerFlags>(INITIAL_LAYERS);
   const [clean, setClean] = useState(false);
+  const [exportPanelOpen, setExportPanelOpen] = useState(false);
+  const [exportOptions, setExportOptions] = useState(() => createDefaultStudioCreatorExportOptions(DEFAULT_THEME_ID));
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,6 +47,18 @@ export function App(): JSX.Element {
       controller.dispose();
     };
   }, [controller]);
+
+
+  useEffect(() => {
+    if (!exportPanelOpen) {
+      setExportOptions((current) => ({ ...current, themeId: state.themeId }));
+    }
+  }, [state.themeId, exportPanelOpen]);
+
+  useEffect(() => {
+    if (state.duration <= 0) return;
+    setExportOptions((current) => ({ ...current, customStart: 0, customEnd: state.duration }));
+  }, [state.episodeId, state.duration]);
 
   const catalog = useMemo(() => controller.getCatalog(), [controller, state.themeId]);
   const production = useMemo(() => controller.getProduction(state.episodeId), [controller, state.episodeId]);
@@ -82,10 +98,30 @@ export function App(): JSX.Element {
         onMusicVolume={(volume) => controller.setMusicVolume(volume)}
         onSfxVolume={(volume) => controller.setSfxVolume(volume)}
         onAmbienceVolume={(volume) => controller.setAmbienceVolume(volume)}
-        onExport={() => void controller.exportCurrentEpisode()}
+        onExport={() => setExportPanelOpen(true)}
         onCancelExport={() => controller.cancelExport()}
         onToggleLayer={toggleLayer}
         onToggleClean={() => setClean((value) => !value)}
+      />
+
+      <CreatorExportPanel
+        open={exportPanelOpen}
+        options={exportOptions}
+        themes={controller.themes}
+        duration={state.duration}
+        time={state.time}
+        production={production}
+        exporting={state.exporting}
+        exportProgress={state.exportProgress}
+        exportPhase={state.exportPhase}
+        exportReadyFilename={state.exportReadyFilename}
+        exportReadyBytes={state.exportReadyBytes}
+        exportResolvedFormat={state.exportResolvedFormat}
+        onOptionsChange={setExportOptions}
+        onClose={() => setExportPanelOpen(false)}
+        onExport={() => void controller.exportCurrentEpisode(exportOptions)}
+        onCancel={() => controller.cancelExport()}
+        onDownload={() => controller.downloadLastExport()}
       />
 
       <main className="stage-row">

@@ -2,10 +2,20 @@ import { BrowserAudioRuntime, DEFAULT_AUDIO_MIXER_VOLUMES } from '@mindforge/aud
 import { MindForgeEngine, type EngineFrameInfo, type LayerName, type ResolvedText } from '@mindforge/engine';
 import { createLibraryForTheme, type MindForgeLibrary } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
-import { exportFilename, exportMindForgeMp4 } from '@mindforge/video-export';
+import {
+  exportFilename,
+  exportMindForgeVideo,
+  resolveCreatorEncodingSettings,
+  type ExportPhase,
+} from '@mindforge/video-export';
 import { EPISODES, getEpisode } from '@content/catalog';
 import { getProductionEpisode } from '@content/production-catalog';
 import type { EpisodeProductionInfo } from '@content/production-types';
+import {
+  resolveStudioExportRange,
+  type ResolvedStudioExportRange,
+  type StudioCreatorExportOptions,
+} from './creator-export';
 
 export interface StudioState {
   episodeId?: string;
@@ -24,6 +34,10 @@ export interface StudioState {
   ambienceVolume: number;
   exporting: boolean;
   exportProgress: number;
+  exportPhase?: ExportPhase;
+  exportReadyFilename?: string;
+  exportReadyBytes?: number;
+  exportResolvedFormat?: 'mp4' | 'webm';
 }
 
 export interface ThemeOption {
@@ -54,6 +68,7 @@ export class StudioController {
   private readonly listeners = new Set<Listener>();
   private captions?: HTMLDivElement;
   private exportAbort?: AbortController;
+  private lastExportBlob?: Blob;
   private state: StudioState = {
     themeId: DEFAULT_THEME_ID,
     time: 0,
@@ -116,8 +131,15 @@ export class StudioController {
       return;
     }
     try {
+      this.lastExportBlob = undefined;
       this.engine.loadEpisode(entry.input);
-      this.patch({ episodeId, error: undefined });
+      this.patch({
+        episodeId,
+        exportReadyFilename: undefined,
+        exportReadyBytes: undefined,
+        exportResolvedFormat: undefined,
+        error: undefined,
+      });
       this.engine.play();
     } catch (error) {
       this.patch({ episodeId, error: (error as Error).message });
@@ -234,34 +256,76 @@ export class StudioController {
     this.setMixerVolume('ambience', volume, 'ambienceVolume');
   }
 
-  async exportCurrentEpisode(): Promise<void> {
+  async exportCurrentEpisode(options: StudioCreatorExportOptions): Promise<void> {
     if (this.state.exporting || !this.state.episodeId) return;
     const entry = getEpisode(this.state.episodeId);
     if (!entry) return;
 
+    let range: ResolvedStudioExportRange;
+    try {
+      range = resolveStudioExportRange(
+        options,
+        this.state.duration,
+        this.getProduction(this.state.episodeId),
+        this.state.time,
+      );
+    } catch (error) {
+      this.patch({ error: `Export failed: ${(error as Error).message}` });
+      return;
+    }
+
+    const exportTheme = getTheme(options.themeId);
+    const exportLibrary = createLibraryForTheme(exportTheme.id);
+    const encoding = resolveCreatorEncodingSettings(options);
     const playback = this.capturePlayback();
     const abort = new AbortController();
     this.exportAbort = abort;
+    this.lastExportBlob = undefined;
     this.engine.pause();
-    this.patch({ exporting: true, exportProgress: 0, error: undefined });
+    this.patch({
+      exporting: true,
+      exportProgress: 0,
+      exportPhase: 'preparing',
+      exportReadyFilename: undefined,
+      exportReadyBytes: undefined,
+      exportResolvedFormat: undefined,
+      error: undefined,
+    });
 
     try {
-      const blob = await exportMindForgeMp4({
+      const result = await exportMindForgeVideo({
         episode: entry.input,
-        registries: this.library,
-        theme: this.theme,
+        registries: exportLibrary,
+        theme: exportTheme,
+        width: encoding.width,
+        height: encoding.height,
+        fps: encoding.fps,
+        videoBitrate: encoding.videoBitrate,
+        audioBitrate: encoding.audioBitrate,
+        format: options.format,
+        startTime: range.startTime,
+        endTime: range.endTime,
+        includeCaptions: options.captions,
         signal: abort.signal,
         audioVolumes: {
           master: this.engine.getAudioBusVolume('master'),
-          voice: this.engine.getAudioBusVolume('voice'),
-          music: this.engine.getAudioBusVolume('music'),
-          sfx: this.engine.getAudioBusVolume('sfx'),
-          ambience: this.engine.getAudioBusVolume('ambience'),
+          voice: options.audio.voice ? this.engine.getAudioBusVolume('voice') : 0,
+          music: options.audio.music ? this.engine.getAudioBusVolume('music') : 0,
+          sfx: options.audio.sfx ? this.engine.getAudioBusVolume('sfx') : 0,
+          ambience: options.audio.ambience ? this.engine.getAudioBusVolume('ambience') : 0,
         },
-        onProgress: ({ ratio }) => this.patch({ exportProgress: ratio }),
+        onProgress: ({ ratio, phase }) => this.patch({ exportProgress: ratio, exportPhase: phase }),
       });
-      downloadBlob(blob, exportFilename(entry.id, this.theme.id));
-      this.patch({ exportProgress: 1 });
+      const filename = exportFilename(entry.id, exportTheme.id, result.extension, range.filenameSuffix);
+      this.lastExportBlob = result.blob;
+      this.patch({
+        exportProgress: 1,
+        exportPhase: 'finalizing',
+        exportReadyFilename: filename,
+        exportReadyBytes: result.blob.size,
+        exportResolvedFormat: result.container,
+      });
+      if (options.autoDownload) downloadBlob(result.blob, filename);
     } catch (error) {
       if ((error as Error).name !== 'AbortError') {
         this.patch({ error: `Export failed: ${(error as Error).message}` });
@@ -271,6 +335,11 @@ export class StudioController {
       this.patch({ exporting: false });
       this.restorePlayback(playback);
     }
+  }
+
+  downloadLastExport(): void {
+    if (!this.lastExportBlob || !this.state.exportReadyFilename) return;
+    downloadBlob(this.lastExportBlob, this.state.exportReadyFilename);
   }
 
   cancelExport(): void {

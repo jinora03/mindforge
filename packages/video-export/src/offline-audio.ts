@@ -29,12 +29,16 @@ export interface AudioScheduleEntry {
 interface ResolvedAudioEntry extends AudioScheduleEntry {
   readonly buffer: AudioBuffer;
   readonly duration: number;
+  /** Offset into the source buffer when a clip begins mid-event. */
+  readonly sourceOffset: number;
 }
 
 export interface OfflineAudioOptions {
   readonly sampleRate?: number;
   readonly numberOfChannels?: number;
   readonly volumes?: Partial<Record<AudioMixerBus, number>>;
+  /** Absolute episode timestamp represented by output sample zero. Defaults to 0. */
+  readonly timelineStart?: number;
 }
 
 export function buildAudioSchedule(
@@ -76,6 +80,8 @@ export async function renderOfflineEpisodeAudio(
 ): Promise<AudioBuffer> {
   const sampleRate = options.sampleRate ?? 48_000;
   const numberOfChannels = options.numberOfChannels ?? 2;
+  const timelineStart = Math.max(0, options.timelineStart ?? 0);
+  const timelineEnd = timelineStart + duration;
   const frameCount = Math.max(1, Math.ceil(duration * sampleRate));
   const context = new OfflineAudioContext(numberOfChannels, frameCount, sampleRate);
   const volumes: Record<AudioMixerBus, number> = {
@@ -98,7 +104,7 @@ export async function renderOfflineEpisodeAudio(
     buses.set(bus, gain);
   }
 
-  const schedule = buildAudioSchedule(events, registries.audio, duration);
+  const schedule = buildAudioSchedule(events, registries.audio, timelineEnd);
   const buffers = new Map<string, AudioBuffer>();
   await Promise.all(
     [...new Set(schedule.map((entry) => entry.cueId))].map(async (cueId) => {
@@ -111,7 +117,23 @@ export async function renderOfflineEpisodeAudio(
     if (!buffer) return [];
     const playableDuration = entry.loop ? entry.duration : Math.min(entry.duration, buffer.duration);
     if (playableDuration <= 0) return [];
-    return [{ ...entry, duration: playableDuration, buffer }];
+
+    const absoluteEnd = entry.start + playableDuration;
+    const clippedStart = Math.max(entry.start, timelineStart);
+    const clippedEnd = Math.min(absoluteEnd, timelineEnd);
+    if (clippedEnd <= clippedStart) return [];
+
+    const sourceOffset = Math.max(0, clippedStart - entry.start);
+    const reachesNaturalEnd = clippedEnd >= absoluteEnd - 1e-6;
+    return [{
+      ...entry,
+      start: clippedStart - timelineStart,
+      duration: clippedEnd - clippedStart,
+      fadeIn: Math.max(0, entry.fadeIn - sourceOffset),
+      fadeOut: reachesNaturalEnd ? entry.fadeOut : 0,
+      sourceOffset,
+      buffer,
+    }];
   });
 
   applyOfflineVoiceDucking(buses, resolved, volumes, duration);
@@ -124,7 +146,10 @@ export async function renderOfflineEpisodeAudio(
     scheduleGainEnvelope(gain.gain, entry.gain, entry.start, entry.duration, entry.fadeIn, entry.fadeOut);
     source.connect(gain);
     gain.connect(buses.get(entry.bus) ?? master);
-    source.start(entry.start, 0, entry.duration);
+    const offset = entry.loop && entry.buffer.duration > 0
+      ? entry.sourceOffset % entry.buffer.duration
+      : Math.min(entry.sourceOffset, Math.max(0, entry.buffer.duration - 0.001));
+    source.start(entry.start, offset, entry.duration);
   }
 
   return context.startRendering();

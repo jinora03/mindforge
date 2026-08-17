@@ -20,7 +20,7 @@ episodes are mostly *composed* rather than re-coded.
 | **MindForge Content** | `content/` | Episodes and reusable scenes (MindForge Script JSON) |
 | **MindForge Assets** | `public/assets/` | Models, animations, audio, textures, fonts (future) |
 | **MindForge Docs** | `docs/` | Bibles, architecture, library catalog |
-| _MindForge Renderer_ | _(deferred to v0.2)_ | Offline video export |
+| **MindForge Renderer** | `packages/video-export/` | Deterministic creator video export |
 
 ## The Bibles
 
@@ -60,8 +60,9 @@ pnpm dev
 ## Studio
 
 An episode selector, transport controls (play / pause / restart), a timeline scrubber with
-time/duration readout, a playback-speed selector, master audio controls, layer toggles (text, camera, effects,
-debug anchors), a clean-preview button, an error panel, and a registry inspector.
+time/duration readout, a playback-speed selector, audio mixer controls, layer toggles (text, camera, effects,
+debug anchors), a clean-preview button, an error panel, a registry inspector, and a Creator Export drawer
+with layout, resolution, FPS, range, theme, caption, audio-bus, quality, format, and download controls.
 
 ## Player
 
@@ -131,7 +132,7 @@ Validate creative/shot structure with `pnpm validate:production`; the full `npm 
 ## Current limitations (v0.1)
 
 - Geometry, characters, effects, and demo SFX are procedural; reference narration clips are bundled through the URL-backed audio cue contract and can be replaced with production voice assets.
-- Deterministic browser MP4 export is available in Studio (1080×1920, 60 FPS, H.264 + AAC).
+- Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - One character (`character.observer`); the walk cycle is stationary (in-place).
 

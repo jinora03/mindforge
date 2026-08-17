@@ -125,9 +125,9 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
       <button
         className={props.exporting ? 'export-btn active' : 'export-btn'}
         onClick={props.exporting ? props.onCancelExport : props.onExport}
-        title={props.exporting ? 'Cancel video export' : 'Export deterministic 1080×1920 H.264/AAC MP4'}
+        title={props.exporting ? 'Cancel video export' : 'Open creator export settings'}
       >
-        {props.exporting ? `Cancel ${Math.round(props.exportProgress * 100)}%` : 'Export MP4'}
+        {props.exporting ? `Cancel ${Math.round(props.exportProgress * 100)}%` : 'Creator Export'}
       </button>
 
       <div className="layer-toggles">
