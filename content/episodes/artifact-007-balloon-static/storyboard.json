@@ -1,0 +1,127 @@
+{
+  "episode": "artifact-007-balloon-static",
+  "title": "Why does a balloon stick to the wall?",
+  "aspect": "9:16",
+  "durationSeconds": 28,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4.2
+      ],
+      "beat": "Impossible-looking stick",
+      "intent": "Establish the balloon, wall and Observer before explaining any charge.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-rub",
+      "t": [
+        4.2,
+        9.8
+      ],
+      "beat": "Move electrons",
+      "intent": "Use the hand-to-balloon stream and rubber texture to make charge transfer physical.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "charge-stream",
+          "purpose": "Electrons moving onto the balloon."
+        }
+      ],
+      "text": [
+        {
+          "id": "rub"
+        }
+      ]
+    },
+    {
+      "id": "s3-charged",
+      "t": [
+        9.8,
+        15
+      ],
+      "beat": "Charge becomes visible",
+      "intent": "Hold on the balloon long enough for the static field/burst to register before the wall interaction.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "static-burst",
+          "purpose": "Visual shorthand for excess surface charge."
+        }
+      ],
+      "text": [
+        {
+          "id": "charge"
+        }
+      ]
+    },
+    {
+      "id": "s4-polarize-wall",
+      "t": [
+        15,
+        22
+      ],
+      "beat": "The wall rearranges",
+      "intent": "Move the balloon toward the panel while showing a field connection and localized response on the wall surface.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "polarize-path",
+          "purpose": "Connects charged balloon to induced wall response."
+        },
+        {
+          "id": "wall-burst",
+          "purpose": "Shows wall charges shifting near the balloon."
+        }
+      ],
+      "text": [
+        {
+          "id": "wall"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        22,
+        28
+      ],
+      "beat": "Attraction wins",
+      "intent": "Resolve with the balloon held to the wall and the Observer focused on the result.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [
+        {
+          "id": "answer-flash",
+          "purpose": "Conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

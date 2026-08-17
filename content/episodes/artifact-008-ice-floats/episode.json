@@ -1,0 +1,353 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-008-ice-floats",
+  "title": "Why does ice float on water?",
+  "artifactName": "The Float",
+  "artifactNumber": 8,
+  "artifactType": "well",
+  "domain": "gravity-well",
+  "duration": 30,
+  "environment": "environment.kitchenLab",
+  "metadata": {
+    "logline": "Water expands into a more open structure when it freezes, making ice less dense than liquid water, so buoyancy can hold it up.",
+    "beats": "tank -> ice drop -> unusual float -> expansion -> lower density -> buoyancy answer",
+    "productionStatus": "content-sprint-wave1",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.kitchenLab",
+      "prefab.floatTank",
+      "audio.ambience.kitchen",
+      "audio.sfx.waterSplash"
+    ]
+  },
+  "entities": [
+    {
+      "id": "observer",
+      "type": "character",
+      "factory": "character.observer",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        -0.12,
+        0
+      ]
+    },
+    {
+      "id": "tank",
+      "type": "prefab",
+      "factory": "prefab.floatTank",
+      "position": [
+        0,
+        1.78,
+        -2.7
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 30,
+      "cue": "audio.ambience.kitchen",
+      "loop": true,
+      "volume": 0.43
+    },
+    {
+      "id": "idle",
+      "type": "motion",
+      "at": 0,
+      "duration": 30,
+      "target": "observer",
+      "motion": "motion.humanoid.idle"
+    },
+    {
+      "id": "breathe",
+      "type": "motion",
+      "at": 0,
+      "duration": 30,
+      "target": "observer",
+      "motion": "motion.humanoid.breathe"
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 4.5,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        2.8,
+        2.3,
+        5.8
+      ],
+      "to": [
+        3.8,
+        3.1,
+        8.5
+      ],
+      "fov": 46,
+      "framingOffset": [
+        0,
+        1.4,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "face-question",
+      "type": "face",
+      "at": 0.5,
+      "target": "observer",
+      "state": "confused"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.55,
+      "duration": 3.6,
+      "textId": "hook"
+    },
+    {
+      "id": "cam-drop",
+      "type": "camera",
+      "at": 4.5,
+      "duration": 5.5,
+      "preset": "camera.pushIn",
+      "target": "tank",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "ice-drop",
+      "type": "property",
+      "at": 5.0,
+      "duration": 1.25,
+      "target": "tank.ice",
+      "property": "position",
+      "to": [
+        0,
+        1.46,
+        0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "splash",
+      "type": "audio",
+      "at": 6.2,
+      "cue": "audio.sfx.waterSplash",
+      "volume": 0.78
+    },
+    {
+      "id": "splash-ring",
+      "type": "effect",
+      "at": 6.15,
+      "duration": 1.45,
+      "effect": "effect.contour.shockwave",
+      "target": "tank.surface",
+      "tone": "information",
+      "intensity": 0.72,
+      "parameters": {
+        "size": 2.2,
+        "thickness": 0.08
+      }
+    },
+    {
+      "id": "odd-text",
+      "type": "text",
+      "at": 5.1,
+      "duration": 4.55,
+      "textId": "odd"
+    },
+    {
+      "id": "cam-freeze",
+      "type": "camera",
+      "at": 10,
+      "duration": 7,
+      "preset": "camera.reveal",
+      "target": "tank.ice",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 4.3,
+        "height": 2.9,
+        "startAngle": 0.35,
+        "endAngle": -0.2
+      }
+    },
+    {
+      "id": "ice-expand",
+      "type": "property",
+      "at": 10.4,
+      "duration": 4.7,
+      "target": "tank.ice",
+      "property": "scale",
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        1.16,
+        1.16,
+        1.16
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "structure-burst",
+      "type": "effect",
+      "at": 10.55,
+      "duration": 5.2,
+      "effect": "effect.reaction.burst",
+      "target": "tank.ice",
+      "tone": "information",
+      "intensity": 0.52,
+      "parameters": {
+        "count": 28,
+        "radius": 1.25,
+        "size": 0.055
+      }
+    },
+    {
+      "id": "freeze-text",
+      "type": "text",
+      "at": 10.4,
+      "duration": 6.1,
+      "textId": "freeze"
+    },
+    {
+      "id": "cam-density",
+      "type": "camera",
+      "at": 17,
+      "duration": 7,
+      "preset": "camera.pullBack",
+      "target": "tank",
+      "from": [
+        2.5,
+        2.2,
+        5.2
+      ],
+      "to": [
+        3.4,
+        3.0,
+        7.5
+      ],
+      "fov": 43,
+      "framingOffset": [
+        0,
+        1.1,
+        -0.2
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "float-up",
+      "type": "property",
+      "at": 17.4,
+      "duration": 2.1,
+      "target": "tank.ice",
+      "property": "position",
+      "from": [
+        0,
+        1.46,
+        0
+      ],
+      "to": [
+        0,
+        1.68,
+        0
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "density-stream",
+      "type": "effect",
+      "at": 17.3,
+      "duration": 5.8,
+      "effect": "effect.informationStream",
+      "through": [
+        "tank.water",
+        "tank.ice"
+      ],
+      "tone": "insight",
+      "intensity": 0.6,
+      "parameters": {
+        "density": 15,
+        "speed": 0.28,
+        "size": 0.065,
+        "bow": 0.08
+      }
+    },
+    {
+      "id": "density-text",
+      "type": "text",
+      "at": 17.4,
+      "duration": 5.9,
+      "textId": "density"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 24,
+      "duration": 6,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        2.8,
+        2.4,
+        5.8
+      ],
+      "to": [
+        3.9,
+        3.1,
+        8.4
+      ],
+      "fov": 45,
+      "framingOffset": [
+        0,
+        1.4,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "buoyancy-ring",
+      "type": "effect",
+      "at": 24.1,
+      "duration": 4.3,
+      "effect": "effect.contour.pressure",
+      "target": "tank.ice",
+      "tone": "insight",
+      "intensity": 0.5,
+      "parameters": {
+        "size": 1.9,
+        "thickness": 0.08
+      }
+    },
+    {
+      "id": "answer-sfx",
+      "type": "audio",
+      "at": 24.2,
+      "cue": "audio.sfx.insight",
+      "volume": 0.58
+    },
+    {
+      "id": "face-answer",
+      "type": "face",
+      "at": 24.2,
+      "target": "observer",
+      "state": "focused"
+    },
+    {
+      "id": "answer",
+      "type": "text",
+      "at": 24.25,
+      "duration": 5.35,
+      "textId": "answer"
+    }
+  ]
+}

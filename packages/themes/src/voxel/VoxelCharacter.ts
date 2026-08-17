@@ -72,13 +72,14 @@ class VoxelHumanoidRig implements PoseableRig {
       createBlockMaterial('hair', { size });
 
     const hips = this.joint('hips', this.motionRoot, 0, 0.74, 0);
-    // Belt: reads as the seam between torso and legs at phone size.
-    this.block(hips, trousers([0.52, 0.14, 0.28]), [0.52, 0.14, 0.28], [0, 0, 0]);
 
     const spine = this.joint('spine', hips, 0, 0.16, 0);
     const chest = this.joint('chest', spine, 0, 0.18, 0);
-    // One solid torso slab — half a BLOCK wide, a quarter deep.
-    this.block(chest, cloth([0.5, 0.64, 0.26]), [0.5, 0.64, 0.26], [0, -0.04, 0]);
+    // One solid torso slab — half a BLOCK wide, a quarter deep. Extend it
+    // exactly to the upper-leg top instead of layering a separate belt box
+    // over the shirt. The old overlapping waist meshes produced depth/shadow
+    // fighting while the camera moved.
+    this.block(chest, cloth([0.5, 0.68, 0.26]), [0.5, 0.68, 0.26], [0, -0.06, 0]);
     const neck = this.joint('neck', chest, 0, 0.31, 0);
     const head = this.joint('head', neck, 0, 0.18, 0);
     this.headJoint = head;

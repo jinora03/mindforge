@@ -1,6 +1,8 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": "../..",
+    "paths": { "@content/*": ["content/*"] },
     "types": ["vite/client", "three"]
   },
   "include": ["src/**/*.ts"]

@@ -1,3 +1,4 @@
+import { VOXEL_PRODUCTION_ENVIRONMENT_FACTORIES } from './voxel-production-environments';
 import * as THREE from 'three';
 import {
   disposeObject3D,
@@ -531,4 +532,5 @@ export const VOXEL_ENVIRONMENT_FACTORIES: Record<string, EnvironmentFactory> = {
   'environment.cosmicVoid': createVoxelCosmicVoid,
   'environment.artifactStage': createVoxelArtifactStage,
   'environment.dreamGarden': createVoxelDreamGarden,
+  ...VOXEL_PRODUCTION_ENVIRONMENT_FACTORIES,
 };

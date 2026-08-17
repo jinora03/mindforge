@@ -1,0 +1,123 @@
+{
+  "episode": "artifact-008-ice-floats",
+  "title": "Why does ice float on water?",
+  "aspect": "9:16",
+  "durationSeconds": 30,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4.5
+      ],
+      "beat": "The floating puzzle",
+      "intent": "Establish the tank and Observer before the ice enters the water.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-drop",
+      "t": [
+        4.5,
+        10
+      ],
+      "beat": "Ice refuses to sink",
+      "intent": "Drop the ice into the tank and make the splash/settled floating position physically readable.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "tank"
+      },
+      "effects": [
+        {
+          "id": "splash-ring",
+          "purpose": "Marks the ice-water contact."
+        }
+      ],
+      "text": [
+        {
+          "id": "odd"
+        }
+      ]
+    },
+    {
+      "id": "s3-open-structure",
+      "t": [
+        10,
+        17
+      ],
+      "beat": "Freezing expands the structure",
+      "intent": "Scale the ice slightly and surround it with a sparse structural burst to represent more open molecular spacing.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "tank.ice"
+      },
+      "effects": [
+        {
+          "id": "structure-burst",
+          "purpose": "Visual shorthand for an open solid structure."
+        }
+      ],
+      "text": [
+        {
+          "id": "freeze"
+        }
+      ]
+    },
+    {
+      "id": "s4-density",
+      "t": [
+        17,
+        24
+      ],
+      "beat": "Less dense than water",
+      "intent": "Let the expanded ice rise to its floating position while water-to-ice packets emphasize the surrounding liquid.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "tank"
+      },
+      "effects": [
+        {
+          "id": "density-stream",
+          "purpose": "Connects liquid water and the lower-density solid."
+        }
+      ],
+      "text": [
+        {
+          "id": "density"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        24,
+        30
+      ],
+      "beat": "Buoyancy wins",
+      "intent": "Hold the final floating state and resolve the explanation as density plus upward support from water.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [
+        {
+          "id": "buoyancy-ring",
+          "purpose": "Readable upward-support/buoyancy emphasis around the ice."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

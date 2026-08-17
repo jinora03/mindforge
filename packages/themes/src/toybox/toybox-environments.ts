@@ -1,3 +1,4 @@
+import { TOYBOX_PRODUCTION_ENVIRONMENT_FACTORIES } from './toybox-production-environments';
 import * as THREE from 'three';
 import {
   disposeObject3D,
@@ -507,4 +508,5 @@ export const TOYBOX_ENVIRONMENT_FACTORIES: Record<string, EnvironmentFactory> = 
   'environment.cosmicVoid': createToyboxCosmicVoid,
   'environment.artifactStage': createToyboxArtifactStage,
   'environment.dreamGarden': createToyboxDreamGarden,
+  ...TOYBOX_PRODUCTION_ENVIRONMENT_FACTORIES,
 };

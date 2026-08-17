@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why can metal feel colder than wood in the same room?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "sameTemp",
+      "content": "They can be at exactly the same temperature.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "metal",
+      "content": "Metal carries heat away from your skin very quickly.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "wood",
+      "content": "Wood transfers that heat much more slowly.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Your skin cools faster on metal \u2014 so metal feels colder.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 006 / The Conductor",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

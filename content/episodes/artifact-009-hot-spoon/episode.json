@@ -1,0 +1,320 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-009-hot-spoon",
+  "title": "Why does a spoon get hot in soup?",
+  "artifactName": "The Conduction Line",
+  "artifactNumber": 9,
+  "artifactType": "engine",
+  "domain": "crucible",
+  "duration": 27,
+  "environment": "environment.kitchenLab",
+  "metadata": {
+    "logline": "Thermal energy moves from hot soup into the metal spoon and along the spoon toward the cooler handle by conduction.",
+    "beats": "hot soup -> spoon enters -> energy transfer -> metal carries energy along -> handle warms -> conduction answer",
+    "productionStatus": "content-sprint-wave1",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.kitchenLab",
+      "prefab.bowlSpoon",
+      "audio.ambience.kitchen",
+      "audio.sfx.heatTransfer"
+    ]
+  },
+  "entities": [
+    {
+      "id": "observer",
+      "type": "character",
+      "factory": "character.observer",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        -0.12,
+        0
+      ]
+    },
+    {
+      "id": "meal",
+      "type": "prefab",
+      "factory": "prefab.bowlSpoon",
+      "position": [
+        0,
+        1.78,
+        -2.7
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 27,
+      "cue": "audio.ambience.kitchen",
+      "loop": true,
+      "volume": 0.43
+    },
+    {
+      "id": "idle",
+      "type": "motion",
+      "at": 0,
+      "duration": 27,
+      "target": "observer",
+      "motion": "motion.humanoid.idle"
+    },
+    {
+      "id": "breathe",
+      "type": "motion",
+      "at": 0,
+      "duration": 27,
+      "target": "observer",
+      "motion": "motion.humanoid.breathe"
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 4.2,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        2.7,
+        2.25,
+        5.7
+      ],
+      "to": [
+        3.7,
+        3.0,
+        8.3
+      ],
+      "fov": 46,
+      "framingOffset": [
+        0,
+        1.4,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "face-question",
+      "type": "face",
+      "at": 0.4,
+      "target": "observer",
+      "state": "confused"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.5,
+      "duration": 3.4,
+      "textId": "hook"
+    },
+    {
+      "id": "cam-soup",
+      "type": "camera",
+      "at": 4.2,
+      "duration": 4.8,
+      "preset": "camera.pushIn",
+      "target": "meal",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "soup-hotter",
+      "type": "property",
+      "at": 4.4,
+      "duration": 3.4,
+      "target": "meal.soup",
+      "property": "emissiveIntensity",
+      "from": 0.13,
+      "to": 0.72,
+      "easing": "easeInOut"
+    },
+    {
+      "id": "heat-ring",
+      "type": "effect",
+      "at": 4.5,
+      "duration": 3.8,
+      "effect": "effect.contour.pressure",
+      "target": "meal.soupSurface",
+      "tone": "heat",
+      "intensity": 0.5,
+      "parameters": {
+        "size": 2.0,
+        "thickness": 0.08
+      }
+    },
+    {
+      "id": "hot-text",
+      "type": "text",
+      "at": 4.55,
+      "duration": 4.0,
+      "textId": "hot"
+    },
+    {
+      "id": "cam-transfer",
+      "type": "camera",
+      "at": 9.0,
+      "duration": 7.0,
+      "preset": "camera.reveal",
+      "target": "meal.spoon",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 4.3,
+        "height": 2.8,
+        "startAngle": 0.45,
+        "endAngle": -0.15
+      }
+    },
+    {
+      "id": "transfer-stream",
+      "type": "effect",
+      "at": 9.2,
+      "duration": 6.2,
+      "effect": "effect.informationStream",
+      "through": [
+        "meal.soupSurface",
+        "meal.spoon",
+        "meal.handleTip"
+      ],
+      "tone": "heat",
+      "intensity": 1.0,
+      "parameters": {
+        "density": 32,
+        "speed": 0.72,
+        "size": 0.07,
+        "bow": 0.05
+      }
+    },
+    {
+      "id": "transfer-sfx",
+      "type": "audio",
+      "at": 9.25,
+      "cue": "audio.sfx.heatTransfer",
+      "volume": 0.7
+    },
+    {
+      "id": "spoon-warm",
+      "type": "property",
+      "at": 9.4,
+      "duration": 6.0,
+      "target": "meal.spoon",
+      "property": "emissiveIntensity",
+      "from": 0,
+      "to": 0.95,
+      "easing": "easeIn"
+    },
+    {
+      "id": "transfer-text",
+      "type": "text",
+      "at": 9.35,
+      "duration": 6.0,
+      "textId": "transfer"
+    },
+    {
+      "id": "cam-handle",
+      "type": "camera",
+      "at": 16,
+      "duration": 6,
+      "preset": "camera.pushIn",
+      "target": "meal.handleTip",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "reach",
+      "type": "motion",
+      "at": 16.15,
+      "duration": 4.8,
+      "target": "observer",
+      "motion": "motion.humanoid.reach"
+    },
+    {
+      "id": "handle-flow",
+      "type": "effect",
+      "at": 16.2,
+      "duration": 4.8,
+      "effect": "effect.signal.path",
+      "from": "meal.spoon",
+      "to": "meal.handleTip",
+      "tone": "heat",
+      "intensity": 0.75,
+      "parameters": {
+        "thickness": 0.11
+      }
+    },
+    {
+      "id": "touch-sfx",
+      "type": "audio",
+      "at": 18.0,
+      "cue": "audio.sfx.touch",
+      "volume": 0.55
+    },
+    {
+      "id": "handle-text",
+      "type": "text",
+      "at": 16.3,
+      "duration": 5.4,
+      "textId": "handle"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 22,
+      "duration": 5,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        2.8,
+        2.4,
+        5.7
+      ],
+      "to": [
+        3.8,
+        3.0,
+        8.2
+      ],
+      "fov": 45,
+      "framingOffset": [
+        0,
+        1.4,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 22.1,
+      "duration": 1.0,
+      "effect": "effect.insight.flash",
+      "tone": "insight",
+      "intensity": 0.6,
+      "parameters": {
+        "maxOpacity": 0.18
+      }
+    },
+    {
+      "id": "answer-sfx",
+      "type": "audio",
+      "at": 22.15,
+      "cue": "audio.sfx.insight",
+      "volume": 0.58
+    },
+    {
+      "id": "face-answer",
+      "type": "face",
+      "at": 22.25,
+      "target": "observer",
+      "state": "focused"
+    },
+    {
+      "id": "answer",
+      "type": "text",
+      "at": 22.2,
+      "duration": 4.5,
+      "textId": "answer"
+    }
+  ]
+}

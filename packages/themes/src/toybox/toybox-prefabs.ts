@@ -1,3 +1,4 @@
+import { TOYBOX_PRODUCTION_PREFAB_FACTORIES } from './toybox-production-prefabs';
 import * as THREE from 'three';
 import type { PrefabFactory, PrefabInstance, VisualTone } from '@mindforge/engine';
 import {
@@ -209,4 +210,5 @@ export const TOYBOX_PREFAB_FACTORIES: Record<string, PrefabFactory> = {
   'prefab.heatEngine': createToyboxHeatEngine,
   'prefab.informationShard': createToyboxInformationShard,
   'prefab.storyLight': createToyboxStoryLight,
+  ...TOYBOX_PRODUCTION_PREFAB_FACTORIES,
 };

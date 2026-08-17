@@ -1,3 +1,4 @@
+import { VOXEL_PRODUCTION_PREFAB_FACTORIES } from './voxel-production-prefabs';
 import * as THREE from 'three';
 import type { PrefabFactory, PrefabInstance, VisualTone } from '@mindforge/engine';
 import {
@@ -253,4 +254,5 @@ export const VOXEL_PREFAB_FACTORIES: Record<string, PrefabFactory> = {
   'prefab.heatEngine': createVoxelHeatEngine,
   'prefab.informationShard': createVoxelInformationShard,
   'prefab.storyLight': createVoxelStoryLight,
+  ...VOXEL_PRODUCTION_PREFAB_FACTORIES,
 };

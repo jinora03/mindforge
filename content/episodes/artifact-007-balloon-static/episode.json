@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-007-balloon-static",
+  "title": "Why does a balloon stick to the wall?",
+  "artifactName": "The Charge",
+  "artifactNumber": 7,
+  "artifactType": "loom",
+  "domain": "signal-ocean",
+  "duration": 28,
+  "environment": "environment.classroomLab",
+  "metadata": {
+    "logline": "Rubbing a balloon gives it extra electrons; those charges rearrange charges in a nearby wall so attraction wins.",
+    "beats": "balloon -> rubbing -> excess electrons -> wall polarization -> attraction -> stick",
+    "productionStatus": "content-sprint-wave1",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.classroomLab",
+      "prefab.balloon",
+      "prefab.demoPanel",
+      "audio.ambience.classroom",
+      "audio.sfx.balloonRub",
+      "audio.sfx.staticCrackle"
+    ]
+  },
+  "entities": [
+    {
+      "id": "observer",
+      "type": "character",
+      "factory": "character.observer",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "rotation": [
+        0,
+        -0.1,
+        0
+      ]
+    },
+    {
+      "id": "balloon",
+      "type": "prefab",
+      "factory": "prefab.balloon",
+      "parameters": {
+        "color": "#E94C67"
+      },
+      "position": [
+        -1.25,
+        2.55,
+        -2.5
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "panel",
+      "type": "prefab",
+      "factory": "prefab.demoPanel",
+      "parameters": {
+        "color": "#E2E7E6"
+      },
+      "position": [
+        2.55,
+        0,
+        -3.2
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 28,
+      "cue": "audio.ambience.classroom",
+      "loop": true,
+      "volume": 0.42
+    },
+    {
+      "id": "idle",
+      "type": "motion",
+      "at": 0,
+      "duration": 28,
+      "target": "observer",
+      "motion": "motion.humanoid.idle"
+    },
+    {
+      "id": "breathe",
+      "type": "motion",
+      "at": 0,
+      "duration": 28,
+      "target": "observer",
+      "motion": "motion.humanoid.breathe"
+    },
+    {
+      "id": "balloon-float",
+      "type": "objectMotion",
+      "at": 0,
+      "duration": 15,
+      "target": "balloon",
+      "motion": "motion.object.float",
+      "intensity": 0.45
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 4.2,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        2.5,
+        2.25,
+        5.4
+      ],
+      "to": [
+        3.8,
+        3.0,
+        8.4
+      ],
+      "fov": 46,
+      "framingOffset": [
+        0,
+        1.4,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "face-question",
+      "type": "face",
+      "at": 0.4,
+      "target": "observer",
+      "state": "confused"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.5,
+      "duration": 3.4,
+      "textId": "hook"
+    },
+    {
+      "id": "cam-rub",
+      "type": "camera",
+      "at": 4.2,
+      "duration": 5.6,
+      "preset": "camera.pushIn",
+      "target": "balloon",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "reach",
+      "type": "motion",
+      "at": 4.25,
+      "duration": 4.6,
+      "target": "observer",
+      "motion": "motion.humanoid.reach"
+    },
+    {
+      "id": "rub-sfx",
+      "type": "audio",
+      "at": 4.6,
+      "cue": "audio.sfx.balloonRub",
+      "volume": 0.72
+    },
+    {
+      "id": "charge-stream",
+      "type": "effect",
+      "at": 4.75,
+      "duration": 4.6,
+      "effect": "effect.informationStream",
+      "through": [
+        "observer.handRight",
+        "balloon.charge"
+      ],
+      "tone": "information",
+      "intensity": 0.88,
+      "parameters": {
+        "density": 24,
+        "speed": 0.72,
+        "size": 0.065,
+        "bow": 0.08
+      }
+    },
+    {
+      "id": "rub-text",
+      "type": "text",
+      "at": 4.7,
+      "duration": 4.7,
+      "textId": "rub"
+    },
+    {
+      "id": "cam-charge",
+      "type": "camera",
+      "at": 9.8,
+      "duration": 5.2,
+      "preset": "camera.reveal",
+      "target": "balloon",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 4.4,
+        "height": 2.8,
+        "startAngle": 0.25,
+        "endAngle": -0.18
+      }
+    },
+    {
+      "id": "static-burst",
+      "type": "effect",
+      "at": 10.0,
+      "duration": 4.2,
+      "effect": "effect.reaction.burst",
+      "target": "balloon.charge",
+      "tone": "information",
+      "intensity": 0.72,
+      "parameters": {
+        "count": 34,
+        "radius": 1.0,
+        "size": 0.05
+      }
+    },
+    {
+      "id": "static-sfx",
+      "type": "audio",
+      "at": 10.1,
+      "cue": "audio.sfx.staticCrackle",
+      "volume": 0.7
+    },
+    {
+      "id": "charge-text",
+      "type": "text",
+      "at": 10.1,
+      "duration": 4.5,
+      "textId": "charge"
+    },
+    {
+      "id": "cam-wall",
+      "type": "camera",
+      "at": 15.0,
+      "duration": 7.0,
+      "preset": "camera.pullBack",
+      "target": "balloon",
+      "from": [
+        2.8,
+        2.5,
+        5.5
+      ],
+      "to": [
+        3.7,
+        3.0,
+        8.1
+      ],
+      "fov": 45,
+      "framingOffset": [
+        0.75,
+        1.4,
+        -0.6
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "balloon-to-wall",
+      "type": "property",
+      "at": 15.4,
+      "duration": 2.4,
+      "target": "balloon",
+      "property": "position",
+      "to": [
+        2.05,
+        2.45,
+        -3.2
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "polarize-path",
+      "type": "effect",
+      "at": 16.2,
+      "duration": 4.7,
+      "effect": "effect.signal.path",
+      "from": "balloon.charge",
+      "to": "panel.surface",
+      "tone": "prediction",
+      "intensity": 0.82,
+      "parameters": {
+        "thickness": 0.1
+      }
+    },
+    {
+      "id": "wall-burst",
+      "type": "effect",
+      "at": 17.0,
+      "duration": 3.2,
+      "effect": "effect.reaction.burst",
+      "target": "panel.surface",
+      "tone": "information",
+      "intensity": 0.46,
+      "parameters": {
+        "count": 18,
+        "radius": 0.85,
+        "size": 0.05
+      }
+    },
+    {
+      "id": "stick-sfx",
+      "type": "audio",
+      "at": 17.75,
+      "cue": "audio.sfx.staticCrackle",
+      "volume": 0.58
+    },
+    {
+      "id": "wall-text",
+      "type": "text",
+      "at": 15.6,
+      "duration": 5.9,
+      "textId": "wall"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 22,
+      "duration": 6,
+      "preset": "camera.pullBack",
+      "target": "observer",
+      "from": [
+        3.0,
+        2.5,
+        5.8
+      ],
+      "to": [
+        4.0,
+        3.1,
+        8.6
+      ],
+      "fov": 46,
+      "framingOffset": [
+        0.45,
+        1.35,
+        -0.4
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 22.15,
+      "duration": 1.0,
+      "effect": "effect.insight.flash",
+      "tone": "insight",
+      "intensity": 0.58,
+      "parameters": {
+        "maxOpacity": 0.18
+      }
+    },
+    {
+      "id": "answer-sfx",
+      "type": "audio",
+      "at": 22.2,
+      "cue": "audio.sfx.insight",
+      "volume": 0.58
+    },
+    {
+      "id": "face-answer",
+      "type": "face",
+      "at": 22.3,
+      "target": "observer",
+      "state": "focused"
+    },
+    {
+      "id": "answer",
+      "type": "text",
+      "at": 22.25,
+      "duration": 5.3,
+      "textId": "answer"
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "episode": "artifact-009-hot-spoon",
+  "title": "Why does a spoon get hot in soup?",
+  "aspect": "9:16",
+  "durationSeconds": 27,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4.2
+      ],
+      "beat": "Hot handle puzzle",
+      "intent": "Establish the bowl/spoon rig and Observer in the warm kitchen environment.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-hot-soup",
+      "t": [
+        4.2,
+        9
+      ],
+      "beat": "Energy starts in the soup",
+      "intent": "Visually heat the soup before showing any movement through the spoon.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "meal"
+      },
+      "effects": [
+        {
+          "id": "heat-ring",
+          "purpose": "Marks the soup as the hot reservoir."
+        }
+      ],
+      "text": [
+        {
+          "id": "hot"
+        }
+      ]
+    },
+    {
+      "id": "s3-conduction",
+      "t": [
+        9,
+        16
+      ],
+      "beat": "Energy travels through metal",
+      "intent": "Run a clear stream from soup contact through spoon toward the handle while the spoon material warms.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "meal.spoon"
+      },
+      "effects": [
+        {
+          "id": "transfer-stream",
+          "purpose": "Thermal energy transfer along the spoon."
+        }
+      ],
+      "text": [
+        {
+          "id": "transfer"
+        }
+      ]
+    },
+    {
+      "id": "s4-handle",
+      "t": [
+        16,
+        22
+      ],
+      "beat": "The handle warms",
+      "intent": "Focus on the far end of the spoon and make the continued transfer visible as the Observer reaches toward it.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "meal.handleTip"
+      },
+      "effects": [
+        {
+          "id": "handle-flow",
+          "purpose": "Emphasizes energy reaching the handle."
+        }
+      ],
+      "text": [
+        {
+          "id": "handle"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        22,
+        27
+      ],
+      "beat": "Name the process",
+      "intent": "Resolve on the Observer and retain the glowing spoon in the composition while naming conduction.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [
+        {
+          "id": "answer-flash",
+          "purpose": "Conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

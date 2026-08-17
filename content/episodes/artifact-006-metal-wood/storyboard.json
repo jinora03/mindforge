@@ -1,0 +1,123 @@
+{
+  "episode": "artifact-006-metal-wood",
+  "title": "Why does metal feel colder than wood?",
+  "aspect": "9:16",
+  "durationSeconds": 26,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4
+      ],
+      "beat": "The contradiction",
+      "intent": "Show metal and wood together in one lab so the viewer assumes they share the same room conditions.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-same-temperature",
+      "t": [
+        4,
+        8
+      ],
+      "beat": "Same temperature",
+      "intent": "Make the surprising premise explicit before touching either material.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "samples"
+      },
+      "effects": [
+        {
+          "id": "same-temp-link",
+          "purpose": "Connects the samples as one temperature condition."
+        }
+      ],
+      "text": [
+        {
+          "id": "sameTemp"
+        }
+      ]
+    },
+    {
+      "id": "s3-metal-touch",
+      "t": [
+        8,
+        15
+      ],
+      "beat": "Fast heat loss",
+      "intent": "Show a dense, fast heat-flow stream leaving the hand for metal and visibly warming the metal sample.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "observer"
+      },
+      "effects": [
+        {
+          "id": "metal-flow",
+          "purpose": "Fast conduction from skin into metal."
+        }
+      ],
+      "text": [
+        {
+          "id": "metal"
+        }
+      ]
+    },
+    {
+      "id": "s4-wood-compare",
+      "t": [
+        15,
+        21
+      ],
+      "beat": "Slow heat loss",
+      "intent": "Repeat the transfer toward wood with visibly fewer/slower packets for a direct visual comparison.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "samples"
+      },
+      "effects": [
+        {
+          "id": "wood-flow",
+          "purpose": "Slower heat transfer into wood."
+        }
+      ],
+      "text": [
+        {
+          "id": "wood"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        21,
+        26
+      ],
+      "beat": "Feeling comes from heat flow",
+      "intent": "Return to the Observer and resolve the sensation as a rate-of-heat-transfer story, not a temperature difference.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "observer"
+      },
+      "effects": [
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

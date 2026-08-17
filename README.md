@@ -129,6 +129,8 @@ pnpm create:episode -- --id artifact-005-topic --title "Why does this happen?"
 
 Validate creative/shot structure with `pnpm validate:production`; the full `npm run check` gate includes this automatically. See [`docs/production-workflow.md`](docs/production-workflow.md) — includes the Studio Author drawer, four-file workflow, and episode duplication/scaffolding tools.
 
+The current 14-video production content sprint is defined in [`docs/production-slate-006-019.md`](docs/production-slate-006-019.md), with reusable-asset sequencing in [`docs/content-sprint-implementation-plan.md`](docs/content-sprint-implementation-plan.md).
+
 ## Current limitations (v0.1)
 
 - Geometry, characters, effects, and demo SFX are procedural; reference narration clips are bundled through the URL-backed audio cue contract and can be replaced with production voice assets.

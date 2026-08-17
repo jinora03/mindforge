@@ -265,7 +265,7 @@ export function plastic(color: string, options: PlasticOptions = {}): THREE.Mesh
 }
 
 /** Brushed metal for machine parts: still stylised, never photoreal. */
-export function toyMetal(color = TOYBOX_PALETTE.chrome): THREE.MeshStandardMaterial {
+export function toyMetal(color: THREE.ColorRepresentation = TOYBOX_PALETTE.chrome): THREE.MeshStandardMaterial {
   return new THREE.MeshStandardMaterial({ color, roughness: 0.34, metalness: 0.55 });
 }
 
