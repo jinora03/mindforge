@@ -10,6 +10,7 @@ export * from './EngineTypes';
 export * from './humanoid';
 export * from './RuntimeAssets';
 export * from './BrowserAssetRuntime';
+export * from './RendererPresentation';
 // Re-export the schema types the plugin contracts reference, so library
 // packages can depend on the Engine alone for the runtime surface.
 export type {

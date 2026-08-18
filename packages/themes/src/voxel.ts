@@ -77,4 +77,10 @@ export {
   VOXEL_PREFAB_FACTORIES,
   VOXEL_PRESENTATION,
 };
-export { VOXEL_PALETTE, voxelToneColor } from './voxel/voxel-style';
+export {
+  VOXEL_PALETTE,
+  voxelToneColor,
+  blockTexture,
+  createBlockMaterial,
+  createVoxelMaterial,
+} from './voxel/voxel-style';

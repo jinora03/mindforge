@@ -4,6 +4,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {
   AudioMixerBus,
   AudioSyncReason,
@@ -12,10 +13,12 @@ import type {
   EngineFrameInfo,
   LayerName,
   PostProcessingConfig,
+  RendererPresentationConfig,
 } from './EngineTypes';
 import { PlaybackController } from './PlaybackController';
 import { SceneRuntime, type SceneLayer } from './SceneRuntime';
 import { isExternalModelAsset } from './RuntimeAssets';
+import { resolveRendererPresentation } from './RendererPresentation';
 
 /** MindForge renders natively in 9:16. */
 export const ASPECT_WIDTH = 9;
@@ -67,6 +70,7 @@ export class MindForgeEngine {
   private readonly renderPass: RenderPass;
   private readonly bloomPass: UnrealBloomPass;
   private readonly vignettePass: ShaderPass;
+  private readonly reflectionEnvironment: THREE.WebGLRenderTarget;
 
   private playback = new PlaybackController(0);
   /** Exclusive lower bound of the next forward callback-crossing interval. */
@@ -88,12 +92,22 @@ export class MindForgeEngine {
       antialias: true,
       alpha: false,
       preserveDrawingBuffer: config.preserveDrawingBuffer ?? false,
+      powerPreference: 'high-performance',
     });
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.setPixelRatio(this.resolvePixelRatio());
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-    this.renderer.shadowMap.enabled = true;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Give every PBR material a restrained neutral reflection field. This is
+    // deliberately presentation-only: environments still own the visible sky,
+    // fog, sun and world lighting, while authored/procedural materials gain the
+    // specular response required to stop reading as flat primitives.
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const room = new RoomEnvironment();
+    this.reflectionEnvironment = pmrem.fromScene(room, 0.04);
+    pmrem.dispose();
+    disposeTemporaryEnvironment(room);
+    this.applyRendererPresentation(config.rendererPresentation);
 
     this.renderPass = new RenderPass(this.runtime.scene, this.runtime.camera);
     this.bloomPass = new UnrealBloomPass(
@@ -146,8 +160,10 @@ export class MindForgeEngine {
   reconfigure(
     registries: CapabilityRegistries,
     postProcessing?: PostProcessingConfig,
+    rendererPresentation?: RendererPresentationConfig,
   ): void {
-    this.config = { ...this.config, registries, postProcessing };
+    this.config = { ...this.config, registries, postProcessing, rendererPresentation };
+    this.applyRendererPresentation(rendererPresentation);
     this.applyPostProcessing(postProcessing);
   }
   get currentEpisodeId(): string | undefined {
@@ -343,6 +359,7 @@ export class MindForgeEngine {
     this.debugAnchors = [];
     this.composer.dispose();
     this.bloomPass.dispose();
+    this.reflectionEnvironment.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -431,6 +448,18 @@ export class MindForgeEngine {
     );
   }
 
+  private applyRendererPresentation(config?: RendererPresentationConfig): void {
+    const resolved = resolveRendererPresentation(config);
+    this.renderer.toneMapping = resolved.toneMapping;
+    this.renderer.toneMappingExposure = resolved.exposure;
+    this.renderer.shadowMap.enabled = resolved.shadowsEnabled;
+    this.renderer.shadowMap.type = resolved.shadowMapType;
+    this.runtime.scene.environment = resolved.imageBasedLightingEnabled
+      ? this.reflectionEnvironment.texture
+      : null;
+    this.runtime.scene.environmentIntensity = resolved.imageBasedLightingIntensity;
+  }
+
   private applyPostProcessing(config?: PostProcessingConfig): void {
     const enabled = config?.enabled !== false;
     const bloom = config?.bloom ?? DEFAULT_POST.bloom;
@@ -481,6 +510,20 @@ export function fit916(boundsWidth: number, boundsHeight: number): { width: numb
     width = height * targetRatio;
   }
   return { width: Math.max(1, Math.floor(width)), height: Math.max(1, Math.floor(height)) };
+}
+
+function disposeTemporaryEnvironment(root: THREE.Object3D): void {
+  const geometries = new Set<THREE.BufferGeometry>();
+  const materials = new Set<THREE.Material>();
+  root.traverse((object) => {
+    const mesh = object as THREE.Mesh;
+    if (mesh.geometry) geometries.add(mesh.geometry);
+    if (!mesh.material) return;
+    const owned = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const material of owned) materials.add(material);
+  });
+  for (const geometry of geometries) geometry.dispose();
+  for (const material of materials) material.dispose();
 }
 
 function now(): number {

@@ -240,6 +240,9 @@ export interface PlasticOptions {
   opacity?: number;
   /** Matte rubber for tyres, grips, and boots. */
   rubber?: boolean;
+  clearcoat?: number;
+  clearcoatRoughness?: number;
+  depthWrite?: boolean;
 }
 
 /**
@@ -247,26 +250,39 @@ export interface PlasticOptions {
  * animate `color`, `opacity`, and `emissiveIntensity` on any subtree, and a
  * shared material would leak that animation across unrelated parts.
  *
- * There is no environment map, so the highlight comes entirely from direct
- * lights — which is why the Toybox rig below runs a tighter, stronger key than
- * the Voxel one.
+ * The Engine supplies a restrained neutral reflection environment, while the
+ * Toybox light rig supplies the directional key/rim that gives moulded edges a
+ * readable highlight.
  */
 export function plastic(color: string, options: PlasticOptions = {}): THREE.MeshStandardMaterial {
   const opacity = options.opacity ?? 1;
-  return new THREE.MeshStandardMaterial({
+  const transparent = options.transparent ?? opacity < 1;
+  const rubber = options.rubber === true;
+  return new THREE.MeshPhysicalMaterial({
     color,
-    roughness: options.roughness ?? (options.rubber === true ? 0.82 : 0.33),
+    roughness: options.roughness ?? (rubber ? 0.82 : 0.31),
     metalness: options.metalness ?? 0,
     emissive: options.emissive ?? '#000000',
     emissiveIntensity: options.emissiveIntensity ?? 0,
-    transparent: options.transparent ?? opacity < 1,
+    clearcoat: options.clearcoat ?? (rubber ? 0.04 : 0.38),
+    clearcoatRoughness: options.clearcoatRoughness ?? (rubber ? 0.65 : 0.24),
+    transparent,
     opacity,
+    depthWrite: options.depthWrite ?? !(transparent && opacity < 0.98),
+    dithering: true,
   });
 }
 
-/** Brushed metal for machine parts: still stylised, never photoreal. */
+/** Brushed metal for machine parts: stylised PBR with a restrained clear coat. */
 export function toyMetal(color: THREE.ColorRepresentation = TOYBOX_PALETTE.chrome): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({ color, roughness: 0.34, metalness: 0.55 });
+  return new THREE.MeshPhysicalMaterial({
+    color,
+    roughness: 0.3,
+    metalness: 0.68,
+    clearcoat: 0.12,
+    clearcoatRoughness: 0.34,
+    dithering: true,
+  });
 }
 
 /** Unlit glow for effect cores and lamp lenses. */
@@ -295,6 +311,7 @@ export function toyDebris(
     transparent: opacity < 1,
     opacity,
     depthWrite: opacity >= 1,
+    dithering: true,
   });
 }
 
@@ -373,13 +390,13 @@ export function createToyLighting(options: ToyLightingOptions = {}): THREE.Group
     new THREE.HemisphereLight(
       new THREE.Color(warm ? '#FFC79A' : '#CFEBFF'),
       new THREE.Color(warm ? '#4A3630' : '#7E9A63'),
-      warm ? 1.15 : 1.25,
+      warm ? 0.9 : 0.92,
     ),
   );
 
   const key = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#FFD9A6' : '#FFFDF2'),
-    warm ? 2.1 : 2.7,
+    warm ? 2.8 : 3.35,
   );
   key.position.set(-6, 12, 9);
   key.castShadow = true;
@@ -398,7 +415,7 @@ export function createToyLighting(options: ToyLightingOptions = {}): THREE.Group
   // Opposing rim, angled to catch the chamfers along the shadow edge.
   const rim = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#8FA6B8' : '#BFE0FF'),
-    warm ? 0.5 : 0.7,
+    warm ? 0.38 : 0.46,
   );
   rim.position.set(8, 6, -7);
   group.add(rim);
@@ -407,6 +424,12 @@ export function createToyLighting(options: ToyLightingOptions = {}): THREE.Group
 }
 
 export const TOYBOX_PRESENTATION: ThemePresentation = {
+  renderer: {
+    toneMapping: 'acesFilmic',
+    exposure: 1.02,
+    shadows: { enabled: true, type: 'pcfSoft' },
+    imageBasedLighting: { enabled: true, intensity: 0.58 },
+  },
   postProcessing: {
     enabled: true,
     bloom: { strength: 0.3, radius: 0.26, threshold: 0.88 },

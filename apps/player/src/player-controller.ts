@@ -60,6 +60,7 @@ export class PlayerController {
       registries: createLibraryForTheme(this.theme.id),
       assetRuntime: this.assetRuntime,
       postProcessing: this.theme.presentation.postProcessing,
+      rendererPresentation: this.theme.presentation.renderer,
       audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.renderCaptions(info),
       onError: (error) => this.showStatus(error.message),
@@ -142,7 +143,11 @@ export class PlayerController {
       const nextTheme = getTheme(themeId);
       const nextLibrary = createLibraryForTheme(nextTheme.id);
       this.theme = nextTheme;
-      this.engine.reconfigure(nextLibrary, nextTheme.presentation.postProcessing);
+      this.engine.reconfigure(
+        nextLibrary,
+        nextTheme.presentation.postProcessing,
+        nextTheme.presentation.renderer,
+      );
       await this.engine.prepareAssets();
 
       if (entry) {
@@ -154,7 +159,11 @@ export class PlayerController {
       this.hideStatus();
     } catch (error) {
       this.theme = previousTheme;
-      this.engine.reconfigure(previousRegistries, previousTheme.presentation.postProcessing);
+      this.engine.reconfigure(
+        previousRegistries,
+        previousTheme.presentation.postProcessing,
+        previousTheme.presentation.renderer,
+      );
       if (entry) {
         try {
           this.engine.loadEpisode(entry.input);

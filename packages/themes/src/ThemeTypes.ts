@@ -5,6 +5,7 @@ import type {
   EnvironmentFactory,
   PrefabFactory,
   PostProcessingConfig,
+  RendererPresentationConfig,
 } from '@mindforge/engine';
 import type { TextPlacement, TextStyle } from '@mindforge/schema';
 
@@ -21,10 +22,11 @@ export type ThemeTypography = Readonly<
 
 /**
  * Browser-facing presentation values that belong to a visual theme rather than
- * to the generic Engine. The Engine only receives the post-processing numbers;
- * Studio / Player own DOM typography and safe-zone presentation.
+ * to the generic Engine. The Engine receives only plain renderer/post-processing
+ * values; Studio / Player own DOM typography and safe-zone presentation.
  */
 export interface ThemePresentation {
+  readonly renderer: RendererPresentationConfig;
   readonly postProcessing: PostProcessingConfig;
   readonly typography: ThemeTypography;
   readonly safeZones: ThemeSafeZones;

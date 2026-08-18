@@ -97,6 +97,7 @@ export class StudioController {
       registries: this.library,
       assetRuntime: this.assetRuntime,
       postProcessing: this.theme.presentation.postProcessing,
+      rendererPresentation: this.theme.presentation.renderer,
       audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.onFrame(info),
       onError: (error) => this.patch({ error: error.message }),
@@ -219,7 +220,11 @@ export class StudioController {
       // captions from the rebuilt frame immediately use the selected theme.
       this.theme = nextTheme;
       this.library = nextLibrary;
-      this.engine.reconfigure(nextLibrary, nextTheme.presentation.postProcessing);
+      this.engine.reconfigure(
+        nextLibrary,
+        nextTheme.presentation.postProcessing,
+        nextTheme.presentation.renderer,
+      );
       await this.engine.prepareAssets();
 
       if (entry) {
@@ -239,7 +244,11 @@ export class StudioController {
       // rather than leaving a half-switched or empty stage.
       this.theme = previousTheme;
       this.library = previousLibrary;
-      this.engine.reconfigure(previousLibrary, previousTheme.presentation.postProcessing);
+      this.engine.reconfigure(
+        previousLibrary,
+        previousTheme.presentation.postProcessing,
+        previousTheme.presentation.renderer,
+      );
       if (entry) {
         try {
           this.engine.loadEpisode(entry.input);

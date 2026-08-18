@@ -57,7 +57,7 @@ resolve selected Theme
         ↓
 build its MindForgeLibrary
         ↓
-Engine.reconfigure(registries, postProcessing)
+Engine.reconfigure(registries, postProcessing, rendererPresentation)
         ↓
 rebuild the same episode
         ↓
@@ -66,9 +66,10 @@ restore timestamp + speed + play/pause state
 render captions with the selected typography / safe zones
 ```
 
-The renderer keeps one stable composer chain; generic bloom/vignette values are updated when the
-app reconfigures it. This avoids the old failure mode where Toybox factories could be active while
-Voxel post-processing remained in use.
+The renderer keeps one stable composer chain; generic tone mapping, exposure, shadows, reflection
+presentation, and bloom/vignette values are updated when the app reconfigures it. This avoids the
+old failure mode where one theme's factories could be active while another theme's renderer or
+post-processing presentation remained in use.
 
 A failed switch should restore the previous theme rather than leave the stage half-reconfigured.
 Layer flags remain Engine/Studio state and survive the scene rebuild.

@@ -162,6 +162,7 @@ export async function exportMindForgeVideo(
       registries: request.registries,
       assetRuntime: request.assetRuntime,
       postProcessing: request.theme.presentation.postProcessing,
+      rendererPresentation: request.theme.presentation.renderer,
       autoResize: false,
       pixelRatioCap: 1,
       preserveDrawingBuffer: true,

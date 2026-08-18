@@ -371,6 +371,26 @@ export interface PostProcessingConfig {
   readonly vignette?: { offset: number; darkness: number } | null;
 }
 
+/**
+ * Renderer-level presentation that may vary by theme without leaking theme ids
+ * into the Engine. These values affect every lit material, including authored
+ * GLB assets loaded through the production asset runtime.
+ */
+export interface RendererPresentationConfig {
+  readonly toneMapping?: 'none' | 'acesFilmic';
+  /** Linear exposure multiplier applied by the renderer tone mapper. */
+  readonly exposure?: number;
+  readonly shadows?: {
+    readonly enabled?: boolean;
+    readonly type?: 'pcf' | 'pcfSoft';
+  };
+  readonly imageBasedLighting?: {
+    readonly enabled?: boolean;
+    /** Strength of the neutral reflection environment used by PBR materials. */
+    readonly intensity?: number;
+  };
+}
+
 export interface EngineConfig {
   readonly registries: CapabilityRegistries;
   /** Optional production model runtime. Procedural-only projects may omit it. */
@@ -378,6 +398,7 @@ export interface EngineConfig {
   /** Cap on `devicePixelRatio` to keep fill-rate stable. Defaults to 2. */
   readonly pixelRatioCap?: number;
   readonly postProcessing?: PostProcessingConfig;
+  readonly rendererPresentation?: RendererPresentationConfig;
   /** Optional live audio backend. Headless/runtime tests may omit it. */
   readonly audioRuntime?: AudioRuntime;
   /** Preserve the WebGL back buffer for exact canvas capture during offline export. */

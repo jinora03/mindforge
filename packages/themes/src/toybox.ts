@@ -6,7 +6,7 @@ import { TOYBOX_ENVIRONMENT_FACTORIES } from './toybox/toybox-environments';
 import { TOYBOX_PREFAB_FACTORIES } from './toybox/toybox-prefabs';
 import { TOYBOX_PRESENTATION } from './toybox/toybox-style';
 
-export { TOYBOX_PALETTE, toyboxToneColor } from './toybox/toybox-style';
+export { TOYBOX_PALETTE, toyboxToneColor, plastic, toyMetal } from './toybox/toybox-style';
 
 const TOYBOX_ASSETS: AssetDescriptor[] = [
   {

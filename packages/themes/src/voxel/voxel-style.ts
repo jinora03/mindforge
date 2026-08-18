@@ -393,8 +393,12 @@ export function blockTexture(id: BlockTextureId): THREE.DataTexture {
   const texture = new THREE.DataTexture(data, TEXELS, TEXELS, THREE.RGBAFormat);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.magFilter = THREE.NearestFilter;
-  texture.minFilter = THREE.NearestFilter;
-  texture.generateMipmaps = false;
+  // Keep pixels crisp nearby while using mip levels at distance. Production
+  // camera moves exposed severe shimmer when every far surface sampled the raw
+  // 16x16 texture with no mip chain.
+  texture.minFilter = THREE.NearestMipmapLinearFilter;
+  texture.generateMipmaps = true;
+  texture.anisotropy = 4;
   texture.wrapS = THREE.RepeatWrapping;
   texture.wrapT = THREE.RepeatWrapping;
   texture.needsUpdate = true;
@@ -438,9 +442,53 @@ export interface VoxelMaterialOptions {
   metalness?: number;
   transparent?: boolean;
   opacity?: number;
+  depthWrite?: boolean;
   /** Legacy escape hatch retained for callers that want an untextured face. */
   pixelVariation?: number;
 }
+
+interface VoxelMaterialResponse {
+  readonly roughness: number;
+  readonly metalness: number;
+}
+
+const DEFAULT_MATERIAL_RESPONSE: VoxelMaterialResponse = {
+  roughness: 0.86,
+  metalness: 0,
+};
+
+/**
+ * Production response by semantic block family. Colour/pixel identity stays in
+ * the texture while roughness and reflectance make stone, foliage, water and
+ * metal stop behaving like the same matte material under the same light.
+ */
+const MATERIAL_RESPONSE: Partial<Record<BlockTextureId, VoxelMaterialResponse>> = {
+  grassTop: { roughness: 0.9, metalness: 0 },
+  grassSide: { roughness: 0.91, metalness: 0 },
+  dirt: { roughness: 0.94, metalness: 0 },
+  stone: { roughness: 0.78, metalness: 0.02 },
+  cobble: { roughness: 0.82, metalness: 0.01 },
+  stoneBrick: { roughness: 0.76, metalness: 0.02 },
+  sand: { roughness: 0.92, metalness: 0 },
+  gravelPath: { roughness: 0.88, metalness: 0.01 },
+  logSide: { roughness: 0.84, metalness: 0 },
+  logTop: { roughness: 0.86, metalness: 0 },
+  planks: { roughness: 0.8, metalness: 0 },
+  leaves: { roughness: 0.88, metalness: 0 },
+  water: { roughness: 0.26, metalness: 0.02 },
+  metal: { roughness: 0.36, metalness: 0.62 },
+  metalPlate: { roughness: 0.3, metalness: 0.72 },
+  forgeBrick: { roughness: 0.68, metalness: 0.08 },
+  magma: { roughness: 0.56, metalness: 0 },
+  cloud: { roughness: 0.98, metalness: 0 },
+  cloth: { roughness: 0.94, metalness: 0 },
+  clothDark: { roughness: 0.95, metalness: 0 },
+  denim: { roughness: 0.92, metalness: 0 },
+  leather: { roughness: 0.76, metalness: 0 },
+  skin: { roughness: 0.72, metalness: 0 },
+  hair: { roughness: 0.84, metalness: 0 },
+  flat: DEFAULT_MATERIAL_RESPONSE,
+};
 
 /**
  * Create a fresh block material. Deliberately **not** cached: the timeline can
@@ -460,15 +508,20 @@ export function createVoxelMaterial(
         size ? size[1] / BLOCK : 1,
       )
     : null;
+  const response = (textureId && MATERIAL_RESPONSE[textureId]) ?? DEFAULT_MATERIAL_RESPONSE;
+  const opacity = options.opacity ?? 1;
+  const transparent = options.transparent ?? opacity < 1;
   return new THREE.MeshStandardMaterial({
     color,
     map,
     emissive: options.emissive ?? '#000000',
     emissiveIntensity: options.emissiveIntensity ?? 0,
-    roughness: options.roughness ?? 0.94,
-    metalness: options.metalness ?? 0.0,
-    transparent: options.transparent ?? false,
-    opacity: options.opacity ?? 1,
+    roughness: options.roughness ?? response.roughness,
+    metalness: options.metalness ?? response.metalness,
+    transparent,
+    opacity,
+    depthWrite: options.depthWrite ?? !(transparent && opacity < 0.98),
+    dithering: true,
   });
 }
 
@@ -606,13 +659,13 @@ export function createVoxelLighting(options: VoxelLightingOptions = {}): THREE.G
   const hemisphere = new THREE.HemisphereLight(
     new THREE.Color(warm ? '#C29A72' : '#BBDDFF'),
     new THREE.Color(warm ? '#5C4238' : '#5F7A45'),
-    warm ? 1.1 : 0.95,
+    warm ? 0.88 : 0.72,
   );
   group.add(hemisphere);
 
   const key = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#FFCE93' : '#FFF6E0'),
-    warm ? 1.9 : 2.6,
+    warm ? 2.7 : 3.4,
   );
   key.position.set(-9, 15, 8);
   key.castShadow = true;
@@ -630,7 +683,7 @@ export function createVoxelLighting(options: VoxelLightingOptions = {}): THREE.G
   // Single cool bounce so shadowed faces keep their material identity.
   const fill = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#7E93A0' : '#9EC9E8'),
-    warm ? 0.4 : 0.35,
+    warm ? 0.28 : 0.22,
   );
   fill.position.set(7, 5, -9);
   group.add(fill);
@@ -639,6 +692,12 @@ export function createVoxelLighting(options: VoxelLightingOptions = {}): THREE.G
 }
 
 export const VOXEL_PRESENTATION: ThemePresentation = {
+  renderer: {
+    toneMapping: 'acesFilmic',
+    exposure: 1.08,
+    shadows: { enabled: true, type: 'pcfSoft' },
+    imageBasedLighting: { enabled: true, intensity: 0.42 },
+  },
   postProcessing: {
     enabled: true,
     bloom: { strength: 0.22, radius: 0.2, threshold: 0.92 },
