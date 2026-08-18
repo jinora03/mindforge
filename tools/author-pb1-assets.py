@@ -165,6 +165,13 @@ def petal_mesh(radius=0.12, length=0.32) -> trimesh.Trimesh:
     return mesh
 
 
+def ensure_outward_winding(mesh: trimesh.Trimesh) -> trimesh.Trimesh:
+    """Normalize closed authored meshes to outward-facing winding before GLB export."""
+    if mesh.is_watertight and mesh.volume < 0:
+        mesh.invert()
+    return mesh
+
+
 def teardrop_mesh(scale_factor=1.0) -> trimesh.Trimesh:
     profile = [
         (-1.05, .18), (-.92, .40), (-.58, .64), (-.08, .72),
@@ -207,7 +214,7 @@ def teardrop_mesh(scale_factor=1.0) -> trimesh.Trimesh:
         faces.append((bottom_center,s+j,s+i))
     mesh=trimesh.Trimesh(vertices=np.array(verts)*scale_factor, faces=np.array(faces), process=True)
     mesh.apply_translation([0, -0.175 * scale_factor, 0])
-    return mesh
+    return ensure_outward_winding(mesh)
 
 
 def triangular_prism(length=1.8, height=1.4, depth=0.9) -> trimesh.Trimesh:
@@ -221,7 +228,7 @@ def triangular_prism(length=1.8, height=1.4, depth=0.9) -> trimesh.Trimesh:
         [1,4,3],[1,3,0],
         [2,5,4],[2,4,1],
     ])
-    return trimesh.Trimesh(vertices=np.array(verts), faces=faces, process=True)
+    return ensure_outward_winding(trimesh.Trimesh(vertices=np.array(verts), faces=faces, process=True))
 
 
 def irregular_puddle(seed=77, radius=1.25, thickness=.035, points=14) -> trimesh.Trimesh:
