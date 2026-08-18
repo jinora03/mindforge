@@ -142,3 +142,9 @@ PF6 set-dressing factories can bind a semantic variant to a PF2 model asset id. 
 ## PF7 production characters
 
 PF7 extends PF2 character-category models with a semantic humanoid rig contract. The asset runtime resolves authored skeleton node names once, then `@mindforge/characters` adapts them to the existing `PoseableRig` surface while forwarding PF3 semantic clips and PF2 anchors. Production character assets stay in-place and are registered behind semantic `character.*` factory ids. See [`character-production.md`](character-production.md).
+
+## PB1 real authored baseline
+
+PB1 is the first phase that actually fills the PF2 contract with original production GLBs instead of procedural fallbacks. The Voxel theme now includes `pack.voxel.nature-production` and `pack.voxel.optics-production`; the PF6 nature scatter layer can instantiate the authored trees, bushes and rocks without changing episode semantics. See `docs/pb1-production-assets.md`.
+
+PB1 deliberately leaves final material response to PB2. A PB1 model being production-qualified means its geometry, anchors, units, provenance, local dependencies and budgets are valid—not that its embedded material is the final cinematic surface treatment.

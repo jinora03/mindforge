@@ -22,22 +22,27 @@ pack.voxel.nature-production
   trees / rocks / plants / terrain / props / hero models
 ```
 
-## First production pack target
+## First production packs — shipped in PB1
 
-The first pack worth sourcing/building should be a small **Voxel Nature Foundation** rather than hundreds of random assets:
+PB1 deliberately starts smaller than the original target and proves the complete authored-asset path before expanding:
 
 ```text
-8–10 trees
-6–8 rocks
-6–8 plants / grass clumps
-3–4 bushes
-3–4 flowers
-4–6 terrain/detail modules
-2–3 puddle/water-edge props
-2–3 cloud/sky-support meshes if useful
+pack.voxel.nature-production
+  4 trees
+  3 rocks / rock clusters
+  2 bushes
+  2 grass clusters
+  1 flower cluster
+  1 puddle
+  3 cloud families
+
+pack.voxel.optics-production
+  hero rain droplet
+  small rain droplet
+  optical prism
 ```
 
-The pack should emphasize combinations and silhouette variety, not raw asset count.
+These are original checked-in GLBs with PF2 provenance and validation. The next asset additions should be driven by the PB4 meadow composition rather than filling an arbitrary quota.
 
 ## Why packs are not Engine capabilities
 

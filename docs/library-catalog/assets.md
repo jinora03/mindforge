@@ -16,3 +16,22 @@ Registered asset descriptors. Procedural entries are deterministic fallbacks; UR
 - `model.prop.lever` — model (procedural fallback)
 - `model.prop.door` — model (procedural fallback)
 - `model.environment.laboratory` — model (procedural fallback)
+- `model.vegetation.treeOakA.production` — model (authored) — PB1 broad-canopy oak with asymmetrical branching and semantic trunk/canopy anchors.
+- `model.vegetation.treeOakB.production` — model (authored) — PB1 split-trunk oak for reusable meadow and forest composition variety.
+- `model.vegetation.treePineA.production` — model (authored) — PB1 layered stylized pine for distant and midground nature composition.
+- `model.vegetation.treeYoungA.production` — model (authored) — PB1 young tree for scale variation and lighter foreground/midground dressing.
+- `model.rock.meadowA.production` — model (authored) — PB1 faceted meadow rock A.
+- `model.rock.meadowB.production` — model (authored) — PB1 faceted meadow rock B with a broader silhouette.
+- `model.rock.clusterA.production` — model (authored) — PB1 reusable three-piece rock cluster.
+- `model.vegetation.bushA.production` — model (authored) — PB1 compact layered bush with internal twig structure.
+- `model.vegetation.bushB.production` — model (authored) — PB1 wider bush variant for composition breakup.
+- `model.vegetation.grassClusterA.production` — model (authored) — PB1 authored grass cluster A with individually shaped blades.
+- `model.vegetation.grassClusterB.production` — model (authored) — PB1 denser authored grass cluster B.
+- `model.vegetation.flowerClusterA.production` — model (authored) — PB1 reusable five-flower meadow cluster.
+- `model.prop.puddleA.production` — model (authored) — PB1 irregular puddle mesh prepared for PB2 production water/wet-surface material work.
+- `model.environment.stormCloudA.production` — model (authored) — PB1 layered storm cloud family A.
+- `model.environment.stormCloudB.production` — model (authored) — PB1 layered storm cloud family B with a different authored mass layout.
+- `model.environment.cloudBreakA.production` — model (authored) — PB1 broken-cloud family for reusable sunlight/reveal compositions.
+- `model.prop.prismDrop.production` — model (authored) — PB1 hero optical rain droplet with custom faceted silhouette, inner lens and dispersion anchors.
+- `model.prop.rainDropletSmall.production` — model (authored) — PB1 small authored rain droplet for close/midground optical staging.
+- `model.prop.opticalPrism.production` — model (authored) — PB1 reusable triangular optical prism with semantic input/exit/center anchors.

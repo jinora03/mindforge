@@ -104,10 +104,7 @@ Fallback instances are marked in `Object3D.userData` with
 `mindforgeCompositionSource = "fallback"`. Authored instances are marked
 `"authored"` and record their asset id for Studio/debug inspection.
 
-The current repository has no production nature GLBs, so the built-in PF6
-Voxel/Toybox nature variants intentionally remain fallback geometry. PF6 is the
-composition and integration foundation; it does not claim those placeholders
-meet the final art bar.
+PB1 now supplies the first production Voxel nature GLBs. The Voxel PF6 nature layer prefers those authored tree, bush and rock models when the asset runtime is available, while keeping its explicit procedural fallback path. Toybox still uses its own fallback geometry. Ground cover, puddles and cloud families are registered for later PB4 composition rather than being forced into the generic scatter layer prematurely.
 
 ## PF4 integration
 

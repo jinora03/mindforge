@@ -6,7 +6,7 @@ a small runtime engine, a library of reusable systems, and validated JSON conten
 episodes are mostly *composed* rather than re-coded.
 
 > This is the **v0.1 scaffold**: a small but fully working vertical slice that proves the
-> architecture. Current bundled theme visuals are still procedural fallbacks, but authored GLB/GLTF loading, validation, semantic anchors/clips, and asset-pack metadata are production-ready.
+> architecture. PF1–PF8 provide the reusable production foundation, and PB1 now ships the first original authored Voxel GLB packs alongside the older explicit procedural fallbacks.
 
 ## Platform hierarchy
 
@@ -138,7 +138,7 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 ## Current limitations (v0.1)
 
-- Bundled Voxel/Toybox model descriptors still resolve to procedural fallbacks; PF2 now provides the authored GLB/GLTF contract and validation pipeline, but the first curated production model pack is not bundled yet. Demo SFX/reference narration likewise remain replaceable production assets.
+- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB2 will raise the new GLBs from baseline embedded PBR materials to the intended cinematic wet/optical surface quality. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - The bundled themes still ship one procedural character (`character.observer`). PF7 now supports authored production humanoids, but no curated production character GLB is bundled yet; authored locomotion remains in-place.
@@ -157,3 +157,7 @@ PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`
 ### PF8 semantic scene composition
 
 `@mindforge/composer` can now compile higher-level `world + actors + props + beats` JSON into the ordinary deterministic `EpisodeScript`. AI/human authoring stays outside the Engine; the compiled result still passes through the same schema, registry, Studio, Player, and export runtime. See [`docs/scene-composer.md`](docs/scene-composer.md).
+
+## Production Baseline
+
+With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. See `docs/pb1-production-assets.md`.

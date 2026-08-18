@@ -12,6 +12,7 @@ import {
   createVoxelLighting,
   createVoxelMaterial,
 } from './voxel-style';
+import { VOXEL_PB1_NATURE_ASSET_IDS } from './voxel-production-assets';
 
 function block(
   size: readonly [number, number, number],
@@ -87,9 +88,78 @@ const createVoxelGround = createSurfaceLayerFactory({
 });
 
 const NATURE_VARIANTS = [
-  { id: 'tree', weight: 0.48, createFallback: fallbackTree, minScale: 0.78, maxScale: 1.28 },
-  { id: 'bush', weight: 0.32, createFallback: fallbackBush, minScale: 0.72, maxScale: 1.18 },
-  { id: 'rock', weight: 0.2, createFallback: fallbackRock, minScale: 0.72, maxScale: 1.22 },
+  {
+    id: 'tree.oak-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.trees[0],
+    weight: 0.2,
+    createFallback: fallbackTree,
+    minScale: 0.82,
+    maxScale: 1.16,
+  },
+  {
+    id: 'tree.oak-b',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.trees[1],
+    weight: 0.16,
+    createFallback: fallbackTree,
+    minScale: 0.8,
+    maxScale: 1.14,
+  },
+  {
+    id: 'tree.pine-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.trees[2],
+    weight: 0.08,
+    createFallback: fallbackTree,
+    minScale: 0.78,
+    maxScale: 1.08,
+  },
+  {
+    id: 'tree.young-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.trees[3],
+    weight: 0.07,
+    createFallback: fallbackTree,
+    minScale: 0.82,
+    maxScale: 1.18,
+  },
+  {
+    id: 'bush.a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.bushes[0],
+    weight: 0.13,
+    createFallback: fallbackBush,
+    minScale: 0.82,
+    maxScale: 1.2,
+  },
+  {
+    id: 'bush.b',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.bushes[1],
+    weight: 0.11,
+    createFallback: fallbackBush,
+    minScale: 0.78,
+    maxScale: 1.16,
+  },
+  {
+    id: 'rock.meadow-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.rocks[0],
+    weight: 0.08,
+    createFallback: fallbackRock,
+    minScale: 0.74,
+    maxScale: 1.14,
+  },
+  {
+    id: 'rock.meadow-b',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.rocks[1],
+    weight: 0.08,
+    createFallback: fallbackRock,
+    minScale: 0.68,
+    maxScale: 1.05,
+  },
+  {
+    id: 'rock.cluster-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.rocks[2],
+    weight: 0.09,
+    createFallback: fallbackRock,
+    minScale: 0.72,
+    maxScale: 1.08,
+  },
 ] as const;
 
 const createVoxelNature = createDeterministicScatterLayerFactory({

@@ -10,6 +10,7 @@ import {
   VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS,
   VOXEL_PRODUCTION_COMPOSITION_LAYERS,
 } from './voxel/voxel-production-composition';
+import { VOXEL_PB1_ASSET_PACKS, VOXEL_PB1_PRODUCTION_ASSETS } from './voxel/voxel-production-assets';
 
 const VOXEL_ASSETS: AssetDescriptor[] = [
   {
@@ -59,6 +60,7 @@ const VOXEL_ASSETS: AssetDescriptor[] = [
   { id: 'model.prop.moonPair', kind: 'model', procedural: true, description: 'Reusable equal-size Moon perception comparison rig' },
   { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];
+VOXEL_ASSETS.push(...VOXEL_PB1_PRODUCTION_ASSETS);
 
 export const VOXEL_ASSET_PACKS: AssetPackDescriptor[] = [
   {
@@ -123,6 +125,7 @@ export const VOXEL_ASSET_PACKS: AssetPackDescriptor[] = [
     tags: ['world', 'hero', 'fallback'],
   },
 ];
+VOXEL_ASSET_PACKS.push(...VOXEL_PB1_ASSET_PACKS);
 
 /**
  * Primary MindForge visual system: an original, block-built gameplay language.
