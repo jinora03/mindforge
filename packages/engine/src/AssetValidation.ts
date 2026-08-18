@@ -1,3 +1,4 @@
+import { HUMANOID_ANCHORS, HUMANOID_JOINTS } from './humanoid';
 import type {
   AssetDescriptor,
   AssetPackDescriptor,
@@ -107,7 +108,9 @@ export function validateAssetCatalog(
 export function isProductionAsset(asset: AssetDescriptor): boolean {
   if (asset.procedural === true || !asset.url) return false;
   if (asset.kind !== 'model') return asset.provenance !== undefined;
-  return asset.model !== undefined && asset.provenance !== undefined;
+  if (!asset.model || !asset.provenance) return false;
+  if (asset.model.category === 'character') return asset.character !== undefined;
+  return asset.character === undefined;
 }
 
 function validateAssetDescriptor(asset: AssetDescriptor, issues: AssetCatalogIssue[]): void {
@@ -134,6 +137,16 @@ function validateAssetDescriptor(asset: AssetDescriptor, issues: AssetCatalogIss
       issues.push(issue('asset.license-missing', `licensed asset "${asset.id}" must declare its license`, asset.id));
     }
 
+    if (asset.model?.category === 'character') {
+      validateCharacterProfile(asset, issues);
+    } else if (asset.character) {
+      issues.push(issue(
+        'character.profile-category',
+        `model "${asset.id}" declares PF7 character metadata but its category is not "character"`,
+        asset.id,
+      ));
+    }
+
     for (const [semanticName, nodeName] of Object.entries(asset.anchors ?? {})) {
       if (!semanticName.trim()) {
         issues.push(issue('model.anchor-semantic-empty', `model "${asset.id}" has an empty semantic anchor name`, asset.id));
@@ -146,7 +159,7 @@ function validateAssetDescriptor(asset: AssetDescriptor, issues: AssetCatalogIss
         ));
       }
     }
-  } else if (asset.model || asset.provenance) {
+  } else if (asset.model || asset.character || asset.provenance) {
     issues.push(issue(
       'model.metadata-without-url',
       `procedural model "${asset.id}" should not carry authored model/provenance metadata until it has a URL-backed replacement`,
@@ -176,6 +189,50 @@ function validateModelProfile(
     if (!semanticName.trim() || !authoredName.trim()) {
       issues.push(issue('model.clip-map', `model "${assetId}" clip mappings cannot contain empty names`, assetId));
     }
+  }
+}
+
+function validateCharacterProfile(asset: AssetDescriptor, issues: AssetCatalogIssue[]): void {
+  const profile = asset.character;
+  if (!profile) {
+    issues.push(issue(
+      'character.profile-missing',
+      `production character model "${asset.id}" is missing its PF7 character profile`,
+      asset.id,
+    ));
+    return;
+  }
+
+  const anchors = asset.anchors ?? {};
+  for (const anchor of HUMANOID_ANCHORS) {
+    if (!anchors[anchor]) {
+      issues.push(issue(
+        'character.anchor-missing',
+        `production character "${asset.id}" must expose semantic anchor "${anchor}"`,
+        asset.id,
+      ));
+    }
+  }
+
+  const authoredJointNames = new Set<string>();
+  for (const joint of HUMANOID_JOINTS) {
+    const nodeName = profile.joints[joint];
+    if (!nodeName?.trim()) {
+      issues.push(issue(
+        'character.joint-missing',
+        `production character "${asset.id}" must map semantic joint "${joint}"`,
+        asset.id,
+      ));
+      continue;
+    }
+    if (authoredJointNames.has(nodeName)) {
+      issues.push(issue(
+        'character.joint-duplicate',
+        `production character "${asset.id}" maps multiple semantic joints to authored node "${nodeName}"`,
+        asset.id,
+      ));
+    }
+    authoredJointNames.add(nodeName);
   }
 }
 

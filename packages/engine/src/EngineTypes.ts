@@ -11,7 +11,7 @@ import type {
   TextStyle,
   SceneLayerRole,
 } from '@mindforge/schema';
-import type { PoseableRig } from './humanoid';
+import type { HumanoidJoint, PoseableRig } from './humanoid';
 import type { EffectInfluenceReader, EffectInfluenceSink } from './EffectInfluence';
 
 /**
@@ -319,6 +319,19 @@ export interface ModelAssetProfile {
   readonly receiveShadow?: boolean;
 }
 
+/**
+ * PF7 authored-character contract layered on top of the generic PF2 model
+ * profile. Bone names remain DCC-specific here; motions and episode JSON only
+ * ever see the canonical HumanoidJoint names.
+ */
+export interface CharacterAssetProfile {
+  readonly rig: 'humanoid';
+  /** Production clips must be authored in-place; scene travel stays timeline-owned. */
+  readonly rootMotion: 'in-place';
+  /** Canonical semantic joint -> unique authored skeleton node name. */
+  readonly joints: Readonly<Record<HumanoidJoint, string>>;
+}
+
 /** Source/licensing metadata kept with authored production assets. */
 export interface AssetProvenance {
   readonly source: 'original' | 'licensed' | 'public-domain' | 'generated';
@@ -341,6 +354,8 @@ export interface AssetDescriptor {
   readonly anchors?: Readonly<Record<string, string>>;
   /** Authored-model production rules. Required by PF2 validation for URL-backed models. */
   readonly model?: ModelAssetProfile;
+  /** PF7 production-character contract. Valid only for model.category === 'character'. */
+  readonly character?: CharacterAssetProfile;
   /** Provenance is required by PF2 validation for URL-backed production assets. */
   readonly provenance?: AssetProvenance;
 }
@@ -362,6 +377,8 @@ export interface RuntimeModelAsset {
   readonly animations: readonly THREE.AnimationClip[];
   /** Semantic clip id -> detached AnimationClip for PF3's deterministic animation runtime. */
   readonly clips: Readonly<Record<string, THREE.AnimationClip>>;
+  /** PF7 semantic humanoid joints resolved from an authored production character. */
+  readonly characterJoints?: Readonly<Record<HumanoidJoint, THREE.Object3D>>;
 }
 
 /** Synchronous model access handed to factories while a scene is being built. */

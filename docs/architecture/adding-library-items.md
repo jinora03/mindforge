@@ -43,10 +43,9 @@ pnpm typecheck && pnpm test && pnpm validate:assets && pnpm generate:catalog && 
 
 ## Add a character
 
-1. Implement the Engine `Entity` contract (expose anchors, a `PoseableRig`, `setFace`,
-   `beginFrame` that resets to rest, `dispose`). Reuse `HumanoidRig` where possible.
-2. Export a `CharacterFactory` and add it to `CHARACTER_FACTORIES` in
-   `packages/characters/src/index.ts` under `character.<name>`.
+For a procedural character, implement the Engine `Entity` contract (semantic anchors, `PoseableRig`, optional face support, deterministic `beginFrame`, disposal) and register a `CharacterFactory` behind `character.<name>`.
+
+For an authored production humanoid, follow [`../character-production.md`](../character-production.md): declare PF2 model/anchor/clip metadata plus the PF7 humanoid joint profile, preload the asset, then register `createModelCharacterFactory(assetId)` behind a semantic `character.<name>` id. Episode JSON must not reference the GLB path, asset id, or DCC bone names directly.
 
 
 ## Add an audio cue

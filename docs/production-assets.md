@@ -138,3 +138,7 @@ The existing procedural assets remain fallbacks. PF2 does **not** generate low-d
 ## PF6 environment composition
 
 PF6 set-dressing factories can bind a semantic variant to a PF2 model asset id. A preloaded authored model is cloned through `RuntimeAssetAccess`; if the model is not available, the theme may provide an explicitly marked fallback. This lets authored nature/world packs replace fallback dressing without changing episode-level layer semantics.
+
+## PF7 production characters
+
+PF7 extends PF2 character-category models with a semantic humanoid rig contract. The asset runtime resolves authored skeleton node names once, then `@mindforge/characters` adapts them to the existing `PoseableRig` surface while forwarding PF3 semantic clips and PF2 anchors. Production character assets stay in-place and are registered behind semantic `character.*` factory ids. See [`character-production.md`](character-production.md).

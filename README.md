@@ -120,6 +120,8 @@ is reconstructed from Engine time after pause, seek, restart, and speed changes.
 
 PF3 evaluates authored GLB/GLTF clips from authoritative Engine time. Episode JSON targets semantic clip ids rather than DCC names, and seek/restart/fixed-frame export all use the same absolute-time sampler. One-shot/loop timing, speed, offsets, and deterministic blend windows are documented in [`docs/animation-runtime.md`](docs/animation-runtime.md).
 
+PF7 connects authored character skeletons to MindForge's canonical humanoid joints/anchors. Production characters can combine PF3 semantic clips with the existing deterministic `PoseableRig` motion vocabulary while keeping DCC bone names and model files out of episode JSON. See [`docs/character-production.md`](docs/character-production.md).
+
 ## Production workflow
 
 Production episodes use a four-file package: `creative-brief.md`, `storyboard.json`, `episode.json`, and `text.json`. Studio discovers complete episode folders automatically and exposes storyboard shot navigation beside the deterministic preview.
@@ -139,7 +141,7 @@ The current 14-video production content sprint is defined in [`docs/production-s
 - Bundled Voxel/Toybox model descriptors still resolve to procedural fallbacks; PF2 now provides the authored GLB/GLTF contract and validation pipeline, but the first curated production model pack is not bundled yet. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
-- One character (`character.observer`); the walk cycle is stationary (in-place).
+- The bundled themes still ship one procedural character (`character.observer`). PF7 now supports authored production humanoids, but no curated production character GLB is bundled yet; authored locomotion remains in-place.
 
 ## Tech
 
@@ -150,3 +152,4 @@ PF4 layered effect runtime: see `docs/effect-runtime.md`.
 PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`.
 
 - **PF6 Production Environment Composition:** `environment.compositionStage` plus deterministic surface, nature dressing, foreground framing, and reactive daylight layers; PF2 authored models can replace explicit fallbacks without changing scene semantics.
+- **PF7 Character Production Pipeline:** PF2-authored humanoid models map semantic anchors/joints/clips into PF3 animation plus deterministic procedural motions; see `docs/character-production.md`.

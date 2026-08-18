@@ -136,3 +136,9 @@ pnpm check
 ```
 
 A model is not production-ready merely because Three.js can display it.
+
+## PF7 production characters
+
+URL-backed models with `model.category: 'character'` also follow the PF7 character contract. They must expose the canonical MindForge humanoid anchors, map every canonical humanoid joint to a unique authored skeleton node, and declare `rootMotion: 'in-place'`. Bone names remain DCC-specific metadata; episode JSON and reusable motions use only semantic names.
+
+See [`character-production.md`](character-production.md) for the full authored-character workflow.

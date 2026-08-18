@@ -92,7 +92,8 @@ export class BrowserAssetRuntime implements RuntimeAssetManager {
     const anchors = resolveAnchors(object3d, loaded.descriptor);
     const animations = loaded.source.animations.map((clip) => clip.clone());
     const clips = resolveSemanticModelClips(loaded.descriptor, animations);
-    return { object3d, anchors, animations, clips };
+    const characterJoints = resolveCharacterJoints(object3d, loaded.descriptor);
+    return { object3d, anchors, animations, clips, characterJoints };
   }
 
   dispose(): void {
@@ -176,6 +177,24 @@ function resolveAnchors(
     anchors[semanticName] = node;
   }
   return anchors;
+}
+
+function resolveCharacterJoints(
+  root: THREE.Object3D,
+  descriptor: AssetDescriptor,
+): RuntimeModelAsset['characterJoints'] {
+  if (!descriptor.character) return undefined;
+  const joints: Record<string, THREE.Object3D> = {};
+  for (const [semanticName, nodeName] of Object.entries(descriptor.character.joints)) {
+    const node = root.getObjectByName(nodeName);
+    if (!node) {
+      throw new Error(
+        `Model asset "${descriptor.id}" is missing authored character joint node "${nodeName}" for semantic joint "${semanticName}".`,
+      );
+    }
+    joints[semanticName] = node;
+  }
+  return joints as NonNullable<RuntimeModelAsset['characterJoints']>;
 }
 
 function cloneOwnedObject3D(source: THREE.Object3D): THREE.Object3D {
