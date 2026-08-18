@@ -2,16 +2,16 @@
   "episode": "artifact-015-rainbow",
   "title": "Why does a rainbow appear?",
   "aspect": "9:16",
-  "durationSeconds": 20,
+  "durationSeconds": 18.2,
   "shots": [
     {
       "id": "s1-hook",
       "t": [
         0,
-        2.2
+        1.8
       ],
       "beat": "Rain plus question",
-      "intent": "Establish the hero raindrop against the rainy meadow immediately.",
+      "intent": "Open already inside the rainy world, pose the question immediately, then move before the frame can settle.",
       "camera": {
         "preset": "camera.establish",
         "target": "prism.center"
@@ -26,11 +26,11 @@
     {
       "id": "s2-input",
       "t": [
-        2.2,
-        4.5
+        1.8,
+        3.5
       ],
       "beat": "Sunlight enters and refracts",
-      "intent": "Follow the white ray into the droplet and make the first bend readable.",
+      "intent": "Push into the hero droplet while the white path enters, bends, reflects and exits in one continuous optical action.",
       "camera": {
         "preset": "camera.pushIn",
         "target": "prism.center"
@@ -50,11 +50,11 @@
     {
       "id": "s3-split",
       "t": [
-        4.5,
-        8.3
+        3.5,
+        6.3
       ],
       "beat": "Internal reflection to spectrum",
-      "intent": "Show the ray reflect inside, exit, then fan into six colors in a fast cascade.",
+      "intent": "Transition directly into the six-color fan; keep the subtle droplet turn and camera reveal moving together.",
       "camera": {
         "preset": "camera.reveal",
         "target": "prism"
@@ -77,11 +77,11 @@
     {
       "id": "s4-bend",
       "t": [
-        8.3,
-        12.0
+        6.3,
+        9.2
       ],
       "beat": "Different wavelengths leave at different angles",
-      "intent": "Push toward the optical core while the complete internal path and spectrum stay readable.",
+      "intent": "Tighten on the complete optical path just long enough to establish that wavelength changes the exit angle.",
       "camera": {
         "preset": "camera.pushIn",
         "target": "prism.center"
@@ -98,11 +98,11 @@
     {
       "id": "s5-many",
       "t": [
-        12.0,
-        15.6
+        9.2,
+        12.45
       ],
       "beat": "Rain supplies many optical paths",
-      "intent": "Pull out to reveal many droplets performing the same process instead of a generic particle burst.",
+      "intent": "Pull out as a field of droplets appears and visibly falls, turning one optical path into a weather-scale explanation.",
       "camera": {
         "preset": "camera.pullBack",
         "target": "droplets"
@@ -119,11 +119,11 @@
     {
       "id": "s6-answer",
       "t": [
-        15.6,
-        20
+        12.45,
+        18.2
       ],
       "beat": "Rainbow payoff",
-      "intent": "Reveal a restrained rainbow arc in the actual landscape and hold only long enough to read the answer.",
+      "intent": "Blend into the landscape rainbow, resolve the answer quickly, then leave roughly the final second clean for the visual payoff.",
       "camera": {
         "preset": "camera.establish",
         "target": "rainbow"

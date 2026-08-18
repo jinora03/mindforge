@@ -452,7 +452,11 @@ export const TOYBOX_PRESENTATION: ThemePresentation = {
       fontSize: 'clamp(15px, 3vh, 25px)',
       lineHeight: 1.26,
       color: '#FFFCF0',
-      textShadow: '0 3px 0 rgba(38,41,43,0.58), 0 5px 14px rgba(38,41,43,0.24)',
+      textShadow: '0 3px 0 rgba(38,41,43,0.62), 0 5px 14px rgba(26,29,31,0.26)',
+      backgroundColor: 'rgba(40,43,45,0.48)',
+      padding: '0.38em 0.62em',
+      borderRadius: '0.58em',
+      boxShadow: '0 5px 18px rgba(26,29,31,0.16)',
       textAlign: 'center',
     },
     artifactLabel: {

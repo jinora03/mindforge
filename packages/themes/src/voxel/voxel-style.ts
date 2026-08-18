@@ -769,7 +769,11 @@ export const VOXEL_PRESENTATION: ThemePresentation = {
       fontSize: 'clamp(15px, 2.9vh, 24px)',
       lineHeight: 1.24,
       color: '#FFF8DF',
-      textShadow: '0 2px 0 rgba(24,35,38,0.72), 0 4px 12px rgba(24,35,38,0.28)',
+      textShadow: '0 2px 0 rgba(24,35,38,0.76), 0 5px 14px rgba(10,18,20,0.34)',
+      backgroundColor: 'rgba(18,29,31,0.54)',
+      padding: '0.38em 0.62em',
+      borderRadius: '0.58em',
+      boxShadow: '0 5px 18px rgba(8,14,16,0.18)',
       textAlign: 'center',
     },
     artifactLabel: {

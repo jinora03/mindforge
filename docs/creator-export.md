@@ -34,3 +34,6 @@ Choosing a different export theme builds an isolated theme Library for the expor
 ## Delivery
 
 When **Download automatically when ready** is enabled, Studio downloads the encoded file immediately after finalization. The completed Blob is also retained for the current Studio session so **Download again** works without re-rendering.
+
+
+Voice is off by default in Creator Export so reference narration is never published accidentally.

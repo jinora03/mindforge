@@ -96,6 +96,8 @@ interface CameraWindow {
   readonly at: number;
   readonly duration: number;
   readonly easing: Easing | undefined;
+  /** Optional deterministic cross-shot blend at the start of this camera window. */
+  readonly blendDuration?: number;
   readonly shot: CameraShot;
 }
 
@@ -312,6 +314,16 @@ export class Timeline {
   private readonly visibility: VisibilityTrack[] = [];
   private readonly faces: FaceTrack[] = [];
   private readonly properties: PropertyTrack[] = [];
+  private readonly cameraSourceScratch: CameraState = {
+    position: new THREE.Vector3(),
+    target: new THREE.Vector3(),
+    fov: 38,
+  };
+  private readonly cameraDestinationScratch: CameraState = {
+    position: new THREE.Vector3(),
+    target: new THREE.Vector3(),
+    fov: 38,
+  };
   private activeTexts: ResolvedText[] = [];
 
   addMotion(action: MotionAction): void {
@@ -384,7 +396,13 @@ export class Timeline {
     return out;
   }
 
-  /** Compute the governing camera state, writing into `out` (reused). */
+  /**
+   * Compute the governing camera state, writing into `out` (reused). Camera
+   * windows can opt into a short deterministic cross-shot blend by supplying
+   * `blendDuration`. The source pose is evaluated from the previous shot (or
+   * the environment default for the first shot) at the *same timestamp*, so
+   * seeking directly into a transition reconstructs the exact same frame.
+   */
   evaluateCameraState(
     frame: FrameContext,
     enabled: boolean,
@@ -395,17 +413,42 @@ export class Timeline {
       copyCameraState(defaultCamera, out);
       return;
     }
-    let governing: CameraWindow | undefined;
-    for (const window of this.cameras) {
-      if (window.at <= frame.time) governing = window;
+
+    let governingIndex = -1;
+    for (let i = 0; i < this.cameras.length; i++) {
+      if (this.cameras[i].at <= frame.time) governingIndex = i;
       else break;
     }
-    if (!governing) {
+    if (governingIndex < 0) {
       copyCameraState(defaultCamera, out);
       return;
     }
+
+    const governing = this.cameras[governingIndex];
+    const destination = this.cameraDestinationScratch;
     const ctx = makeActionContext(frame, governing.at, governing.duration, governing.easing);
-    governing.shot.evaluate(ctx, out);
+    governing.shot.evaluate(ctx, destination);
+
+    const blendDuration = Math.max(0, governing.blendDuration ?? 0);
+    const elapsed = frame.time - governing.at;
+    if (blendDuration <= 0 || elapsed >= blendDuration) {
+      copyCameraState(destination, out);
+      return;
+    }
+
+    const source = this.cameraSourceScratch;
+    if (governingIndex === 0) {
+      copyCameraState(defaultCamera, source);
+    } else {
+      const previous = this.cameras[governingIndex - 1];
+      const previousCtx = makeActionContext(frame, previous.at, previous.duration, previous.easing);
+      previous.shot.evaluate(previousCtx, source);
+    }
+
+    const blend = applyEasing(elapsed / blendDuration, 'easeInOutSine');
+    out.position.lerpVectors(source.position, destination.position, blend);
+    out.target.lerpVectors(source.target, destination.target, blend);
+    out.fov = source.fov + (destination.fov - source.fov) * blend;
   }
 
   getActiveTexts(): readonly ResolvedText[] {

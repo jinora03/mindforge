@@ -239,10 +239,15 @@ export class SceneManager {
             script.id,
             event.id,
           );
+          const requestedBlend = event.parameters?.blendDuration;
+          const blendDuration = typeof requestedBlend === 'number' && Number.isFinite(requestedBlend)
+            ? Math.max(0, requestedBlend)
+            : 0;
           timeline.addCamera({
             at,
             duration: event.duration ?? DEFAULT_DURATIONS.camera,
             easing: event.easing,
+            blendDuration,
             shot,
           });
           break;

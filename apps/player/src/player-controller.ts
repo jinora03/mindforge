@@ -261,7 +261,9 @@ export class PlayerController {
         position: 'absolute',
         top: `${y}%`,
         left: '50%',
-        width: `${safeZones.centralWidth * 100}%`,
+        width: 'fit-content',
+        maxWidth: `${safeZones.centralWidth * 100}%`,
+        boxSizing: 'border-box',
         transform: 'translate(-50%, -50%)',
       });
       line.textContent = text.content;

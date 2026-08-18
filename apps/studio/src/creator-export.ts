@@ -55,7 +55,7 @@ export function createDefaultStudioCreatorExportOptions(themeId: string): Studio
     customEnd: 15,
     themeId,
     captions: true,
-    audio: { voice: true, music: true, sfx: true, ambience: true },
+    audio: { voice: false, music: true, sfx: true, ambience: true },
     autoDownload: true,
   };
 }

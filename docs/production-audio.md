@@ -6,7 +6,8 @@ MindForge separates **semantic timing** from **audio asset quality**. Episodes s
 ## Current policy
 
 - Narration clips bundled in the repo are **reference/placeholder voice**. They exist so timing, seeking,
-  captions and export can be tested in a fresh clone.
+  captions and export can be tested in a fresh clone. The Voice bus is **off by default**; enable it explicitly
+  when reviewing or replacing narration.
 - SFX and ambience have deterministic stereo fallbacks, but each cue also exposes a preferred production
   MP3 URL. If a production file is present it is used automatically by live preview and offline export.
 - Voice automatically ducks music, SFX and ambience. The same ducking policy is used by preview and export.
@@ -51,8 +52,9 @@ That fails while any registered narration/SFX/ambience cue still uses reference/
 
 ## Mix controls
 
-Studio exposes Master, Voice, SFX, Ambience and Music levels. These exact bus levels are forwarded to the
-offline video exporter. During narration, the audio policy lowers the other buses with a short attack and
+Studio exposes Master, Voice, SFX, Ambience and Music levels. Voice starts at `0` so placeholder narration is
+opt-in. Creator Export also starts with Voice unchecked. These exact bus levels are forwarded to the offline
+video exporter. During narration, the audio policy lowers the other buses with a short attack and
 release rather than letting SFX/ambience compete with speech.
 
 ## Narration quality

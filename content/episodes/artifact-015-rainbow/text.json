@@ -3,7 +3,7 @@
   "entries": [
     {
       "id": "hook",
-      "content": "How does rain turn sunlight into a rainbow?",
+      "content": "How does rain make a rainbow?",
       "style": "question",
       "placement": "upper"
     },
@@ -15,25 +15,25 @@
     },
     {
       "id": "split",
-      "content": "Inside, the light reflects and bends again as it leaves.",
+      "content": "Inside, it reflects — then bends again as it leaves.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "bend",
-      "content": "Different colors leave at slightly different angles.",
+      "content": "Each color exits at a slightly different angle.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "many",
-      "content": "Millions of raindrops do this at once.",
+      "content": "Millions of droplets do this at once.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "answer",
-      "content": "Together, those droplets send a rainbow toward your eyes.",
+      "content": "Together, those colors reach your eyes as a rainbow.",
       "style": "explanation",
       "placement": "center"
     }

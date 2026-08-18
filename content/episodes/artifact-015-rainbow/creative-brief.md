@@ -1,7 +1,7 @@
 # Creative Brief — Artifact 015: The Split
 
 **Public title:** _Why does a rainbow appear?_
-**Domain:** Signal Ocean · **Artifact type:** Loom · **Duration:** 20s (9:16)
+**Domain:** Signal Ocean · **Artifact type:** Loom · **Duration:** 18.2s (9:16)
 
 ## 1. The one idea
 
@@ -22,7 +22,7 @@ One bright white ray visibly bends into a large stylized raindrop, reflects insi
 
 ## 4. Performance / timing
 
-Question by 0.2s, white ray enters ~2.1s, internal reflection is readable by ~3.7s, spectrum begins ~4.2s, wavelength-angle explanation ~8.3s, many-droplet connection ~11.7s, rainbow payoff ~15.2s, hard stop at 20s.
+Question lands by 0.1s, the white ray starts moving by ~1.6s, the spectrum begins by ~3.4s, the wavelength-angle explanation resolves around ~6.3s, many droplets arrive at ~9.2s, and the rainbow payoff begins at ~12.5s. The answer clears before the final clean visual hold; hard stop at 18.2s.
 
 ## 5. Text strategy
 
@@ -34,10 +34,10 @@ Uses `environment.rainMeadow`, `prefab.prismDrop`, `prefab.rainDropletField`, `p
 
 ## 7. Success criteria
 
-- Entire episode is 20 seconds or shorter.
-- Internal refraction/reflection path is unmistakable before ~4.2s.
-- Spectrum is unmistakable by ~5.5s.
-- Final rainbow arc is visible in the meadow by ~16.2s.
+- Entire episode is 18.2 seconds and remains under the 20-second production ceiling.
+- Internal refraction/reflection path is unmistakable before ~3.4s.
+- Spectrum is unmistakable by ~4.8s.
+- Final rainbow arc is visible in the meadow by ~13.3s.
 - Rain remains in motion.
 - No idle humanoid appears.
 - At least one meaningful visual change occurs every ~1–2 seconds.
