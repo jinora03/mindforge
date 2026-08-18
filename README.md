@@ -147,3 +147,4 @@ pnpm workspaces · Vite · TypeScript (strict) · Three.js + post-processing · 
 ESLint · Prettier. React is used **only** in MindForge Studio.
 
 PF4 layered effect runtime: see `docs/effect-runtime.md`.
+PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`.

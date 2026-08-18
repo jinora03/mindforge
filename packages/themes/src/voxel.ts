@@ -5,6 +5,7 @@ import { VOXEL_EFFECT_FACTORIES } from './voxel/voxel-effects';
 import { VOXEL_ENVIRONMENT_FACTORIES } from './voxel/voxel-environments';
 import { VOXEL_PREFAB_FACTORIES } from './voxel/voxel-prefabs';
 import { VOXEL_PRESENTATION } from './voxel/voxel-style';
+import { VOXEL_SCENE_LAYER_FACTORIES } from './voxel/voxel-scene-layers';
 
 const VOXEL_ASSETS: AssetDescriptor[] = [
   {
@@ -132,9 +133,7 @@ export const VOXEL_THEME: MindForgeTheme = {
   prefabs: VOXEL_PREFAB_FACTORIES,
   effects: VOXEL_EFFECT_FACTORIES,
   environments: VOXEL_ENVIRONMENT_FACTORIES,
-  // PF1 establishes the composition surface; PF5 will populate production
-  // weather/atmosphere implementations without changing episode semantics.
-  sceneLayers: {},
+  sceneLayers: VOXEL_SCENE_LAYER_FACTORIES,
   assets: VOXEL_ASSETS,
   assetPacks: VOXEL_ASSET_PACKS,
   presentation: VOXEL_PRESENTATION,
@@ -145,6 +144,7 @@ export {
   VOXEL_EFFECT_FACTORIES,
   VOXEL_ENVIRONMENT_FACTORIES,
   VOXEL_PREFAB_FACTORIES,
+  VOXEL_SCENE_LAYER_FACTORIES,
   VOXEL_PRESENTATION,
 };
 export {

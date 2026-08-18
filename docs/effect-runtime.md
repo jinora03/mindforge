@@ -57,10 +57,12 @@ pulse on `screenExposure`, `environmentLight`, and `emissiveBoost`.
 PF4 does **not** require every effect to emit every channel. A recipe contributes
 only the responses it semantically needs.
 
-## Phase boundary
+## PF5 consumers
 
-PF4 establishes the generic recipe/influence runtime. It deliberately does not
-implement PF5 weather systems, lightning weather, wet-surface shaders, automatic
-thunder playback, camera-shake policy, or renderer exposure policy. Those later
-systems consume PF4 channels rather than forcing the Engine to know what a
-storm, explosion, Voxel theme, or Toybox theme means.
+PF5 weather/atmosphere layers now consume a subset of these channels. Rain can
+brighten and change wind response, while mist/fog react to fog scattering and
+environment light on the same frame. See `docs/weather-atmosphere-runtime.md`.
+
+PF4 still does not own weather meaning, wet-surface shaders, automatic thunder
+playback, camera-shake policy, or renderer exposure policy. Consumers interpret
+only the channels they need.
