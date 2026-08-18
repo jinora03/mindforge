@@ -50,7 +50,7 @@ PB1's embedded placeholder material names are upgraded at runtime to `MeshPhysic
 
 Puddles use a water-like IOR, clearcoat and the Engine's existing PMREM reflection environment. PF4 `wetReflection` can temporarily lower surface roughness and increase reflection intensity.
 
-Hero rain droplets use water-like IOR/transmission. Optical prisms use a higher glass-like IOR and transmission. The two surfaces therefore no longer share one generic transparent-plastic treatment.
+Hero rain droplets use water-like IOR, clearcoat, reflection and stable alpha glass. Optical prisms use a higher glass-like IOR with their own clearcoat/opacity tuning. MindForge deliberately avoids high screen-space transmission for these hero optics because its EffectComposer preview/export path can otherwise produce black transmission-buffer artifacts; the two surfaces still retain distinct physical response instead of sharing one generic transparent-plastic treatment.
 
 PB2 is still not screen-space or planar reflection. A puddle reflects the environment lighting field, not a second exact render of every nearby tree. True hero planar reflections remain a later production choice only where the shot justifies their cost.
 

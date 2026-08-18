@@ -182,47 +182,47 @@ function physicalReplacement(
     material.roughness = 0.055;
     material.metalness = 0;
     material.ior = 1.333;
-    material.transmission = 0.94;
-    material.thickness = 0.58;
-    material.attenuationColor.set('#C7ECF5');
-    material.attenuationDistance = 3.2;
-    material.clearcoat = 0.32;
+    // MindForge renders through EffectComposer. High screen-space transmission
+    // can resolve against an incomplete intermediate buffer there and produce
+    // large opaque-black rectangles in preview/export. Keep the physical
+    // reflection/IOR response, but use deterministic alpha glass for optics.
+    material.transmission = 0;
+    material.thickness = 0.18;
+    material.clearcoat = 0.42;
     material.clearcoatRoughness = 0.045;
     material.envMapIntensity = 1.35;
     material.emissive.set('#8FD9ED');
-    material.emissiveIntensity = 0.008;
-    material.transparent = false;
-    material.opacity = 1;
-    material.depthWrite = true;
+    material.emissiveIntensity = 0.014;
+    material.transparent = true;
+    material.opacity = 0.34;
+    material.depthWrite = false;
   } else if (family === 'prismGlass') {
     material.color.set('#E0F4FA');
     material.roughness = 0.035;
     material.metalness = 0;
     material.ior = 1.5;
-    material.transmission = 0.965;
-    material.thickness = 0.72;
-    material.attenuationColor.set('#E8FAFF');
-    material.attenuationDistance = 5;
-    material.clearcoat = 0.24;
+    material.transmission = 0;
+    material.thickness = 0.2;
+    material.clearcoat = 0.38;
     material.clearcoatRoughness = 0.035;
     material.envMapIntensity = 1.42;
     material.emissive.set('#C4EFF8');
-    material.emissiveIntensity = 0.006;
-    material.transparent = false;
-    material.opacity = 1;
-    material.depthWrite = true;
+    material.emissiveIntensity = 0.012;
+    material.transparent = true;
+    material.opacity = 0.38;
+    material.depthWrite = false;
   } else {
     material.color.set('#83C5DD');
     material.roughness = 0.13;
     material.metalness = 0;
     material.ior = 1.36;
-    material.transmission = 0.38;
-    material.thickness = 0.16;
+    material.transmission = 0;
+    material.thickness = 0.08;
     material.clearcoat = 0.82;
     material.clearcoatRoughness = 0.06;
     material.envMapIntensity = 1.7;
     material.transparent = true;
-    material.opacity = 0.76;
+    material.opacity = 0.68;
     material.depthWrite = false;
     material.emissive.set('#2B7895');
     material.emissiveIntensity = 0.035;

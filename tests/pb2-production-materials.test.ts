@@ -82,9 +82,13 @@ describe('PB2 production material baseline', () => {
     expect(puddleMaterial.clearcoat).toBeCloseTo(1);
     expect(puddleMaterial.ior).toBeCloseTo(1.333);
     expect(puddleMaterial.envMapIntensity).toBeGreaterThan(1.5);
-    expect(dropMaterial.transmission).toBeGreaterThan(0.9);
+    expect(dropMaterial.transmission).toBe(0);
+    expect(dropMaterial.transparent).toBe(true);
+    expect(dropMaterial.depthWrite).toBe(false);
+    expect(dropMaterial.opacity).toBeGreaterThan(0.25);
+    expect(dropMaterial.opacity).toBeLessThan(0.5);
     expect(dropMaterial.ior).toBeCloseTo(1.333);
-    expect(dropMaterial.thickness).toBeGreaterThan(0.5);
+    expect(dropMaterial.clearcoat).toBeGreaterThan(0.35);
 
     layer.dispose();
     expect(puddle.material).toBe(puddleOriginal);
