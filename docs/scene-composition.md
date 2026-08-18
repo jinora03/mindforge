@@ -99,3 +99,7 @@ wind impulses on the same deterministic frame. See
 
 PF1 itself remains only the composition/lifecycle foundation; the Engine still
 has no rain, fog, Voxel, Toybox, or weather-specific branches.
+
+## PF6 production composition
+
+PF6 adds a minimal `environment.compositionStage` plus reusable surface, set-dressing, foreground, and daylight layers. These compose directly with PF5 weather/atmosphere while preserving the same PF1 deterministic layer stack. See `docs/environment-composition.md`.

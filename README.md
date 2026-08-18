@@ -148,3 +148,5 @@ ESLint · Prettier. React is used **only** in MindForge Studio.
 
 PF4 layered effect runtime: see `docs/effect-runtime.md`.
 PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`.
+
+- **PF6 Production Environment Composition:** `environment.compositionStage` plus deterministic surface, nature dressing, foreground framing, and reactive daylight layers; PF2 authored models can replace explicit fallbacks without changing scene semantics.

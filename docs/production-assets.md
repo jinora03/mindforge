@@ -134,3 +134,7 @@ public/assets/
 ## PF2 deliberately does not fake production art
 
 The existing procedural assets remain fallbacks. PF2 does **not** generate low-detail GLBs and call them authored production models. Its purpose is to make the next real asset pack safe to acquire/create, inspect, register, version, and reuse.
+
+## PF6 environment composition
+
+PF6 set-dressing factories can bind a semantic variant to a PF2 model asset id. A preloaded authored model is cloned through `RuntimeAssetAccess`; if the model is not available, the theme may provide an explicitly marked fallback. This lets authored nature/world packs replace fallback dressing without changing episode-level layer semantics.
