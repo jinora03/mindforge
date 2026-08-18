@@ -1,0 +1,314 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-010-seatbelts",
+  "title": "Why do seatbelts save you in a sudden stop?",
+  "artifactName": "The Restraint",
+  "artifactNumber": 10,
+  "artifactType": "mirror",
+  "domain": "crucible",
+  "duration": 32,
+  "environment": "environment.vehicleCabin",
+  "metadata": {
+    "logline": "A moving passenger surges forward during braking until the seatbelt provides the force that stops the body with the car.",
+    "beats": "cruise -> latch -> sudden stop -> inertia ghost -> restraint answer",
+    "productionStatus": "content-sprint-wave2",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.vehicleCabin",
+      "prefab.seatRig",
+      "audio.ambience.road",
+      "audio.sfx.beltLatch",
+      "audio.sfx.brakeImpact"
+    ]
+  },
+  "entities": [
+    {
+      "id": "rig",
+      "type": "prefab",
+      "factory": "prefab.seatRig",
+      "position": [
+        0,
+        0,
+        -2.2
+      ]
+    },
+    {
+      "id": "forwardMarker",
+      "type": "group",
+      "children": [],
+      "position": [
+        0,
+        1.9,
+        1.4
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 32,
+      "cue": "audio.ambience.road",
+      "loop": true,
+      "volume": 0.42
+    },
+    {
+      "id": "cam-cruise",
+      "type": "camera",
+      "at": 0,
+      "duration": 5,
+      "preset": "camera.pullBack",
+      "target": "rig",
+      "from": [
+        2.8,
+        2.0,
+        5.5
+      ],
+      "to": [
+        3.5,
+        2.35,
+        7.0
+      ],
+      "fov": 44,
+      "framingOffset": [
+        0,
+        1.1,
+        0
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.35,
+      "duration": 4.2,
+      "textId": "hook"
+    },
+    {
+      "id": "cam-latch",
+      "type": "camera",
+      "at": 5,
+      "duration": 5,
+      "preset": "camera.pushIn",
+      "target": "rig.latch",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "latch-sfx",
+      "type": "audio",
+      "at": 5.45,
+      "cue": "audio.sfx.beltLatch",
+      "volume": 0.85
+    },
+    {
+      "id": "belt-path",
+      "type": "effect",
+      "at": 5.3,
+      "duration": 3.8,
+      "effect": "effect.signal.path",
+      "from": "rig.latch",
+      "to": "rig.chest",
+      "tone": "information",
+      "intensity": 0.75,
+      "parameters": {
+        "speed": 0.65,
+        "size": 0.065,
+        "bow": 0.03
+      }
+    },
+    {
+      "id": "moving-text",
+      "type": "text",
+      "at": 5.35,
+      "duration": 4.2,
+      "textId": "moving"
+    },
+    {
+      "id": "passenger-surge",
+      "type": "property",
+      "at": 10.05,
+      "duration": 0.55,
+      "target": "rig.passenger",
+      "property": "position",
+      "from": [
+        0,
+        0,
+        0
+      ],
+      "to": [
+        0,
+        0,
+        0.92
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "passenger-rebound",
+      "type": "property",
+      "at": 10.6,
+      "duration": 0.75,
+      "target": "rig.passenger",
+      "property": "position",
+      "from": [
+        0,
+        0,
+        0.92
+      ],
+      "to": [
+        0,
+        0,
+        0.18
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "passenger-settle",
+      "type": "property",
+      "at": 11.35,
+      "duration": 0.8,
+      "target": "rig.passenger",
+      "property": "position",
+      "from": [
+        0,
+        0,
+        0.18
+      ],
+      "to": [
+        0,
+        0,
+        0
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "brake-sfx",
+      "type": "audio",
+      "at": 10.05,
+      "cue": "audio.sfx.brakeImpact",
+      "volume": 0.95
+    },
+    {
+      "id": "cam-stop",
+      "type": "camera",
+      "at": 10,
+      "duration": 3.2,
+      "preset": "camera.impactShake",
+      "target": "rig.passenger",
+      "shake": 0.22,
+      "easing": "easeOut"
+    },
+    {
+      "id": "stop-burst",
+      "type": "effect",
+      "at": 10.5,
+      "duration": 1.0,
+      "effect": "effect.reaction.burst",
+      "target": "rig.chest",
+      "tone": "reaction",
+      "intensity": 0.8,
+      "parameters": {
+        "count": 30,
+        "radius": 0.85,
+        "size": 0.055
+      }
+    },
+    {
+      "id": "inertia-text",
+      "type": "text",
+      "at": 10.3,
+      "duration": 5.8,
+      "textId": "inertia"
+    },
+    {
+      "id": "cam-ghost",
+      "type": "camera",
+      "at": 17,
+      "duration": 7,
+      "preset": "camera.reveal",
+      "target": "rig.chest",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 4.2,
+        "height": 2.7,
+        "startAngle": 0.1,
+        "endAngle": -0.18
+      }
+    },
+    {
+      "id": "ghost-forward",
+      "type": "effect",
+      "at": 17.3,
+      "duration": 5.4,
+      "effect": "effect.ghostMovement",
+      "from": "rig.chest",
+      "to": "forwardMarker",
+      "tone": "prediction",
+      "intensity": 0.75,
+      "parameters": {
+        "lead": 0.24,
+        "size": 0.13,
+        "bow": 0.04
+      }
+    },
+    {
+      "id": "without-text",
+      "type": "text",
+      "at": 17.2,
+      "duration": 6.0,
+      "textId": "without"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 24,
+      "duration": 8,
+      "preset": "camera.pullBack",
+      "target": "rig",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-path",
+      "type": "effect",
+      "at": 24.2,
+      "duration": 5.2,
+      "effect": "effect.informationStream",
+      "through": [
+        "rig.chest",
+        "rig.latch"
+      ],
+      "tone": "insight",
+      "intensity": 0.92,
+      "parameters": {
+        "density": 24,
+        "speed": 0.6,
+        "size": 0.06,
+        "bow": 0.03
+      }
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 28.6,
+      "duration": 1.0,
+      "effect": "effect.insight.flash",
+      "target": "rig.chest",
+      "tone": "insight",
+      "intensity": 0.75
+    },
+    {
+      "id": "insight-sfx",
+      "type": "audio",
+      "at": 28.65,
+      "cue": "audio.sfx.insight",
+      "volume": 0.7
+    },
+    {
+      "id": "answer-text",
+      "type": "text",
+      "at": 24.3,
+      "duration": 7.1,
+      "textId": "answer"
+    }
+  ]
+}

@@ -1,0 +1,109 @@
+{
+  "episode": "artifact-016-moon-horizon",
+  "title": "Why does the Moon look bigger near the horizon?",
+  "aspect": "9:16",
+  "durationSeconds": 17,
+  "shots": [
+    {
+      "id": "s1-horizon",
+      "t": [
+        0,
+        2.7
+      ],
+      "beat": "The big-looking horizon Moon",
+      "intent": "Use foreground ridges to make the familiar illusion feel convincing.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "moons.horizonMoon"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-high",
+      "t": [
+        2.7,
+        5.2
+      ],
+      "beat": "Same Moon higher up",
+      "intent": "Cut attention to the high-sky copy without changing its actual size.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "moons.highMoon"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "same"
+        }
+      ]
+    },
+    {
+      "id": "s3-measure",
+      "t": [
+        5.2,
+        8.7
+      ],
+      "beat": "Direct equal-size proof",
+      "intent": "Reveal identical guide frames around both discs.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "moons"
+      },
+      "effects": [
+        "effect.contour.pressure"
+      ],
+      "text": [
+        {
+          "id": "measure"
+        }
+      ]
+    },
+    {
+      "id": "s4-context",
+      "t": [
+        8.7,
+        12.5
+      ],
+      "beat": "Context changes perception",
+      "intent": "Return to the horizon context and emphasize nearby visual comparison cues.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "moons.horizonMoon"
+      },
+      "effects": [
+        "effect.informationStream"
+      ],
+      "text": [
+        {
+          "id": "context"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        12.5,
+        17
+      ],
+      "beat": "Illusion answer",
+      "intent": "Finish on both equal Moons and cut as soon as the answer lands.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "moons"
+      },
+      "effects": [
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

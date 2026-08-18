@@ -1,0 +1,112 @@
+{
+  "episode": "artifact-014-echo",
+  "title": "Why does an echo happen?",
+  "aspect": "9:16",
+  "durationSeconds": 18,
+  "shots": [
+    {
+      "id": "s1-hook",
+      "t": [
+        0,
+        2.4
+      ],
+      "beat": "Question in the canyon",
+      "intent": "Show source, listener and the huge reflective space immediately.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "rig"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-outbound",
+      "t": [
+        2.4,
+        5.2
+      ],
+      "beat": "Sound travels outward",
+      "intent": "Follow the visible pulse to the far cliff; no static hold.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "rig.reflector"
+      },
+      "effects": [
+        "effect.signal.path"
+      ],
+      "text": [
+        {
+          "id": "travel"
+        }
+      ]
+    },
+    {
+      "id": "s3-return",
+      "t": [
+        5.2,
+        8.8
+      ],
+      "beat": "Reflection returns",
+      "intent": "Reverse the causal direction and land the delayed sound at the listener.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "rig"
+      },
+      "effects": [
+        "effect.signal.path",
+        "effect.contour.shockwave"
+      ],
+      "text": [
+        {
+          "id": "return"
+        }
+      ]
+    },
+    {
+      "id": "s4-roundtrip",
+      "t": [
+        8.8,
+        13.2
+      ],
+      "beat": "Show the delay as distance",
+      "intent": "Keep the full outbound-and-back route visible at once.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "rig"
+      },
+      "effects": [
+        "effect.informationStream"
+      ],
+      "text": [
+        {
+          "id": "delay"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        13.2,
+        18
+      ],
+      "beat": "Echo rule",
+      "intent": "Resolve on the listener and canyon distance, then cut immediately.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "rig"
+      },
+      "effects": [
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

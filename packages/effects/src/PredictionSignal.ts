@@ -7,12 +7,12 @@ const TRAIL = 6;
 
 /**
  * A glowing node that travels through a list of character anchors (head →
- * hand by default) leaving a short trail. Violet by default: this is the
+ * hand by default) leaving a short trail. Prediction-toned by default: this is the
  * brain's predictive signal reaching the limb before it moves.
  */
 export const createPredictionSignal: EffectFactory = ({ event, services }): EffectInstance => {
   const anchors = resolveAnchorPath(event, services);
-  const color = effectColor(event, 'forgeViolet');
+  const color = effectColor(event, 'prediction');
   const group = new THREE.Group();
   group.visible = false;
 

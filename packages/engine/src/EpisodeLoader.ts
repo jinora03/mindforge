@@ -29,6 +29,15 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
     throw new UnknownRegistryIdError('environment', script.environment, { episodeId });
   }
 
+  for (const layer of script.layers) {
+    if (!registries.sceneLayers.has(layer.factory)) {
+      throw new UnknownRegistryIdError('scene layer', layer.factory, {
+        episodeId,
+        layerId: layer.id,
+      });
+    }
+  }
+
   const entityIds = new Set(collectEntityIds(script.entities));
   validateEntities(script.entities, registries, episodeId);
 
@@ -41,8 +50,14 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
     const loc = { episodeId, eventId: event.id };
     switch (event.type) {
       case 'motion':
+        requireRegistry(registries, 'motion', event.motion, loc);
+        requireEntity(entityIds, event.target, loc);
+        break;
       case 'objectMotion':
         requireRegistry(registries, 'motion', event.motion, loc);
+        requireEntity(entityIds, splitRef(event.target)[0], loc);
+        break;
+      case 'animation':
         requireEntity(entityIds, event.target, loc);
         break;
       case 'effect':
@@ -66,6 +81,12 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
       case 'face':
         requireEntity(entityIds, splitRef(event.target)[0], loc);
         break;
+      case 'audio':
+        requireRegistry(registries, 'audio', event.cue, loc);
+        if (event.textId && !textById.has(event.textId)) {
+          throw new UnknownRegistryIdError('text', event.textId, loc);
+        }
+        break;
       case 'callback':
         break;
     }
@@ -86,6 +107,12 @@ function validateEntities(
         entityId: entity.id,
       });
     }
+    if (entity.type === 'prefab' && !registries.prefabs.has(entity.factory)) {
+      throw new UnknownRegistryIdError('prefab', entity.factory, {
+        episodeId,
+        entityId: entity.id,
+      });
+    }
     if (entity.type === 'group') {
       validateEntities(entity.children, registries, episodeId);
     }
@@ -94,7 +121,7 @@ function validateEntities(
 
 function requireRegistry(
   registries: CapabilityRegistries,
-  kind: 'motion' | 'effect' | 'camera',
+  kind: 'motion' | 'effect' | 'camera' | 'audio',
   id: string,
   loc: { episodeId: string; eventId: string },
 ): void {
@@ -103,7 +130,9 @@ function requireRegistry(
       ? registries.motions
       : kind === 'effect'
         ? registries.effects
-        : registries.cameras;
+        : kind === 'camera'
+          ? registries.cameras
+          : registries.audio;
   if (!registry.has(id)) {
     throw new UnknownRegistryIdError(kind, id, loc);
   }

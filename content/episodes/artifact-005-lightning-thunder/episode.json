@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-005-lightning-thunder",
+  "title": "Why do you see lightning before thunder?",
+  "artifactName": "The Delay",
+  "artifactNumber": 5,
+  "artifactType": "loom",
+  "domain": "signal-ocean",
+  "duration": 15,
+  "environment": "environment.dreamGarden",
+  "metadata": {
+    "logline": "Lightning and thunder begin together, but light reaches you almost instantly while sound crosses the air far more slowly.",
+    "beats": "distant storm -> simultaneous event -> instant light -> slow pressure wave -> delayed thunder -> speed comparison",
+    "productionStatus": "visual-production-pass",
+    "narrationStatus": "caption-led-until-production-voice"
+  },
+  "entities": [
+    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0], "rotation": [0, -0.28, 0] },
+    { "id": "stormSource", "type": "prefab", "factory": "prefab.informationShard", "parameters": { "tone": "insight" }, "position": [-3.7, 5.0, -3.6], "scale": 2.1 },
+    { "id": "stormLight", "type": "prefab", "factory": "prefab.storyLight", "parameters": { "role": "subject", "intensity": 2.5, "distance": 24 }, "position": [-3.3, 4.4, -2.6] }
+  ],
+  "timeline": [
+    { "id": "ambience", "type": "audio", "at": 0, "duration": 15, "cue": "audio.ambience.garden", "loop": true, "volume": 0.30 },
+    { "id": "idle", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.idle" },
+    { "id": "breathe", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.breathe" },
+    { "id": "storm-float", "type": "objectMotion", "at": 0, "duration": 15, "target": "stormSource", "motion": "motion.object.float" },
+
+    { "id": "cam-open", "type": "camera", "at": 0, "duration": 3.2, "preset": "camera.pullBack", "target": "observer", "from": [2.4, 2.2, 5.4], "to": [3.5, 3.4, 8.8], "fov": 48, "framingOffset": [-0.7, 1.8, 0], "easing": "easeInOut" },
+    { "id": "face-curious", "type": "face", "at": 0.6, "target": "observer", "state": "confused" },
+    { "id": "hook", "type": "text", "at": 0.45, "duration": 2.55, "textId": "hook" },
+
+    { "id": "cam-event", "type": "camera", "at": 3.2, "duration": 3.3, "preset": "camera.reveal", "target": "observer", "easing": "easeInOut", "parameters": { "radius": 7.8, "height": 3.7, "startAngle": 0.42, "endAngle": -0.12 } },
+    { "id": "storm-light-up", "type": "property", "at": 3.2, "duration": 0.10, "target": "stormLight", "property": "intensity", "from": 2.5, "to": 28, "easing": "easeOut" },
+    { "id": "storm-light-down", "type": "property", "at": 3.30, "duration": 0.55, "target": "stormLight", "property": "intensity", "from": 28, "to": 3.5, "easing": "easeOut" },
+    { "id": "light-flash", "type": "effect", "at": 3.2, "duration": 0.55, "effect": "effect.insight.flash", "tone": "insight", "intensity": 0.85, "parameters": { "maxOpacity": 0.34 } },
+    { "id": "storm-burst", "type": "effect", "at": 3.2, "duration": 1.1, "effect": "effect.reaction.burst", "target": "stormSource", "tone": "insight", "intensity": 1.05, "parameters": { "count": 34, "radius": 1.8, "size": 0.09 } },
+    { "id": "light-path", "type": "effect", "at": 3.22, "duration": 0.85, "effect": "effect.signal.path", "from": "stormSource", "to": "observer.head", "tone": "insight", "intensity": 1.1, "parameters": { "thickness": 0.22 } },
+    { "id": "flash-sfx", "type": "audio", "at": 3.22, "cue": "audio.sfx.insight", "volume": 0.72 },
+    { "id": "face-flash", "type": "face", "at": 3.34, "target": "observer", "state": "surprised" },
+    { "id": "together", "type": "text", "at": 3.55, "duration": 2.65, "textId": "together" },
+
+    { "id": "cam-wait", "type": "camera", "at": 6.5, "duration": 3.0, "preset": "camera.pullBack", "target": "observer", "from": [3.2, 3.1, 7.8], "to": [3.8, 3.6, 9.3], "fov": 50, "framingOffset": [-0.75, 1.9, 0], "easing": "easeInOut" },
+    { "id": "sound-wave", "type": "effect", "at": 6.55, "duration": 3.15, "effect": "effect.contour.shockwave", "target": "stormSource", "tone": "reaction", "intensity": 0.95, "parameters": { "size": 7.8, "thickness": 0.18 } },
+    { "id": "sound-stream", "type": "effect", "at": 6.55, "duration": 3.2, "effect": "effect.informationStream", "through": ["stormSource", "observer.head"], "tone": "reaction", "intensity": 0.78, "parameters": { "density": 22, "speed": 0.20, "size": 0.08, "bow": 0.10 } },
+    { "id": "face-wait", "type": "face", "at": 6.65, "target": "observer", "state": "focused" },
+    { "id": "light", "type": "text", "at": 6.75, "duration": 2.55, "textId": "light" },
+
+    { "id": "cam-thunder", "type": "camera", "at": 9.5, "duration": 2.5, "preset": "camera.reactionCloseup", "target": "observer", "shake": 0.22, "easing": "easeOut" },
+    { "id": "thunder-impact", "type": "effect", "at": 9.62, "duration": 1.45, "effect": "effect.reaction.burst", "target": "observer.head", "tone": "reaction", "intensity": 1.15, "parameters": { "count": 42, "radius": 2.2, "size": 0.10 } },
+    { "id": "thunder-sfx", "type": "audio", "at": 9.62, "cue": "audio.sfx.reaction", "volume": 0.82 },
+    { "id": "recoil", "type": "motion", "at": 9.64, "duration": 1.55, "target": "observer", "motion": "motion.humanoid.surprisedSquirm" },
+    { "id": "face-thunder", "type": "face", "at": 9.66, "target": "observer", "state": "surprised" },
+    { "id": "sound", "type": "text", "at": 9.78, "duration": 2.05, "textId": "sound" },
+
+    { "id": "cam-answer", "type": "camera", "at": 12.0, "duration": 3.0, "preset": "camera.pullBack", "target": "observer", "from": [2.9, 2.8, 6.8], "to": [3.7, 3.3, 8.9], "fov": 46, "framingOffset": [-0.65, 1.7, 0], "easing": "easeInOut" },
+    { "id": "compare-light", "type": "effect", "at": 12.05, "duration": 2.7, "effect": "effect.signal.path", "from": "stormSource", "to": "observer.head", "tone": "insight", "intensity": 0.65, "parameters": { "thickness": 0.10 } },
+    { "id": "compare-sound", "type": "effect", "at": 12.05, "duration": 2.7, "effect": "effect.informationStream", "through": ["stormSource", "observer.head"], "tone": "reaction", "intensity": 0.58, "parameters": { "density": 16, "speed": 0.16, "size": 0.07, "bow": 0.08 } },
+    { "id": "answer-sfx", "type": "audio", "at": 12.15, "cue": "audio.sfx.information", "volume": 0.52 },
+    { "id": "face-resolve", "type": "face", "at": 12.2, "target": "observer", "state": "focused" },
+    { "id": "answer", "type": "text", "at": 12.15, "duration": 2.65, "textId": "answer" }
+  ]
+}

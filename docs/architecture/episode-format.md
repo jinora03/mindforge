@@ -26,6 +26,8 @@ lives in `packages/schema`; registry-id resolution happens in the Engine's `Epis
 Every entity has an `id` and `type`, plus optional `position`, `rotation`, `scale`, `visible`.
 
 - **`character`** — `factory` (e.g. `character.observer`), optional `parameters`.
+- **`prefab`** — semantic theme-owned assembly via `factory` (e.g. `prefab.externalHand`,
+  `prefab.heatEngine`), optional `parameters`. Prefabs expose named anchors while hiding their mesh tree.
 - **`primitive`** — `geometry` (`box | sphere | icosahedron | cylinder | cone | torus | prism | plane`),
   `size`, `color`, `emissive`, `emissiveIntensity`, `roughness`, `metalness`, `opacity`,
   `flatShading`.
@@ -43,16 +45,20 @@ Every event has `id`, `type`, and `at` (seconds). Optional shared fields: `durat
 | `type` | Key fields | Meaning |
 | --- | --- | --- |
 | `motion` | `target`, `motion`, `mirror?`, `speed?` | Pose a character rig. |
-| `objectMotion` | `target`, `motion`, `axis?`, `from?`, `to?` | Animate an object transform. |
-| `effect` | `effect`, `target?`, `from?`, `to?`, `through?`, `color?` | Spawn a reusable effect. |
+| `objectMotion` | `target`, `motion`, `axis?`, `from?`, `to?` | Animate an entity or prefab anchor transform. |
+| `animation` | `target`, `clip`, `speed?`, `loop?`, `startOffset?`, `blendIn?`, `blendOut?` | Deterministically sample a semantic authored clip from Engine time. |
+| `effect` | `effect`, `target?`, `from?`, `to?`, `through?`, `tone?`, `color?` | Spawn a reusable effect. Production content should prefer semantic `tone`; explicit `color` is a low-level override. |
 | `camera` | `preset`, `target?`, `from?`, `to?`, `fov?`, `framingOffset?`, `shake?` | Frame the shot. |
 | `text` | `textId?` or `content`, `style?`, `placement?` | Caption overlay. |
 | `visibility` | `target`, `visible` | Show/hide, resolved by governing event. |
 | `property` | `target`, `property`, `to`, `from?` | Tween position/rotation/scale/opacity/color/emissiveIntensity/intensity. |
 | `face` | `target`, `state` | Set a character expression. |
 | `callback` | `name` | Edge-triggered hook (forward playback). |
+| `audio` | `cue`, `bus?`, `volume?`, `loop?` | Play a semantic audio cue. Looping ambience should provide an event `duration`. |
 
 Anchor references use `entityId.anchorName` (e.g. `observer.handLeft`) or just `entityId`.
+`animation.target` is an entity id because semantic clips belong to the entity's authored model surface.
+See [`../animation-runtime.md`](../animation-runtime.md) for PF3 timing and duration semantics.
 `easing` is one of `linear`, `easeIn`, `easeOut`, `easeInOut`, `easeInOutCubic`,
 `easeInOutSine`, `easeOutBack`, `easeOutElastic`.
 
@@ -66,11 +72,13 @@ Anchor references use `entityId.anchorName` (e.g. `observer.handLeft`) or just `
   "duration": 15,
   "environment": "environment.dreamGarden",
   "entities": [
-    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0] }
+    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0] },
+    { "id": "externalHand", "type": "prefab", "factory": "prefab.externalHand", "visible": false }
   ],
   "timeline": [
     { "id": "self-tickle", "at": 1.2, "duration": 5, "type": "motion", "target": "observer", "motion": "motion.humanoid.selfTickle" },
-    { "id": "prediction", "at": 2.4, "duration": 2, "type": "effect", "effect": "effect.signal.prediction", "through": ["observer.head", "observer.handLeft"] },
+    { "id": "prediction", "at": 2.4, "duration": 2, "type": "effect", "effect": "effect.signal.prediction", "through": ["observer.head", "observer.handLeft"], "tone": "prediction" },
+    { "id": "touch-sfx", "at": 5, "type": "audio", "cue": "audio.sfx.touch" },
     { "id": "reaction-cam", "at": 5, "duration": 6, "type": "camera", "preset": "camera.reactionCloseup", "target": "observer" }
   ]
 }

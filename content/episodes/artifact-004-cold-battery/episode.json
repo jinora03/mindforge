@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-004-cold-battery",
+  "title": "Why does cold kill your battery?",
+  "artifactName": "The Cell",
+  "artifactNumber": 4,
+  "artifactType": "core",
+  "domain": "crucible",
+  "duration": 15,
+  "environment": "environment.cosmicVoid",
+  "metadata": {
+    "logline": "A battery is a chemical traffic system. Cold thickens the traffic, so the charge cannot get out fast enough.",
+    "beats": "cell running warm -> ions stream freely -> cold clamps down -> flow chokes -> voltage sags"
+  },
+  "entities": [
+    { "id": "cell", "type": "prefab", "factory": "prefab.heatEngine", "position": [0, 1.25, 0] },
+    { "id": "anode", "type": "prefab", "factory": "prefab.informationShard", "parameters": { "tone": "information" }, "position": [-2.5, 1.7, 1.1], "scale": 1.5 },
+    { "id": "cathode", "type": "prefab", "factory": "prefab.informationShard", "parameters": { "tone": "reaction" }, "position": [2.5, 1.7, 1.1], "scale": 1.5 },
+    { "id": "rig", "type": "prefab", "factory": "prefab.storyLight", "parameters": { "role": "subject", "intensity": 12, "distance": 16 }, "position": [0, 4.4, 4.2] }
+  ],
+  "timeline": [
+    { "id": "ambience", "type": "audio", "at": 0, "duration": 15, "cue": "audio.ambience.factory", "loop": true, "volume": 0.48 },
+    { "id": "spin", "type": "objectMotion", "at": 0, "duration": 15, "target": "cell.mechanism", "motion": "motion.object.spin" },
+    { "id": "anode-float", "type": "objectMotion", "at": 0, "duration": 15, "target": "anode", "motion": "motion.object.float" },
+    { "id": "cathode-float", "type": "objectMotion", "at": 0, "duration": 15, "target": "cathode", "motion": "motion.object.float" },
+
+    { "id": "cam-establish", "type": "camera", "at": 0, "duration": 3.2, "preset": "camera.establish", "target": "cell", "from": [0, 6.2, 12.6], "to": [0, 5.2, 10.4], "fov": 44, "framingOffset": [0, 1.6, 0], "easing": "easeInOut" },
+    { "id": "voice-hook", "type": "audio", "at": 0.4, "delay": 0.08, "cue": "audio.voice.coldBattery.hook", "textId": "hook", "volume": 1.0 },
+    { "id": "hook", "type": "text", "at": 0.4, "duration": 2.6, "textId": "hook" },
+
+    { "id": "warm-up-sfx", "type": "audio", "at": 0.4, "cue": "audio.sfx.machineStart", "volume": 0.6 },
+    { "id": "warm-up", "type": "property", "at": 0.4, "duration": 3.0, "target": "cell.core", "property": "emissiveIntensity", "from": 0.2, "to": 1.15, "easing": "easeOut" },
+    { "id": "ion-sfx", "type": "audio", "at": 1.2, "cue": "audio.sfx.information", "volume": 0.65 },
+    { "id": "ion-flow", "type": "effect", "at": 1.2, "duration": 5.0, "effect": "effect.informationStream", "through": ["anode", "cell.core", "cathode"], "tone": "information", "intensity": 1.0, "parameters": { "density": 40, "speed": 0.62, "size": 0.075, "bow": 0.1 } },
+    { "id": "voice-flow", "type": "audio", "at": 3.0, "delay": 0.08, "cue": "audio.voice.coldBattery.flow", "textId": "flow", "volume": 1.0 },
+    { "id": "text-flow", "type": "text", "at": 3.0, "duration": 3.0, "textId": "flow" },
+
+    { "id": "cam-in", "type": "camera", "at": 3.3, "duration": 3.4, "preset": "camera.pushIn", "target": "cell", "from": [0, 5.2, 10.2], "to": [0, 3.8, 7.2], "fov": 40, "framingOffset": [0, 1.5, 0], "easing": "easeInOut" },
+
+    { "id": "cold-clamp-sfx", "type": "audio", "at": 6.4, "cue": "audio.sfx.machinePulse", "volume": 0.6 },
+    { "id": "cold-clamp", "type": "effect", "at": 6.4, "duration": 4.6, "effect": "effect.contour.pressure", "target": "cell.core", "tone": "suppression", "intensity": 1.0, "parameters": { "scale": 1.5, "releaseAt": 0.9 } },
+    { "id": "cool-down", "type": "property", "at": 6.6, "duration": 3.6, "target": "cell.core", "property": "emissiveIntensity", "to": 0.22, "easing": "easeInOut" },
+    { "id": "dim-rig", "type": "property", "at": 6.6, "duration": 3.6, "target": "rig", "property": "intensity", "to": 4 },
+    { "id": "voice-cold", "type": "audio", "at": 7.0, "delay": 0.08, "cue": "audio.voice.coldBattery.cold", "textId": "cold", "volume": 1.0 },
+    { "id": "text-cold", "type": "text", "at": 7.0, "duration": 3.2, "textId": "cold" },
+
+    { "id": "cam-orbit", "type": "camera", "at": 6.8, "duration": 4.2, "preset": "camera.reveal", "target": "cell", "easing": "easeInOut", "parameters": { "radius": 8.2, "height": 4.4, "startAngle": -0.42, "endAngle": 0.5 } },
+
+    { "id": "stall", "type": "effect", "at": 10.6, "duration": 1.5, "effect": "effect.ghostMovement", "from": "anode", "to": "cathode", "tone": "suppression", "intensity": 0.9, "parameters": { "lead": 0.5, "size": 0.2, "bow": 0.3 } },
+    { "id": "sag", "type": "effect", "at": 11.0, "duration": 1.8, "effect": "effect.contour.shockwave", "target": "cell.core", "tone": "suppression", "intensity": 0.7, "parameters": { "size": 4.4, "thickness": 0.14 } },
+
+    { "id": "cam-out", "type": "camera", "at": 11.2, "duration": 3.8, "preset": "camera.pullBack", "target": "cell", "from": [0, 3.8, 7.4], "to": [0, 5.6, 12.4], "fov": 46, "framingOffset": [0, 1.6, 0], "easing": "easeInOut" },
+    { "id": "insight-sfx", "type": "audio", "at": 11.4, "cue": "audio.sfx.insight", "volume": 0.72 },
+    { "id": "voice-answer", "type": "audio", "at": 11.4, "delay": 0.08, "cue": "audio.voice.coldBattery.answer", "textId": "answer", "volume": 1.0 },
+    { "id": "answer", "type": "text", "at": 11.4, "duration": 3.4, "textId": "answer" }
+  ]
+}

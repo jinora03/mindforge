@@ -1,0 +1,111 @@
+{
+  "episode": "artifact-017-star-twinkle",
+  "title": "Why do stars twinkle but planets usually do not?",
+  "aspect": "9:16",
+  "durationSeconds": 18,
+  "shots": [
+    {
+      "id": "s1-hook",
+      "t": [
+        0,
+        2.5
+      ],
+      "beat": "Star versus planet question",
+      "intent": "Open directly on the star while the observatory establishes context.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "sky.star"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-star",
+      "t": [
+        2.5,
+        6.3
+      ],
+      "beat": "Star light flickers through atmosphere",
+      "intent": "Make the star visibly pulse while its ray path bends through atmosphere checkpoints.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "sky.star"
+      },
+      "effects": [
+        "effect.informationStream"
+      ],
+      "text": [
+        {
+          "id": "star"
+        }
+      ]
+    },
+    {
+      "id": "s3-planet",
+      "t": [
+        6.3,
+        9.8
+      ],
+      "beat": "Planet stays steadier",
+      "intent": "Move immediately to the wider planet source with a steadier path.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "sky.planet"
+      },
+      "effects": [
+        "effect.informationStream"
+      ],
+      "text": [
+        {
+          "id": "planet"
+        }
+      ]
+    },
+    {
+      "id": "s4-average",
+      "t": [
+        9.8,
+        13.5
+      ],
+      "beat": "Point source versus disk averaging",
+      "intent": "Show both sources together and compare their apparent size.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "sky"
+      },
+      "effects": [
+        "effect.contour.pressure"
+      ],
+      "text": [
+        {
+          "id": "average"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        13.5,
+        18
+      ],
+      "beat": "Atmosphere answer",
+      "intent": "Resolve with both objects visible and no extra hold after the answer.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "sky"
+      },
+      "effects": [
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

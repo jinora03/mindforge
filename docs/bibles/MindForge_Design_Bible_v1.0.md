@@ -2,6 +2,8 @@
 
 # MindForge Design Bible
 
+> **STATUS: RETIRED — historical prototype reference only.** Do not use this document as the visual authority for new MindForge content. The current direction is `MindForge_Visual_Direction_v2.md`.
+
 *The visual DNA for making invisible ideas recognizable.*
 
 | **VERSION 1.0** | **VISUAL SYSTEM** | **LIVING DOCUMENT** |

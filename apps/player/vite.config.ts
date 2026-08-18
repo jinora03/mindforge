@@ -7,6 +7,7 @@ const r = (p: string): string => fileURLToPath(new URL(p, import.meta.url));
 // directly (no build step for the packages during development).
 const mindforgeAliases = {
   '@mindforge/schema': r('../../packages/schema/src/index.ts'),
+  '@mindforge/audio': r('../../packages/audio/src/index.ts'),
   '@mindforge/engine': r('../../packages/engine/src/index.ts'),
   '@mindforge/style': r('../../packages/style/src/index.ts'),
   '@mindforge/characters': r('../../packages/characters/src/index.ts'),
@@ -20,6 +21,7 @@ const mindforgeAliases = {
 };
 
 export default defineConfig({
+  publicDir: r('../../public'),
   resolve: { alias: mindforgeAliases },
   server: {
     port: 5174,

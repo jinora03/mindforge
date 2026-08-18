@@ -1,0 +1,131 @@
+{
+  "episode": "artifact-009-hot-spoon",
+  "title": "Why does a spoon get hot in soup?",
+  "aspect": "9:16",
+  "durationSeconds": 27,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4.2
+      ],
+      "beat": "The spoon is the protagonist",
+      "intent": "Open on the bowl/spoon rig with no standing character. The viewer should immediately wonder how the distant handle becomes hot.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "meal"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-hot-soup",
+      "t": [
+        4.2,
+        9
+      ],
+      "beat": "Energy starts in the soup",
+      "intent": "Push into the hot reservoir and make the source of thermal energy visually explicit.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "meal.soupSurface"
+      },
+      "effects": [
+        {
+          "id": "heat-ring",
+          "purpose": "Marks the soup as the hot reservoir."
+        }
+      ],
+      "text": [
+        {
+          "id": "hot"
+        }
+      ]
+    },
+    {
+      "id": "s3-conduction",
+      "t": [
+        9,
+        16
+      ],
+      "beat": "Energy travels through metal",
+      "intent": "Track a continuous stream from soup contact through the spoon toward the handle while the metal itself warms.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "meal.spoon"
+      },
+      "effects": [
+        {
+          "id": "transfer-stream",
+          "purpose": "Thermal energy transfer along the spoon."
+        }
+      ],
+      "text": [
+        {
+          "id": "transfer"
+        }
+      ]
+    },
+    {
+      "id": "s4-handle-test",
+      "t": [
+        16,
+        22
+      ],
+      "beat": "A hand tests the consequence",
+      "intent": "Only now introduce a semantic hand, let it touch the warmed handle, react, and leave. The human element exists solely to prove the handle is hot.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "meal.handleTip"
+      },
+      "effects": [
+        {
+          "id": "handle-flow",
+          "purpose": "Emphasizes energy reaching the handle."
+        },
+        {
+          "id": "touch-burst",
+          "purpose": "Marks contact and immediate hot-handle reaction."
+        }
+      ],
+      "text": [
+        {
+          "id": "handle"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        22,
+        27
+      ],
+      "beat": "Name the process",
+      "intent": "Remove the hand and resolve on the glowing spoon/energy path itself while naming conduction.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "meal"
+      },
+      "effects": [
+        {
+          "id": "answer-path",
+          "purpose": "Restates the full energy path during the definition."
+        },
+        {
+          "id": "answer-flash",
+          "purpose": "Conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

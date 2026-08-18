@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-003-sky-blue",
+  "title": "Why is the sky blue?",
+  "artifactName": "The Prism",
+  "artifactNumber": 3,
+  "artifactType": "loom",
+  "domain": "signal-ocean",
+  "duration": 15,
+  "environment": "environment.dreamGarden",
+  "metadata": {
+    "logline": "Sunlight carries every colour. Air scatters the short ones hardest, so blue arrives from everywhere at once.",
+    "beats": "sun overhead -> white light descends -> air scatters blue sideways -> blue fills the sky"
+  },
+  "entities": [
+    { "id": "observer", "type": "character", "factory": "character.observer", "position": [0, 0, 0], "rotation": [0, 0.28, 0] },
+    { "id": "sunlight", "type": "prefab", "factory": "prefab.informationShard", "parameters": { "tone": "insight" }, "position": [-2.6, 6.4, -3.4], "scale": 2.2 },
+    { "id": "airLow", "type": "prefab", "factory": "prefab.informationShard", "parameters": { "tone": "prediction" }, "position": [0.4, 3.1, -1.6], "scale": 1.3, "visible": false },
+    { "id": "skyLight", "type": "prefab", "factory": "prefab.storyLight", "parameters": { "role": "subject", "intensity": 7, "distance": 20 }, "position": [-1.8, 4.2, 3.0] }
+  ],
+  "timeline": [
+    { "id": "ambience", "type": "audio", "at": 0, "duration": 15, "cue": "audio.ambience.garden", "loop": true, "volume": 0.45 },
+    { "id": "idle", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.idle" },
+    { "id": "breathe", "type": "motion", "at": 0, "duration": 15, "target": "observer", "motion": "motion.humanoid.breathe" },
+    { "id": "sun-float", "type": "objectMotion", "at": 0, "duration": 15, "target": "sunlight", "motion": "motion.object.float" },
+
+    { "id": "cam-open", "type": "camera", "at": 0, "duration": 3.4, "preset": "camera.pullBack", "target": "observer", "from": [2.2, 1.9, 4.6], "to": [3.0, 2.6, 6.8], "fov": 44, "framingOffset": [0, 1.2, 0], "easing": "easeInOut" },
+    { "id": "voice-hook", "type": "audio", "at": 0.5, "delay": 0.08, "cue": "audio.voice.skyBlue.hook", "textId": "hook", "volume": 1.0 },
+    { "id": "hook", "type": "text", "at": 0.5, "duration": 2.6, "textId": "hook" },
+    { "id": "face-up", "type": "face", "at": 1.2, "target": "observer", "state": "surprised" },
+    { "id": "point-up", "type": "motion", "at": 1.4, "duration": 2.4, "target": "observer", "motion": "motion.humanoid.reach" },
+
+    { "id": "cam-sky", "type": "camera", "at": 3.5, "duration": 4.2, "preset": "camera.pushIn", "target": "observer", "from": [3.0, 3.0, 6.6], "to": [2.4, 3.9, 5.4], "fov": 50, "framingOffset": [0, 2.5, 0], "easing": "easeInOut" },
+    { "id": "beam-sfx", "type": "audio", "at": 3.6, "cue": "audio.sfx.information", "volume": 0.68 },
+    { "id": "white-beam", "type": "effect", "at": 3.6, "duration": 3.2, "effect": "effect.signal.path", "from": "sunlight", "to": "observer.head", "tone": "neutral", "intensity": 1.0, "parameters": { "thickness": 0.16 } },
+    { "id": "voice-carry", "type": "audio", "at": 4.0, "delay": 0.08, "cue": "audio.voice.skyBlue.carry", "textId": "carry", "volume": 1.0 },
+    { "id": "text-carry", "type": "text", "at": 4.0, "duration": 3.0, "textId": "carry" },
+
+    { "id": "air-on", "type": "visibility", "at": 6.6, "target": "airLow", "visible": true },
+    { "id": "scatter-a", "type": "effect", "at": 6.8, "duration": 3.6, "effect": "effect.informationStream", "through": ["sunlight", "airLow", "observer.head"], "tone": "prediction", "intensity": 1.0, "parameters": { "density": 34, "speed": 0.5, "size": 0.085, "bow": 0.22 } },
+    { "id": "scatter-sfx", "type": "audio", "at": 7.0, "cue": "audio.sfx.reaction", "volume": 0.65 },
+    { "id": "scatter-burst", "type": "effect", "at": 7.0, "duration": 1.6, "effect": "effect.reaction.burst", "target": "airLow", "tone": "prediction", "intensity": 0.9, "parameters": { "count": 44, "radius": 2.4, "size": 0.07 } },
+    { "id": "voice-scatter", "type": "audio", "at": 7.4, "delay": 0.08, "cue": "audio.voice.skyBlue.scatter", "textId": "scatter", "volume": 1.0 },
+    { "id": "text-scatter", "type": "text", "at": 7.4, "duration": 3.2, "textId": "scatter" },
+
+    { "id": "cam-wide", "type": "camera", "at": 8.0, "duration": 4.0, "preset": "camera.reveal", "target": "observer", "easing": "easeInOut", "parameters": { "radius": 7.2, "height": 3.4, "startAngle": 0.5, "endAngle": -0.3 } },
+    { "id": "scatter-b", "type": "effect", "at": 9.2, "duration": 2.6, "effect": "effect.contour.shockwave", "target": "airLow", "tone": "prediction", "intensity": 0.85, "parameters": { "size": 6.0, "thickness": 0.2 } },
+
+    { "id": "insight-sfx", "type": "audio", "at": 11.0, "cue": "audio.sfx.insight", "volume": 0.75 },
+    { "id": "flash", "type": "effect", "at": 11.0, "duration": 1.4, "effect": "effect.insight.flash", "tone": "prediction", "intensity": 0.7, "parameters": { "maxOpacity": 0.2 } },
+    { "id": "face-warm", "type": "face", "at": 11.1, "target": "observer", "state": "laughing" },
+    { "id": "cam-land", "type": "camera", "at": 12.1, "duration": 2.9, "preset": "camera.pullBack", "target": "observer", "from": [2.6, 3.0, 6.2], "to": [3.2, 2.4, 8.4], "fov": 44, "framingOffset": [0, 1.3, 0], "easing": "easeInOut" },
+    { "id": "voice-answer", "type": "audio", "at": 11.4, "delay": 0.08, "cue": "audio.voice.skyBlue.answer", "textId": "answer", "volume": 1.0 },
+    { "id": "answer", "type": "text", "at": 11.4, "duration": 3.4, "textId": "answer" }
+  ]
+}

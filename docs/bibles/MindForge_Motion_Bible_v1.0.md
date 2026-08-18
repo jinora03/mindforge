@@ -137,8 +137,8 @@ This replaces the “beautiful screensaver” approach with a sequence where eve
 
 | **Time**  | **Shot and action**                                                                                             | **Meaning**                                              |
 |-----------|-----------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
-| 0.0–0.7   | A cold violet contour lattice snaps into view. One white tile enters; the field instantly compresses.           | Computation has a physical cost.                         |
-| 0.7–3.0   | Camera breaches the lattice. Tiles collide with gates; each switch releases a pink ripple.                      | Transistors repeatedly change state.                     |
+| 0.0–0.7   | A cold information field snaps into view. One data tile enters; the field instantly compresses.           | Computation has a physical cost.                         |
+| 0.7–3.0   | Camera breaches the lattice. Tiles collide with gates; each switch releases a theme-owned heat/reaction pulse.                      | Transistors repeatedly change state.                     |
 | 3.0–6.0   | Signals route faster. More gates activate; contour spacing tightens and the artifact warms.                     | More activity creates more energy dissipation.           |
 | 6.0–9.0   | Cross-section: resistance nodes divert small parts of each signal into rising rose waves.                       | Electrical resistance and switching losses become heat.  |
 | 9.0–12.0  | Scale flip: the tiny waves become a vast hot field surrounding the entire artifact.                             | Small losses accumulate across billions of operations.   |

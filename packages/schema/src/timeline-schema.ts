@@ -4,6 +4,7 @@ import { EasingSchema, HexColorSchema, RegistryIdSchema, Vec3Schema } from './co
 export const TIMELINE_EVENT_TYPES = [
   'motion',
   'objectMotion',
+  'animation',
   'effect',
   'camera',
   'text',
@@ -11,9 +12,22 @@ export const TIMELINE_EVENT_TYPES = [
   'property',
   'face',
   'callback',
+  'audio',
 ] as const;
 
 /** Face states the procedural humanoid can express. */
+export const VISUAL_TONES = [
+  'neutral',
+  'information',
+  'prediction',
+  'suppression',
+  'reaction',
+  'insight',
+  'heat',
+] as const;
+
+export const VisualToneSchema = z.enum(VISUAL_TONES);
+
 export const FACE_STATES = [
   'neutral',
   'confused',
@@ -35,6 +49,9 @@ export const PROPERTY_TARGETS = [
 ] as const;
 
 export const FaceStateSchema = z.enum(FACE_STATES);
+
+export const AUDIO_BUSES = ['voice', 'music', 'sfx', 'ambience'] as const;
+export const AudioBusSchema = z.enum(AUDIO_BUSES);
 
 /** Fields shared by every timeline event. Only `id`, `type`, and `at` are required. */
 const baseFields = {
@@ -71,6 +88,25 @@ const ObjectMotionEventSchema = z
   })
   .strict();
 
+const AnimationEventSchema = z
+  .object({
+    ...baseFields,
+    type: z.literal('animation'),
+    target: z.string().min(1),
+    /** Semantic clip id exposed by the target entity; never an authored GLTF clip name. */
+    clip: z.string().min(1),
+    /** Playback rate applied to absolute event-local time. Reverse playback is intentionally deferred. */
+    speed: z.number().positive().optional(),
+    /** Repeat the clip inside the event window. Without duration, looping continues to episode end. */
+    loop: z.boolean().optional(),
+    /** Seconds into the source clip where sampling begins. */
+    startOffset: z.number().min(0).optional(),
+    /** Deterministic weight ramps for authored clip transitions. */
+    blendIn: z.number().min(0).optional(),
+    blendOut: z.number().min(0).optional(),
+  })
+  .strict();
+
 const EffectEventSchema = z
   .object({
     ...baseFields,
@@ -81,6 +117,9 @@ const EffectEventSchema = z
     from: z.string().optional(),
     to: z.string().optional(),
     through: z.array(z.string()).optional(),
+    /** Semantic visual meaning interpreted by the active theme. */
+    tone: VisualToneSchema.optional(),
+    /** Low-level override retained for tooling/debug content; production episodes should prefer `tone`. */
     color: HexColorSchema.optional(),
   })
   .strict();
@@ -148,9 +187,28 @@ const CallbackEventSchema = z
   })
   .strict();
 
+
+const AudioEventSchema = z
+  .object({
+    ...baseFields,
+    type: z.literal('audio'),
+    /** Stable semantic cue id resolved by the shared audio registry. */
+    cue: RegistryIdSchema,
+    /** Optional caption/text entry spoken by this cue. Used for narration validation/sync metadata. */
+    textId: z.string().min(1).optional(),
+    /** Optional per-event routing override. Most cues use their registered default bus. */
+    bus: AudioBusSchema.optional(),
+    /** Linear gain multiplier for this event. Defaults to 1. */
+    volume: z.number().min(0).max(2).optional(),
+    /** Loop the cue for the event window. Looping events should provide `duration`. */
+    loop: z.boolean().optional(),
+  })
+  .strict();
+
 export const TimelineEventSchema = z.discriminatedUnion('type', [
   MotionEventSchema,
   ObjectMotionEventSchema,
+  AnimationEventSchema,
   EffectEventSchema,
   CameraEventSchema,
   TextEventSchema,
@@ -158,11 +216,14 @@ export const TimelineEventSchema = z.discriminatedUnion('type', [
   PropertyEventSchema,
   FaceEventSchema,
   CallbackEventSchema,
+  AudioEventSchema,
 ]);
 
+export type VisualTone = z.infer<typeof VisualToneSchema>;
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 export type MotionEvent = z.infer<typeof MotionEventSchema>;
 export type ObjectMotionEvent = z.infer<typeof ObjectMotionEventSchema>;
+export type AnimationEvent = z.infer<typeof AnimationEventSchema>;
 export type EffectEvent = z.infer<typeof EffectEventSchema>;
 export type CameraEvent = z.infer<typeof CameraEventSchema>;
 export type TextEvent = z.infer<typeof TextEventSchema>;
@@ -170,11 +231,14 @@ export type VisibilityEvent = z.infer<typeof VisibilityEventSchema>;
 export type PropertyEvent = z.infer<typeof PropertyEventSchema>;
 export type FaceEvent = z.infer<typeof FaceEventSchema>;
 export type CallbackEvent = z.infer<typeof CallbackEventSchema>;
+export type AudioEvent = z.infer<typeof AudioEventSchema>;
+export type AudioBus = z.infer<typeof AudioBusSchema>;
 export type FaceState = z.infer<typeof FaceStateSchema>;
 
 export {
   MotionEventSchema,
   ObjectMotionEventSchema,
+  AnimationEventSchema,
   EffectEventSchema,
   CameraEventSchema,
   TextEventSchema,
@@ -182,4 +246,5 @@ export {
   PropertyEventSchema,
   FaceEventSchema,
   CallbackEventSchema,
+  AudioEventSchema,
 };

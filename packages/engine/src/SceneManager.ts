@@ -12,9 +12,11 @@ import type {
   EnvironmentInstance,
   Entity,
   ResolvedText,
+  RuntimeAssetAccess,
 } from './EngineTypes';
 import { EntityManager } from './EntityManager';
 import { SceneContext } from './SceneContext';
+import { SceneCompositionLayerStack } from './SceneCompositionLayerStack';
 import {
   DEFAULT_DURATIONS,
   MotionAction,
@@ -29,23 +31,33 @@ import {
   type PropValue,
 } from './Timeline';
 import {
+  AnimationTrack,
+  defaultAnimationDuration,
+  type AnimationTrackEvent,
+} from './AnimationRuntime';
+import {
   GroupEntityImpl,
   LightEntityImpl,
+  PrefabEntityImpl,
   PrimitiveEntityImpl,
   applyTransform,
   createLight,
   createPrimitiveGeometry,
   createPrimitiveMaterial,
 } from './entities';
-import { InstanceCreationError } from './errors';
+import { InstanceCreationError, MissingAnimationClipError, type ErrorLocation } from './errors';
 import { hashSeed } from './rng';
 import type { LoadedEpisode } from './EpisodeLoader';
+import { unavailableRuntimeAssets } from './RuntimeAssets';
+import { EffectInfluenceBus } from './EffectInfluence';
 
 export interface BuiltScene {
   readonly entities: EntityManager;
   readonly environment: EnvironmentInstance;
+  readonly compositionLayers: SceneCompositionLayerStack;
   readonly timeline: Timeline;
   readonly context: SceneContext;
+  readonly effectInfluences: EffectInfluenceBus;
 }
 
 /**
@@ -60,19 +72,33 @@ export class SceneManager {
     registries: CapabilityRegistries,
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
+    assets: RuntimeAssetAccess = unavailableRuntimeAssets,
   ): BuiltScene {
     const { script } = loaded;
     const entities = new EntityManager();
-    const context = new SceneContext(scene, camera, script.duration, entities, script.id);
+    const effectInfluences = new EffectInfluenceBus();
+    const context = new SceneContext(
+      scene,
+      camera,
+      script.duration,
+      entities,
+      script.id,
+      assets,
+      effectInfluences,
+    );
 
     const environment = this.buildEnvironment(script, registries, context);
     scene.add(environment.object3d);
 
-    this.buildEntities(script.entities, registries, scene, entities);
+    // Entities are built before composition layers so a future layer may resolve
+    // semantic scene targets during construction without depending on raw Three.js
+    // scene traversal. Existing episodes have no layers, so this is additive.
+    this.buildEntities(script.entities, registries, scene, entities, context);
 
+    const compositionLayers = this.buildCompositionLayers(script, registries, scene, context);
     const timeline = this.buildTimeline(loaded, registries, scene, context, entities);
 
-    return { entities, environment, timeline, context };
+    return { entities, environment, compositionLayers, timeline, context, effectInfluences };
   }
 
   private buildEnvironment(
@@ -90,20 +116,62 @@ export class SceneManager {
     }
   }
 
+  private buildCompositionLayers(
+    script: EpisodeScript,
+    registries: CapabilityRegistries,
+    scene: THREE.Scene,
+    context: SceneContext,
+  ): SceneCompositionLayerStack {
+    const stack = new SceneCompositionLayerStack(scene);
+    try {
+      for (const definition of script.layers) {
+        // Disabled layers remain visible to validation/Studio metadata but are
+        // not constructed, guaranteeing that a disabled layer cannot mutate
+        // scene state through factory-side setup.
+        if (!definition.enabled) {
+          stack.add(definition);
+          continue;
+        }
+        const factory = registries.sceneLayers.get(definition.factory);
+        const seed = hashSeed(script.id, `scene-layer:${definition.id}`);
+        const instance = this.tryCreate(
+          () =>
+            factory({
+              id: definition.id,
+              role: definition.role,
+              parameters: definition.parameters ?? {},
+              services: context,
+              seed,
+            }),
+          `scene layer "${definition.factory}"`,
+          script.id,
+          undefined,
+          definition.id,
+        );
+        stack.add(definition, instance);
+      }
+      return stack;
+    } catch (error) {
+      stack.dispose();
+      throw error;
+    }
+  }
+
   private buildEntities(
     definitions: EntityDefinition[],
     registries: CapabilityRegistries,
     parent: THREE.Object3D,
     entities: EntityManager,
+    context: SceneContext,
     group?: GroupEntityImpl,
   ): void {
     for (const def of definitions) {
-      const entity = this.buildEntity(def, registries, entities);
+      const entity = this.buildEntity(def, registries, entities, context);
       parent.add(entity.object3d);
       entities.register(entity);
       if (group) group.registerChildAnchor(def.id, entity.object3d);
       if (def.type === 'group') {
-        this.buildEntities(def.children, registries, entity.object3d, entities, entity as GroupEntityImpl);
+        this.buildEntities(def.children, registries, entity.object3d, entities, context, entity as GroupEntityImpl);
       }
     }
   }
@@ -112,18 +180,33 @@ export class SceneManager {
     def: EntityDefinition,
     registries: CapabilityRegistries,
     _entities: EntityManager,
+    context: SceneContext,
   ): Entity {
     switch (def.type) {
       case 'character': {
         const factory = registries.characters.get(def.factory);
         let entity: Entity;
         try {
-          entity = factory({ id: def.id, parameters: def.parameters ?? {} });
+          entity = factory({ id: def.id, parameters: def.parameters ?? {}, services: context });
         } catch (cause) {
           throw new InstanceCreationError(`character "${def.factory}"`, cause, {
             entityId: def.id,
           });
         }
+        applyTransform(entity.object3d, def);
+        return entity;
+      }
+      case 'prefab': {
+        const factory = registries.prefabs.get(def.factory);
+        let instance;
+        try {
+          instance = factory({ id: def.id, parameters: def.parameters ?? {}, services: context });
+        } catch (cause) {
+          throw new InstanceCreationError(`prefab "${def.factory}"`, cause, {
+            entityId: def.id,
+          });
+        }
+        const entity = new PrefabEntityImpl(def.id, instance);
         applyTransform(entity.object3d, def);
         return entity;
       }
@@ -158,6 +241,10 @@ export class SceneManager {
     const { script } = loaded;
 
     // Grouped state tracks collected while scanning events.
+    const animationByTarget = new Map<
+      string,
+      { target: Entity; events: AnimationTrackEvent[] }
+    >();
     const visibilityByTarget = new Map<string, { at: number; visible: boolean }[]>();
     const faceByTarget = new Map<string, { at: number; state: FaceState }[]>();
     const propertyByKey = new Map<string, { target: string; channel: PropertyChannel; events: PropertyEvent[] }>();
@@ -165,8 +252,7 @@ export class SceneManager {
     for (const event of script.timeline) {
       const at = event.at + (event.delay ?? 0);
       switch (event.type) {
-        case 'motion':
-        case 'objectMotion': {
+        case 'motion': {
           const target = entities.get(event.target, { episodeId: script.id, eventId: event.id });
           const factory = registries.motions.get(event.motion);
           const instance = this.tryCreate(
@@ -178,6 +264,64 @@ export class SceneManager {
           timeline.addMotion(
             new MotionAction(event.id, at, event.duration ?? DEFAULT_DURATIONS.motion, event.easing, instance),
           );
+          break;
+        }
+        case 'objectMotion': {
+          const target = resolveObjectMotionTarget(entities, event.target, {
+            episodeId: script.id,
+            eventId: event.id,
+          });
+          const factory = registries.motions.get(event.motion);
+          const instance = this.tryCreate(
+            () => factory({ target, event, services: context }),
+            `motion "${event.motion}"`,
+            script.id,
+            event.id,
+          );
+          timeline.addMotion(
+            new MotionAction(event.id, at, event.duration ?? DEFAULT_DURATIONS.motion, event.easing, instance),
+          );
+          break;
+        }
+        case 'animation': {
+          const target = entities.get(event.target, { episodeId: script.id, eventId: event.id });
+          const clips = target.animationClips ?? {};
+          const clip = clips[event.clip];
+          if (!clip) {
+            throw new MissingAnimationClipError(target.id, event.clip, Object.keys(clips).sort(), {
+              episodeId: script.id,
+              eventId: event.id,
+            });
+          }
+
+          const speed = event.speed ?? 1;
+          const loop = event.loop ?? false;
+          const startOffset = event.startOffset ?? 0;
+          const duration =
+            event.duration ??
+            defaultAnimationDuration(clip, {
+              at,
+              episodeDuration: script.duration,
+              speed,
+              loop,
+              startOffset,
+            });
+          const bucket = animationByTarget.get(target.id) ?? {
+            target,
+            events: [] as AnimationTrackEvent[],
+          };
+          bucket.events.push({
+            id: event.id,
+            at,
+            duration,
+            clip,
+            speed,
+            loop,
+            startOffset,
+            blendIn: event.blendIn ?? 0,
+            blendOut: event.blendOut ?? 0,
+          });
+          animationByTarget.set(target.id, bucket);
           break;
         }
         case 'effect': {
@@ -203,10 +347,15 @@ export class SceneManager {
             script.id,
             event.id,
           );
+          const requestedBlend = event.parameters?.blendDuration;
+          const blendDuration = typeof requestedBlend === 'number' && Number.isFinite(requestedBlend)
+            ? Math.max(0, requestedBlend)
+            : 0;
           timeline.addCamera({
             at,
             duration: event.duration ?? DEFAULT_DURATIONS.camera,
             easing: event.easing,
+            blendDuration,
             shot,
           });
           break;
@@ -235,6 +384,11 @@ export class SceneManager {
           propertyByKey.set(key, bucket);
           break;
         }
+        case 'audio': {
+          // Live audio is mirrored by the Engine's injected AudioRuntime. It is
+          // intentionally excluded from deterministic scene-state evaluation.
+          break;
+        }
         case 'callback': {
           timeline.addCallback(new CallbackAction(event.id, at, event.name));
           break;
@@ -242,17 +396,28 @@ export class SceneManager {
       }
     }
 
-    this.buildTracks(timeline, entities, visibilityByTarget, faceByTarget, propertyByKey);
+    this.buildTracks(
+      timeline,
+      entities,
+      animationByTarget,
+      visibilityByTarget,
+      faceByTarget,
+      propertyByKey,
+    );
     return timeline;
   }
 
   private buildTracks(
     timeline: Timeline,
     entities: EntityManager,
+    animationByTarget: Map<string, { target: Entity; events: AnimationTrackEvent[] }>,
     visibilityByTarget: Map<string, { at: number; visible: boolean }[]>,
     faceByTarget: Map<string, { at: number; state: FaceState }[]>,
     propertyByKey: Map<string, { target: string; channel: PropertyChannel; events: PropertyEvent[] }>,
   ): void {
+    for (const { target, events } of animationByTarget.values()) {
+      timeline.addAnimationTrack(new AnimationTrack(target.object3d, events));
+    }
     for (const [target, events] of visibilityByTarget) {
       const object = entities.resolveAnchor(target);
       timeline.addVisibilityTrack(new VisibilityTrack(object, object.visible, events));
@@ -305,13 +470,42 @@ export class SceneManager {
     };
   }
 
-  private tryCreate<T>(create: () => T, what: string, episodeId: string, eventId: string): T {
+  private tryCreate<T>(
+    create: () => T,
+    what: string,
+    episodeId: string,
+    eventId?: string,
+    layerId?: string,
+  ): T {
     try {
       return create();
     } catch (cause) {
-      throw new InstanceCreationError(what, cause, { episodeId, eventId });
+      throw new InstanceCreationError(what, cause, { episodeId, eventId, layerId });
     }
   }
+}
+
+/**
+ * Object motions may target either a top-level entity id or a semantic prefab
+ * anchor such as `machine.core`. Anchor adapters are intentionally non-owning:
+ * disposing the parent prefab remains the prefab entity's responsibility.
+ */
+function resolveObjectMotionTarget(
+  entities: EntityManager,
+  ref: string,
+  location: ErrorLocation,
+): Entity {
+  const direct = entities.tryGet(ref);
+  if (direct) return direct;
+  const object3d = entities.resolveAnchor(ref, location);
+  return {
+    id: ref,
+    kind: 'group',
+    object3d,
+    getAnchor: () => undefined,
+    anchorNames: () => [],
+    dispose: () => {},
+  };
 }
 
 /* --------------------------------------------------------- property values */

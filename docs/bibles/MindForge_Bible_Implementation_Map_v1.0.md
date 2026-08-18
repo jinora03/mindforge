@@ -1,5 +1,7 @@
 # MindForge Bible Implementation Map
 
+> **Visual update:** Design Bible v1 palette/material rules are retired. Use `MindForge_Visual_Direction_v2.md` for current visual implementation decisions.
+
 *Technical companion for the MindForge repository. This file maps the three creative Bibles to the proposed codebase; it is not a replacement for the Bibles.*
 
 ## Enforcement levels
@@ -65,7 +67,7 @@
 | The Forge is a dimension, not one planet, lab, or building | Environment system and documentation | Guided | Environments may vary widely while sharing canon laws. |
 | Concepts become mechanisms | Artifact factories and episode review | Episode-specific | The artifact’s behavior must match the concept, not merely its appearance. |
 | Fields reveal truth | Contour and field effects | Guided | Fields may be hidden or distorted but should represent an actual system state. |
-| Color is state | Style tokens and timeline property events | Guided | Violet, pink, white, and Forge Spark retain their documented meanings. |
+| Visual state is semantic | Theme tokens + effect `tone` + prefab factories | Guided | Episodes describe meaning; each theme owns the actual palette/material treatment. |
 | Nothing is merely decorative | Episode review and event-purpose metadata | Episode-specific | Supporting elements must contribute concept, scale, mood, or navigation. |
 | Transformation is normal | Motion/effect library | Guided | Unfold, divide, invert, merge, and scale-change actions should be reusable. |
 | Lore is optional enrichment, never a prerequisite | Content review and episode schema | Guided | Public question and explanation remain complete without artifact numbers or backstory. |

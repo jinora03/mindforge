@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why can a rubbed balloon stick to a wall?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "rub",
+      "content": "Rubbing transfers extra electrons onto the balloon.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "charge",
+      "content": "The balloon is now negatively charged.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "wall",
+      "content": "It pushes electrons in the wall slightly farther away.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Positive charge is closer \u2014 so attraction wins and the balloon sticks.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 007 / The Charge",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

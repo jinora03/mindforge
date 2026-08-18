@@ -3,6 +3,7 @@ import { RegistryIdSchema } from './common';
 import { EntityDefinitionSchema, collectEntityIds } from './entity-schema';
 import { TimelineEventSchema } from './timeline-schema';
 import { TextDefinitionSchema } from './text-schema';
+import { SceneLayerDefinitionSchema, duplicateSceneLayerIds } from './scene-layer-schema';
 import { EpisodeValidationError } from './errors';
 
 /** The current MindForge Script version. */
@@ -50,6 +51,7 @@ export const EpisodeScriptSchema = z
     domain: DomainSchema.optional(),
     duration: z.number().positive(),
     environment: RegistryIdSchema,
+    layers: z.array(SceneLayerDefinitionSchema).default([]),
     entities: z.array(EntityDefinitionSchema).default([]),
     timeline: z.array(TimelineEventSchema).default([]),
     text: z.array(TextDefinitionSchema).optional(),
@@ -62,6 +64,16 @@ export const EpisodeScriptSchema = z
         code: z.ZodIssueCode.custom,
         path: ['schemaVersion'],
         message: `unsupported schemaVersion "${episode.schemaVersion}"; expected "${SCHEMA_VERSION}"`,
+      });
+    }
+
+    // Local scene-layer ids must be unique so diagnostics, Studio controls,
+    // and deterministic per-layer seeds remain stable.
+    for (const id of duplicateSceneLayerIds(episode.layers)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['layers'],
+        message: `duplicate scene layer id "${id}"`,
       });
     }
 

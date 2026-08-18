@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why does the handle of a spoon get hot in soup?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "hot",
+      "content": "The soup has more thermal energy than the cooler spoon.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "transfer",
+      "content": "Collisions transfer energy into the metal, then along the spoon.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "handle",
+      "content": "Metal conducts that energy quickly toward the handle.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "That heat transfer through a material is conduction.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 009 / The Conduction Line",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

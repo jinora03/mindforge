@@ -10,11 +10,15 @@ export const createEstablishShot: CameraFactory = ({ event, services }): CameraS
   return new CameraDirector({
     target: absolute ? undefined : target,
     absolute,
-    startOffset: readVec3(event.from, new THREE.Vector3(0, 2.2, 9)),
-    endOffset: readVec3(event.to, new THREE.Vector3(0, 2.0, 8.2)),
-    startFov: event.fov ?? 44,
-    endFov: event.fov ?? 42,
-    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 1, 0)),
+    startOffset: readVec3(event.from, new THREE.Vector3(0, 2.8, 11.5)),
+    endOffset: readVec3(event.to, new THREE.Vector3(0, 2.5, 9.8)),
+    startFov: event.fov ?? 48,
+    endFov: event.fov ?? 46,
+    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 1.2, 0)),
+    fitTarget: true,
+    fitPadding: 1.22,
+    minDistance: 8,
+    camera: services.camera,
     lookPoint: new THREE.Vector3(0, 0.6, 0),
   });
 };

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why does ice float instead of sink?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "odd",
+      "content": "Most solids are denser than their liquids. Ice is unusual.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "freeze",
+      "content": "When water freezes, its molecules lock into a more open structure.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "density",
+      "content": "The same mass now takes up more space \u2014 so ice is less dense.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Water can push up enough to keep the lower-density ice afloat.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 008 / The Float",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

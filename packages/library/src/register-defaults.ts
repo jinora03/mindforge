@@ -1,3 +1,4 @@
+import { DEFAULT_AUDIO_CUES, NARRATION_AUDIO_CUES } from '@mindforge/audio';
 import type { AssetDescriptor } from '@mindforge/engine';
 import { CAMERA_FACTORIES } from '@mindforge/cameras';
 import { MOTION_FACTORIES } from '@mindforge/motions';
@@ -13,7 +14,7 @@ export const SHARED_ASSETS: AssetDescriptor[] = [
   { id: 'audio.transition.rise', kind: 'audio' },
 ];
 
-/** Compatibility catalogue for the default (Original) theme. */
+/** Compatibility catalogue for whichever visual theme is the production default. */
 export const DEFAULT_ASSETS: AssetDescriptor[] = [
   ...SHARED_ASSETS,
   ...getTheme(DEFAULT_THEME_ID).assets,
@@ -30,6 +31,9 @@ function registerSharedCapabilities(library: MindForgeLibrary): void {
   for (const descriptor of SHARED_ASSETS) {
     library.assets.describe(descriptor);
   }
+  for (const cue of [...DEFAULT_AUDIO_CUES, ...NARRATION_AUDIO_CUES]) {
+    library.audio.describe(cue);
+  }
 }
 
 /** Register the visual implementations selected by a theme. */
@@ -37,11 +41,17 @@ function registerThemeCapabilities(library: MindForgeLibrary, theme: MindForgeTh
   for (const [id, factory] of Object.entries(theme.characters)) {
     library.characters.register(id, factory);
   }
+  for (const [id, factory] of Object.entries(theme.prefabs)) {
+    library.prefabs.register(id, factory);
+  }
   for (const [id, factory] of Object.entries(theme.effects)) {
     library.effects.register(id, factory);
   }
   for (const [id, factory] of Object.entries(theme.environments)) {
     library.environments.register(id, factory);
+  }
+  for (const [id, factory] of Object.entries(theme.sceneLayers)) {
+    library.sceneLayers.register(id, factory);
   }
   for (const descriptor of theme.assets) {
     library.assets.describe(descriptor);
@@ -57,10 +67,7 @@ export function createLibraryForTheme(themeId: string = DEFAULT_THEME_ID): MindF
   return library;
 }
 
-/**
- * Backwards-compatible v0.1 entry point. Existing tests and consumers continue
- * to receive the MindForge Original visual theme unless they opt into another.
- */
+/** Build the production-default library. Theme selection remains outside the Engine. */
 export function createDefaultLibrary(): MindForgeLibrary {
   return createLibraryForTheme(DEFAULT_THEME_ID);
 }

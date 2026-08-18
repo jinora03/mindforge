@@ -1,15 +1,31 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { LayerName } from '@mindforge/engine';
+import { DEFAULT_AUDIO_MIXER_VOLUMES } from '@mindforge/audio';
+import { DEFAULT_THEME_ID } from '@mindforge/themes';
 import { StudioController, type LayerFlags, type StudioState } from './studio-controller';
 import { Toolbar } from './components/Toolbar';
 import { Inspector } from './components/Inspector';
+import { ShotTrack } from './components/ShotTrack';
+import { CreatorExportPanel } from './components/CreatorExportPanel';
+import { AuthoringPanel } from './components/AuthoringPanel';
+import { createDefaultStudioCreatorExportOptions } from './creator-export';
+import { createAuthoringDraft, type EpisodeAuthoringDraft } from './authoring';
 
 const INITIAL_STATE: StudioState = {
+  themeId: DEFAULT_THEME_ID,
   time: 0,
   duration: 0,
   playing: false,
   speed: 1,
   activeTexts: [],
+  audioMuted: false,
+  masterVolume: DEFAULT_AUDIO_MIXER_VOLUMES.master,
+  voiceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.voice,
+  musicVolume: DEFAULT_AUDIO_MIXER_VOLUMES.music,
+  sfxVolume: DEFAULT_AUDIO_MIXER_VOLUMES.sfx,
+  ambienceVolume: DEFAULT_AUDIO_MIXER_VOLUMES.ambience,
+  exporting: false,
+  exportProgress: 0,
 };
 
 const INITIAL_LAYERS: LayerFlags = { text: true, camera: true, effects: true, anchors: false };
@@ -19,6 +35,10 @@ export function App(): JSX.Element {
   const [state, setState] = useState<StudioState>(INITIAL_STATE);
   const [layers, setLayers] = useState<LayerFlags>(INITIAL_LAYERS);
   const [clean, setClean] = useState(false);
+  const [exportPanelOpen, setExportPanelOpen] = useState(false);
+  const [authoringOpen, setAuthoringOpen] = useState(false);
+  const [authoringDraft, setAuthoringDraft] = useState<EpisodeAuthoringDraft>();
+  const [exportOptions, setExportOptions] = useState(() => createDefaultStudioCreatorExportOptions(DEFAULT_THEME_ID));
   const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -32,7 +52,30 @@ export function App(): JSX.Element {
     };
   }, [controller]);
 
-  const catalog = useMemo(() => controller.getCatalog(), [controller]);
+
+  useEffect(() => {
+    if (!exportPanelOpen) {
+      setExportOptions((current) => ({ ...current, themeId: state.themeId }));
+    }
+  }, [state.themeId, exportPanelOpen]);
+
+  useEffect(() => {
+    if (state.duration <= 0) return;
+    setExportOptions((current) => ({ ...current, customStart: 0, customEnd: state.duration }));
+  }, [state.episodeId, state.duration]);
+
+  const catalog = useMemo(() => controller.getCatalog(), [controller, state.themeId]);
+  const production = useMemo(() => controller.getProduction(state.episodeId), [controller, state.episodeId]);
+  const authoringSource = useMemo(() => controller.getAuthoringSource(state.episodeId), [controller, state.episodeId]);
+
+  useEffect(() => {
+    setAuthoringDraft(authoringSource ? createAuthoringDraft(authoringSource) : undefined);
+  }, [authoringSource]);
+
+  const authoringProduction = useMemo(() => {
+    if (!production || !authoringDraft) return production;
+    return { ...production, storyboard: authoringDraft.storyboard };
+  }, [production, authoringDraft]);
 
   const toggleLayer = (layer: LayerName, enabled: boolean): void => {
     controller.setLayer(layer, enabled);
@@ -44,16 +87,71 @@ export function App(): JSX.Element {
       <Toolbar
         episodes={controller.episodes}
         episodeId={state.episodeId}
+        themes={controller.themes}
+        themeId={state.themeId}
         playing={state.playing}
         speed={state.speed}
+        audioMuted={state.audioMuted}
+        masterVolume={state.masterVolume}
+        voiceVolume={state.voiceVolume}
+        musicVolume={state.musicVolume}
+        sfxVolume={state.sfxVolume}
+        ambienceVolume={state.ambienceVolume}
+        exporting={state.exporting}
+        exportProgress={state.exportProgress}
+        exportCancelable={state.exporting && state.exportPhase !== 'finalizing'}
         layers={layers}
         clean={clean}
         onSelect={(id) => controller.load(id)}
+        onSelectTheme={(id) => controller.setTheme(id)}
         onPlayPause={() => (state.playing ? controller.pause() : controller.play())}
         onRestart={() => controller.restart()}
         onSpeed={(speed) => controller.setSpeed(speed)}
+        onToggleAudio={() => controller.setAudioMuted(!state.audioMuted)}
+        onMasterVolume={(volume) => controller.setMasterVolume(volume)}
+        onVoiceVolume={(volume) => controller.setVoiceVolume(volume)}
+        onMusicVolume={(volume) => controller.setMusicVolume(volume)}
+        onSfxVolume={(volume) => controller.setSfxVolume(volume)}
+        onAmbienceVolume={(volume) => controller.setAmbienceVolume(volume)}
+        onAuthor={() => { setExportPanelOpen(false); setAuthoringOpen(true); }}
+        onExport={() => { setAuthoringOpen(false); setExportPanelOpen(true); }}
+        onCancelExport={() => controller.cancelExport()}
         onToggleLayer={toggleLayer}
         onToggleClean={() => setClean((value) => !value)}
+      />
+
+      <AuthoringPanel
+        open={authoringOpen}
+        source={authoringSource}
+        draft={authoringDraft}
+        time={state.time}
+        onDraftChange={setAuthoringDraft}
+        onClose={() => setAuthoringOpen(false)}
+        onSeek={(time) => controller.seek(time)}
+        onPreviewText={(draft) => controller.previewAuthoringText(draft)}
+        onRestorePreview={() => controller.restoreEpisodeSource()}
+        onResetDraft={() => setAuthoringDraft(authoringSource ? createAuthoringDraft(authoringSource) : undefined)}
+      />
+
+      <CreatorExportPanel
+        open={exportPanelOpen}
+        options={exportOptions}
+        themes={controller.themes}
+        duration={state.duration}
+        time={state.time}
+        production={production}
+        exporting={state.exporting}
+        exportProgress={state.exportProgress}
+        exportPhase={state.exportPhase}
+        exportReadyFilename={state.exportReadyFilename}
+        exportReadyBytes={state.exportReadyBytes}
+        exportResolvedFormat={state.exportResolvedFormat}
+        exportDiagnostics={state.exportDiagnostics}
+        onOptionsChange={setExportOptions}
+        onClose={() => setExportPanelOpen(false)}
+        onExport={() => void controller.exportCurrentEpisode(exportOptions)}
+        onCancel={() => controller.cancelExport()}
+        onDownload={() => controller.downloadLastExport()}
       />
 
       <main className="stage-row">
@@ -65,19 +163,32 @@ export function App(): JSX.Element {
           error={state.error}
           activeTexts={state.activeTexts}
           catalog={catalog}
+          production={authoringProduction}
+          time={state.time}
+          onSeek={(time) => controller.seek(time)}
         />
       </main>
 
       <footer className="scrubber-row">
-        <input
-          className="scrubber"
-          type="range"
-          min={0}
-          max={state.duration || 0}
-          step={0.01}
-          value={state.time}
-          onChange={(event) => controller.seek(Number(event.target.value))}
-        />
+        <div className="timeline-stack">
+          <ShotTrack
+            production={authoringProduction}
+            duration={state.duration}
+            time={state.time}
+            disabled={state.exporting}
+            onSeek={(time) => controller.seek(time)}
+          />
+          <input
+            className="scrubber"
+            type="range"
+            min={0}
+            max={state.duration || 0}
+            step={0.01}
+            value={state.time}
+            disabled={state.exporting}
+            onChange={(event) => controller.seek(Number(event.target.value))}
+          />
+        </div>
         <span className="time">
           {state.time.toFixed(1)}s / {state.duration.toFixed(1)}s
         </span>

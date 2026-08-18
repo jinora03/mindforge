@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why can a paper airplane stay up after you throw it?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "speed",
+      "content": "The throw gives it forward speed through the air.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "lift",
+      "content": "Its wings redirect airflow and generate lift as it moves.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "balance",
+      "content": "Gravity pulls down while drag steals speed \u2014 so the glide slowly sinks.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "A paper plane stays up by gliding, not by hovering.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 012 / The Glide",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

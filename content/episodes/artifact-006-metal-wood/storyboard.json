@@ -1,0 +1,127 @@
+{
+  "episode": "artifact-006-metal-wood",
+  "title": "Why does metal feel colder than wood?",
+  "aspect": "9:16",
+  "durationSeconds": 26,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4
+      ],
+      "beat": "The contradiction",
+      "intent": "Frame the Observer beside both samples only long enough to establish the sensory puzzle; the character is present because they will test the materials.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "samples"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-same-temperature",
+      "t": [
+        4,
+        8
+      ],
+      "beat": "Same temperature",
+      "intent": "Remove the Observer from frame and let the two samples own the shot while their equal condition is established.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "samples"
+      },
+      "effects": [
+        {
+          "id": "same-temp-link",
+          "purpose": "Connects the samples as one temperature condition."
+        }
+      ],
+      "text": [
+        {
+          "id": "sameTemp"
+        }
+      ]
+    },
+    {
+      "id": "s3-metal-touch",
+      "t": [
+        8,
+        14
+      ],
+      "beat": "Metal steals heat quickly",
+      "intent": "Bring the Observer back specifically to touch the metal; the fast stream and immediate flinch make the sensation causal rather than decorative.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "samples.metal"
+      },
+      "effects": [
+        {
+          "id": "metal-flow",
+          "purpose": "Fast conduction from skin into metal."
+        }
+      ],
+      "text": [
+        {
+          "id": "metal"
+        }
+      ]
+    },
+    {
+      "id": "s4-wood-touch",
+      "t": [
+        14,
+        20
+      ],
+      "beat": "Wood transfers slowly",
+      "intent": "Repeat the experiment with the opposite hand on wood, but keep the performance calm while the stream is visibly sparse and slow.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "samples.wood"
+      },
+      "effects": [
+        {
+          "id": "wood-flow",
+          "purpose": "Slower heat transfer into wood."
+        }
+      ],
+      "text": [
+        {
+          "id": "wood"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        20,
+        26
+      ],
+      "beat": "Feeling comes from heat flow",
+      "intent": "Remove the character again and resolve on the two materials themselves so the final takeaway is the comparison, not the mascot.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "samples"
+      },
+      "effects": [
+        {
+          "id": "answer-metal-path",
+          "purpose": "Re-centers the comparison as the conceptual answer."
+        },
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

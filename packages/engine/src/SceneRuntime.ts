@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { AudioEvent } from '@mindforge/schema';
 import type {
   CameraState,
   CapabilityRegistries,
@@ -6,10 +7,14 @@ import type {
   EnvironmentInstance,
   FrameContext,
   ResolvedText,
+  RuntimeAssetAccess,
+  SceneCompositionLayerInfo,
 } from './EngineTypes';
 import { SceneManager, type BuiltScene } from './SceneManager';
 import { loadEpisode } from './EpisodeLoader';
 import { captureSnapshot, type SceneSnapshot } from './snapshot';
+import { unavailableRuntimeAssets } from './RuntimeAssets';
+import type { EffectInfluenceSnapshot } from './EffectInfluence';
 
 const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);
 
@@ -45,6 +50,7 @@ export class SceneRuntime {
   private environment?: EnvironmentInstance;
   private episodeId?: string;
   private durationSeconds = 0;
+  private audioEvents: readonly AudioEvent[] = [];
 
   constructor() {
     this.camera.position.set(0, 1.4, 7);
@@ -61,13 +67,18 @@ export class SceneRuntime {
   }
 
   /** Validate + build an episode, replacing any current one, and settle at t=0. */
-  load(raw: unknown, registries: CapabilityRegistries): string {
+  load(
+    raw: unknown,
+    registries: CapabilityRegistries,
+    assets: RuntimeAssetAccess = unavailableRuntimeAssets,
+  ): string {
     const loaded = loadEpisode(raw, registries);
     this.dispose();
-    this.built = this.sceneManager.build(loaded, registries, this.scene, this.camera);
+    this.built = this.sceneManager.build(loaded, registries, this.scene, this.camera, assets);
     this.environment = this.built.environment;
     this.episodeId = loaded.script.id;
     this.durationSeconds = loaded.script.duration;
+    this.audioEvents = loaded.script.timeline.filter((event): event is AudioEvent => event.type === 'audio');
     this.evaluateAt(0);
     return this.episodeId;
   }
@@ -82,13 +93,24 @@ export class SceneRuntime {
   getEntities(): Entity[] {
     return this.built ? this.built.entities.all() : [];
   }
+  getCompositionLayers(): readonly SceneCompositionLayerInfo[] {
+    return this.built ? this.built.compositionLayers.info() : [];
+  }
   getActiveTexts(): readonly ResolvedText[] {
     return this.built ? this.built.timeline.getActiveTexts() : [];
+  }
+  getAudioEvents(): readonly AudioEvent[] {
+    return this.audioEvents;
+  }
+  /** Current normalized PF4 production-response state for Studio/debug tooling. */
+  getEffectInfluences(): EffectInfluenceSnapshot | undefined {
+    return this.built?.effectInfluences.snapshot();
   }
 
   /**
    * Resolve deterministic scene state at an absolute time. Pure with respect to
-   * `time`: calling it twice with the same `time`, or reaching `time` by any
+   * `time`: authored clips and every other scene-state system derive from this
+ * timestamp. Calling it twice with the same `time`, or reaching `time` by any
    * path (fresh, stepping, or after a later time), yields the same scene state.
    * No side effects.
    */
@@ -98,7 +120,15 @@ export class SceneRuntime {
     this.built.entities.beginFrame(frame);
     this.built.timeline.evaluatePose(frame);
     this.scene.updateMatrixWorld(true);
+    // PF4 influence recipes are evaluated first so environment/layers react on
+    // the exact same absolute frame during playback, seeking, and export.
+    this.built.timeline.evaluateEffectInfluences(
+      frame,
+      this.layers.effects,
+      this.built.effectInfluences,
+    );
     this.environment.update(frame);
+    this.built.compositionLayers.update(frame);
     this.built.timeline.evaluateEffects(frame, this.layers);
     this.built.entities.endFrame(frame);
     this.built.timeline.evaluateCameraState(
@@ -135,6 +165,7 @@ export class SceneRuntime {
   dispose(): void {
     if (this.built) {
       this.built.timeline.dispose();
+      this.built.compositionLayers.dispose();
       this.built.entities.dispose();
       this.built.environment.object3d.removeFromParent();
       this.built.environment.dispose();
@@ -146,6 +177,7 @@ export class SceneRuntime {
     }
     this.episodeId = undefined;
     this.durationSeconds = 0;
+    this.audioEvents = [];
   }
 
   private frameAt(time: number): FrameContext {

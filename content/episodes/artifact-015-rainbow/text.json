@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "How does rain make a rainbow?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "input",
+      "content": "Sunlight bends as it enters a raindrop.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "split",
+      "content": "Inside, it reflects — then bends again as it leaves.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "bend",
+      "content": "Each color exits at a slightly different angle.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "many",
+      "content": "Millions of droplets do this at once.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Together, those colors reach your eyes as a rainbow.",
+      "style": "explanation",
+      "placement": "center"
+    }
+  ]
+}

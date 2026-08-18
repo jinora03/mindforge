@@ -1,9 +1,9 @@
 import { Registry, type AssetDescriptor } from '@mindforge/engine';
 
 /**
- * Registry of asset descriptors. v0.1 content is procedural, so descriptors
- * usually carry no `url`; the registry exists so episodes reference stable
- * asset ids and the future Renderer can resolve real files.
+ * Registry of stable asset descriptors. Procedural entries omit `url`; authored
+ * production entries may point at GLB/GLTF files that BrowserAssetRuntime
+ * preloads before synchronous scene construction.
  */
 export class AssetRegistry extends Registry<AssetDescriptor> {
   constructor() {

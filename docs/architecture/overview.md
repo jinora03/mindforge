@@ -26,7 +26,7 @@ by re-implementing renderers, cameras, characters, or timelines.
                     ┌───────────┴───────────┐
                     ▼                       ▼
               shared behavior          visual theme
-              motions/cameras         packages/themes
+              motions/cameras/audio         packages/themes
                                             │
                               ┌─────────────┼─────────────┐
                               ▼             ▼             ▼
@@ -47,24 +47,26 @@ Owns everything generic and content-agnostic:
   episode loading + validation gate (`EpisodeLoader`), resource disposal.
 - The **plugin contract** every library package implements (`EngineTypes.ts`): `FrameContext`,
   `ActionContext`, `Entity`, `PoseableRig`, and the factory/instance interfaces for motions,
-  effects, cameras, environments, and characters.
+  effects, cameras, environments, characters, and the injected audio runtime contract.
 
 The Engine knows nothing about Heat, Prediction, artifacts, domains, or the Bibles.
 
 ## MindForge Library (`packages/library` + component packages)
 
-- `library` holds the registries (`AssetRegistry`, `CharacterRegistry`, `MotionRegistry`,
+- `library` holds the registries (`AssetRegistry`, `CharacterRegistry`, `PrefabRegistry`, `MotionRegistry`,
   `EffectRegistry`, `CameraRegistry`, `EnvironmentRegistry`) and builds a library for a theme.
-- Shared `motions` and `cameras` keep choreography stable across visual skins.
-- `themes` selects character, effect, environment, asset, typography, safe-zone, and
+- Shared `motions`, `cameras`, and semantic `audio` cues keep choreography and sound timing stable across visual skins.
+- `themes` selects character, prefab, effect, environment, asset, typography, safe-zone, and
   post-processing implementations for the same semantic ids.
-- `style` currently encodes the MindForge Original Design Bible tokens and factories.
+- `style` is now a **legacy prototype implementation dependency only**. Production Voxel
+  presentation lives inside `packages/themes/src/voxel/`; new production visuals must not depend
+  on the retired violet/pink tokens.
 
 ## MindForge Content (`content/`)
 
 Episodes (`episodes/*/episode.json` + `text.json`) and reusable scene presets
 (`scenes/*.json`). Content describes environment, entities, motions, effects, camera events,
-text, visibility, property changes, and timeline choreography. It creates no renderer, clock,
+text, audio cues, visibility, property changes, and timeline choreography. It creates no renderer, clock,
 or infrastructure.
 
 ## MindForge Studio & Player (`apps/`)
@@ -82,6 +84,6 @@ playback is reproducible under pause, restart, scrubbing, reverse-seek, and slow
 ## Visual-theme boundary
 
 `createLibraryForTheme(themeId)` selects a visual skin before runtime construction. Episodes
-continue to say `character.observer` or `environment.dreamGarden`; they never say how those
-objects are drawn. The Engine therefore stays unchanged as Voxel, Toybox, or future themes
+continue to say `character.observer`, `prefab.heatEngine`, or
+`environment.dreamGarden`; they never say how those objects are drawn. The Engine therefore stays unchanged as Voxel, Toybox, or future themes
 are added. See [`themes.md`](themes.md).

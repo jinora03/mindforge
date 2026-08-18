@@ -31,8 +31,11 @@ export interface SceneSnapshot {
   anchors: Record<string, number[]>;
   /** characterId → applied face state. */
   face: Record<string, FaceState>;
-  /** primitive entity id → first-material values controlled by the timeline. */
-  materials: Record<string, MaterialSnapshot>;
+  /**
+   * Material-bearing deterministic targets.
+   * Keys are primitive entity ids or semantic prefab anchors such as
+   * `machine.core`.
+   */ materials: Record<string, MaterialSnapshot>;
   /** light entity id → intensity. */
   lights: Record<string, number>;
   camera: { position: number[]; quaternion: number[]; fov: number };
@@ -83,8 +86,20 @@ export function captureSnapshot(input: SnapshotInput): SceneSnapshot {
     for (const name of entity.anchorNames()) {
       const anchor = entity.getAnchor(name);
       if (anchor) {
+        const ref = `${entity.id}.${name}`;
+
         anchor.getWorldPosition(_p);
-        anchors[`${entity.id}.${name}`] = [_p.x, _p.y, _p.z];
+        anchors[ref] = [_p.x, _p.y, _p.z];
+
+        // Prefab anchors can be direct timeline property targets such as
+        // `machine.core`, so include their material state in deterministic
+        // snapshots as well.
+        if (entity.kind === 'prefab') {
+          const material = firstMaterial(anchor);
+          if (material) {
+            materials[ref] = readMaterial(material);
+          }
+        }
       }
     }
 

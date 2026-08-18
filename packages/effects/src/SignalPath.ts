@@ -13,7 +13,7 @@ export const createSignalPath: EffectFactory = ({ event, services }): EffectInst
   const to = services.resolveAnchor(event.to ?? throwMissing('to'));
   const thickness = readNumber(event, 'thickness', 0.02);
   const material = createSignalLight({});
-  material.color = effectColor(event, 'forgeViolet');
+  material.color = effectColor(event, 'information');
 
   const mesh = new THREE.Mesh(new THREE.CylinderGeometry(thickness, thickness, 1, 8), material);
   mesh.visible = false;

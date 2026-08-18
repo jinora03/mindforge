@@ -1,0 +1,142 @@
+{
+  "episode": "artifact-015-rainbow",
+  "title": "Why does a rainbow appear?",
+  "aspect": "9:16",
+  "durationSeconds": 18.2,
+  "shots": [
+    {
+      "id": "s1-hook",
+      "t": [
+        0,
+        1.8
+      ],
+      "beat": "Rain plus question",
+      "intent": "Open already inside the rainy world, pose the question immediately, then move before the frame can settle.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "prism.center"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-input",
+      "t": [
+        1.8,
+        3.5
+      ],
+      "beat": "Sunlight enters and refracts",
+      "intent": "Push into the hero droplet while the white path enters, bends, reflects and exits in one continuous optical action.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "prism.center"
+      },
+      "effects": [
+        "prism.entryBeam",
+        "prism.refractBeam",
+        "prism.reflectionBeam",
+        "prism.exitBeam"
+      ],
+      "text": [
+        {
+          "id": "input"
+        }
+      ]
+    },
+    {
+      "id": "s3-split",
+      "t": [
+        3.5,
+        6.3
+      ],
+      "beat": "Internal reflection to spectrum",
+      "intent": "Transition directly into the six-color fan; keep the subtle droplet turn and camera reveal moving together.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "prism"
+      },
+      "effects": [
+        "effect.insight.flash",
+        "prism.red",
+        "prism.orange",
+        "prism.yellow",
+        "prism.green",
+        "prism.blue",
+        "prism.violet"
+      ],
+      "text": [
+        {
+          "id": "split"
+        }
+      ]
+    },
+    {
+      "id": "s4-bend",
+      "t": [
+        6.3,
+        9.2
+      ],
+      "beat": "Different wavelengths leave at different angles",
+      "intent": "Tighten on the complete optical path just long enough to establish that wavelength changes the exit angle.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "prism.center"
+      },
+      "effects": [
+        "effect.contour.pressure"
+      ],
+      "text": [
+        {
+          "id": "bend"
+        }
+      ]
+    },
+    {
+      "id": "s5-many",
+      "t": [
+        9.2,
+        12.45
+      ],
+      "beat": "Rain supplies many optical paths",
+      "intent": "Pull out as a field of droplets appears and visibly falls, turning one optical path into a weather-scale explanation.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "droplets"
+      },
+      "effects": [
+        "droplets"
+      ],
+      "text": [
+        {
+          "id": "many"
+        }
+      ]
+    },
+    {
+      "id": "s6-answer",
+      "t": [
+        12.45,
+        18.2
+      ],
+      "beat": "Rainbow payoff",
+      "intent": "Blend into the landscape rainbow, resolve the answer quickly, then leave roughly the final second clean for the visual payoff.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "rainbow"
+      },
+      "effects": [
+        "rainbow",
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

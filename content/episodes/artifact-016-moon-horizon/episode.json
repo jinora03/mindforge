@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-016-moon-horizon",
+  "title": "Why does the Moon look bigger near the horizon?",
+  "artifactName": "The Horizon",
+  "artifactNumber": 16,
+  "artifactType": "mirror",
+  "domain": "dream-garden",
+  "duration": 17,
+  "environment": "environment.nightOverlook",
+  "metadata": {
+    "logline": "Two equal-size Moon discs appear in different sky contexts, then framing guides reveal that their apparent size is the same.",
+    "beats": "horizon moon -> high moon -> direct comparison -> context cues -> answer",
+    "productionStatus": "content-sprint-wave3",
+    "narrationStatus": "caption-led-until-production-voice",
+    "pacingPolicy": "max-20s-no-dead-air",
+    "sharedAssets": [
+      "environment.nightOverlook",
+      "prefab.moonPair",
+      "audio.ambience.night",
+      "audio.sfx.compareTick"
+    ]
+  },
+  "entities": [
+    {
+      "id": "moons",
+      "type": "prefab",
+      "factory": "prefab.moonPair",
+      "position": [
+        0,
+        0,
+        -10
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 17,
+      "cue": "audio.ambience.night",
+      "loop": true,
+      "volume": 0.35
+    },
+    {
+      "id": "cam-horizon",
+      "type": "camera",
+      "at": 0,
+      "duration": 2.7,
+      "preset": "camera.pushIn",
+      "target": "moons.horizonMoon",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.2,
+      "duration": 2.4,
+      "textId": "hook"
+    },
+    {
+      "id": "tick-high",
+      "type": "audio",
+      "at": 2.65,
+      "cue": "audio.sfx.compareTick",
+      "volume": 0.54
+    },
+    {
+      "id": "cam-high",
+      "type": "camera",
+      "at": 2.6,
+      "duration": 2.7,
+      "preset": "camera.reveal",
+      "target": "moons.highMoon",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 5.6,
+        "height": 4.8,
+        "startAngle": 0.06,
+        "endAngle": -0.06
+      }
+    },
+    {
+      "id": "same-text",
+      "type": "text",
+      "at": 2.8,
+      "duration": 2.4,
+      "textId": "same"
+    },
+    {
+      "id": "frame-horizon",
+      "type": "property",
+      "at": 5.1,
+      "duration": 0.65,
+      "target": "moons.horizonFrame",
+      "property": "scale",
+      "from": [
+        0.001,
+        0.001,
+        0.001
+      ],
+      "to": [
+        1,
+        1,
+        1
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "frame-high",
+      "type": "property",
+      "at": 5.35,
+      "duration": 0.65,
+      "target": "moons.highFrame",
+      "property": "scale",
+      "from": [
+        0.001,
+        0.001,
+        0.001
+      ],
+      "to": [
+        1,
+        1,
+        1
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "tick-compare",
+      "type": "audio",
+      "at": 5.4,
+      "cue": "audio.sfx.compareTick",
+      "volume": 0.6
+    },
+    {
+      "id": "cam-compare",
+      "type": "camera",
+      "at": 5.1,
+      "duration": 3.6,
+      "preset": "camera.pullBack",
+      "target": "moons",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "horizon-contour",
+      "type": "effect",
+      "at": 5.4,
+      "duration": 2.7,
+      "effect": "effect.contour.pressure",
+      "target": "moons.horizonMoon",
+      "tone": "information",
+      "intensity": 0.54,
+      "parameters": {
+        "radius": 1.15,
+        "segments": 18
+      }
+    },
+    {
+      "id": "high-contour",
+      "type": "effect",
+      "at": 5.4,
+      "duration": 2.7,
+      "effect": "effect.contour.pressure",
+      "target": "moons.highMoon",
+      "tone": "information",
+      "intensity": 0.54,
+      "parameters": {
+        "radius": 1.15,
+        "segments": 18
+      }
+    },
+    {
+      "id": "measure-text",
+      "type": "text",
+      "at": 5.5,
+      "duration": 3.0,
+      "textId": "measure"
+    },
+    {
+      "id": "cam-context",
+      "type": "camera",
+      "at": 8.6,
+      "duration": 4.0,
+      "preset": "camera.establish",
+      "target": "moons.horizonMoon",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "context-stream",
+      "type": "effect",
+      "at": 8.8,
+      "duration": 3.4,
+      "effect": "effect.informationStream",
+      "through": [
+        "moons.horizonFrame",
+        "moons.horizonMoon"
+      ],
+      "tone": "information",
+      "intensity": 0.55,
+      "parameters": {
+        "density": 18,
+        "speed": 0.5,
+        "size": 0.045,
+        "bow": 0.02
+      }
+    },
+    {
+      "id": "context-text",
+      "type": "text",
+      "at": 8.8,
+      "duration": 3.5,
+      "textId": "context"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 12.5,
+      "duration": 0.85,
+      "effect": "effect.insight.flash",
+      "target": "moons",
+      "tone": "insight",
+      "intensity": 0.72
+    },
+    {
+      "id": "answer-sfx",
+      "type": "audio",
+      "at": 12.55,
+      "cue": "audio.sfx.insight",
+      "volume": 0.58
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 12.4,
+      "duration": 4.6,
+      "preset": "camera.pullBack",
+      "target": "moons",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer",
+      "type": "text",
+      "at": 12.6,
+      "duration": 4.2,
+      "textId": "answer"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { PALETTE } from '@mindforge/style';
 import type { ActionContext, EffectFactory, EffectInstance } from '@mindforge/engine';
-import { readNumber } from './EffectTypes';
+import { effectColor, readNumber } from './EffectTypes';
+import { composeEffectLayers, createEffectInfluenceLayer, type EffectLayer } from './LayeredEffect';
 
 /**
  * A controlled white flash marking a key answer. Opacity is capped and brief so
@@ -11,7 +11,7 @@ import { readNumber } from './EffectTypes';
 export const createInsightFlash: EffectFactory = ({ event }): EffectInstance => {
   const maxOpacity = Math.min(0.55, readNumber(event, 'maxOpacity', 0.45)) * (event.intensity ?? 1);
   const material = new THREE.MeshBasicMaterial({
-    color: new THREE.Color(event.color ?? PALETTE.insightWhite),
+    color: effectColor(event, 'insight'),
     side: THREE.BackSide,
     transparent: true,
     opacity: 0,
@@ -23,14 +23,13 @@ export const createInsightFlash: EffectFactory = ({ event }): EffectInstance => 
   const shell = new THREE.Mesh(new THREE.SphereGeometry(40, 16, 12), material);
   shell.visible = false;
 
-  return {
+  const envelope = (ctx: ActionContext): number => Math.sin(Math.PI * ctx.progress) ** 1.5;
+  const visualLayer: EffectLayer = {
     object3d: shell,
-    update(ctx: ActionContext): void {
+    update(ctx): void {
       shell.visible = ctx.active;
       if (!ctx.active) return;
-      // Quick rise, gentle fall.
-      const envelope = Math.sin(Math.PI * ctx.progress) ** 1.5;
-      material.opacity = maxOpacity * envelope;
+      material.opacity = maxOpacity * envelope(ctx);
     },
     reset(): void {
       shell.visible = false;
@@ -39,7 +38,18 @@ export const createInsightFlash: EffectFactory = ({ event }): EffectInstance => 
     dispose(): void {
       shell.geometry.dispose();
       material.dispose();
-      shell.removeFromParent();
     },
   };
+
+  const influenceScale = Math.max(0, event.intensity ?? 1);
+  const responseLayer = createEffectInfluenceLayer(
+    [
+      { channel: 'screenExposure', strength: 0.22 * influenceScale },
+      { channel: 'environmentLight', strength: 0.14 * influenceScale },
+      { channel: 'emissiveBoost', strength: 0.08 * influenceScale },
+    ],
+    envelope,
+  );
+
+  return composeEffectLayers([visualLayer, responseLayer]);
 };

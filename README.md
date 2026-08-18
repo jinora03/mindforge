@@ -6,7 +6,7 @@ a small runtime engine, a library of reusable systems, and validated JSON conten
 episodes are mostly *composed* rather than re-coded.
 
 > This is the **v0.1 scaffold**: a small but fully working vertical slice that proves the
-> architecture. All visuals are procedural (no downloaded models yet).
+> architecture. Current bundled theme visuals are still procedural fallbacks, but authored GLB/GLTF loading, validation, semantic anchors/clips, and asset-pack metadata are production-ready.
 
 ## Platform hierarchy
 
@@ -15,12 +15,12 @@ episodes are mostly *composed* rather than re-coded.
 | **MindForge Studio** | `apps/studio/` | Development interface: preview, inspect, debug episodes |
 | **MindForge Player** | `apps/player/` | Clean playback application |
 | **MindForge Engine** | `packages/engine/` | Runtime: renderer, clock, timeline, entities, playback |
-| **MindForge Library** | `packages/{library,characters,motions,effects,cameras,environments}/` | Reusable, registered systems |
+| **MindForge Library** | `packages/{library,characters,motions,effects,cameras,environments,audio}/` | Reusable, registered systems |
 | **MindForge Themes** | `packages/{themes,style}/` | Swappable visual skins + presentation values |
 | **MindForge Content** | `content/` | Episodes and reusable scenes (MindForge Script JSON) |
 | **MindForge Assets** | `public/assets/` | Models, animations, audio, textures, fonts (future) |
 | **MindForge Docs** | `docs/` | Bibles, architecture, library catalog |
-| _MindForge Renderer_ | _(deferred to v0.2)_ | Offline video export |
+| **MindForge Renderer** | `packages/video-export/` | Deterministic creator video export |
 
 ## The Bibles
 
@@ -55,13 +55,16 @@ pnpm dev
 | `pnpm lint` | ESLint |
 | `pnpm test` | Vitest |
 | `pnpm validate:episodes` | Validate all content against schema + registry |
+| `pnpm validate:assets` | Validate model descriptors, packs and authored GLB/GLTF files |
+| `pnpm inspect:model <file>` | Inspect GLB/GLTF nodes, clips and budgets before registration |
 | `pnpm generate:catalog` | Regenerate `docs/library-catalog/` from the code |
 
 ## Studio
 
 An episode selector, transport controls (play / pause / restart), a timeline scrubber with
-time/duration readout, a playback-speed selector, layer toggles (text, camera, effects,
-debug anchors), a clean-preview button, an error panel, and a registry inspector.
+time/duration readout, a playback-speed selector, audio mixer controls, layer toggles (text, camera, effects,
+debug anchors), a clean-preview button, an error panel, a registry inspector, and a Creator Export drawer
+with layout, resolution, FPS, range, theme, caption, audio-bus, quality, format, and download controls.
 
 ## Player
 
@@ -71,7 +74,7 @@ A clean 9:16 stage on a black background. Select an episode with a query paramet
 /player/?episode=artifact-001-heat
 ```
 
-Click to restart; press space to pause/resume.
+Click to restart; press space to pause/resume. Press `M` or use the on-stage sound button to mute/unmute. Press `T` (or use the on-stage theme button) to switch between Voxel and Toybox without losing the current playback position. The Player also accepts `?theme=voxel` or `?theme=toybox`.
 
 ## Episodes
 
@@ -86,28 +89,55 @@ See [`docs/architecture/episode-format.md`](docs/architecture/episode-format.md)
 ## Visual themes
 
 Episodes use stable semantic ids and do not encode a renderer skin. `packages/themes/` selects
-visual implementations for those ids while the Engine stays theme-blind. v0.1 registers only
-`original`; Voxel and Toybox are planned as separate skins. See
+visual implementations for those ids while the Engine stays theme-blind. **Voxel** is the
+production/default block-world theme and **Toybox** is the fully-supported modular-toy
+alternative. Studio can switch themes from its toolbar; Player can switch in place with the
+on-stage control or `T`. Theme changes rebuild the same episode while preserving timestamp,
+play/pause state, speed, typography/safe zones, and renderer post-processing. See
 [`docs/architecture/themes.md`](docs/architecture/themes.md).
 
 ## Library IDs
 
 Episodes reference capabilities by stable id (never by import). The authoritative list is
 generated into [`docs/library-catalog/`](docs/library-catalog/). Examples:
-`character.observer`, `motion.humanoid.walk`, `effect.contour.pressure`,
-`camera.reactionCloseup`, `environment.dreamGarden`.
+`character.observer`, `prefab.externalHand`, `prefab.heatEngine`,
+`motion.humanoid.walk`, `effect.contour.pressure`, `camera.reactionCloseup`,
+`environment.dreamGarden`, `audio.sfx.reaction`.
+
+## Audio
+
+MindForge audio uses semantic timeline cues with Master / Voice / Music / SFX / Ambience buses.
+Production audio supports URL-backed narration, deterministic stereo SFX fallbacks, optional production
+asset overrides, source fades, and voice ducking shared by preview and offline export. Browser playback
+is reconstructed from Engine time after pause, seek, restart, and speed changes. See
+[`docs/architecture/audio.md`](docs/architecture/audio.md) and [`docs/production-audio.md`](docs/production-audio.md).
 
 ## Assets
 
-`public/assets/` reserves folders for future `.glb` models, baked animation clips, audio,
-textures, and fonts. v0.1 registers asset **ids** (see the catalog) but content is
-procedural; the motion and asset systems are designed so an episode does not care whether a
-motion is procedural TypeScript or a future baked clip.
+`public/assets/` is the local production-asset root. Theme descriptors may replace procedural fallbacks with inspected `.glb`/`.gltf` models while episodes continue to target stable semantic prefab/environment/layer ids. PF2 adds model coordinate/material/budget/provenance rules, semantic anchor and animation-clip mappings, asset packs, `pnpm inspect:model`, and `pnpm validate:assets`. See [`docs/production-assets.md`](docs/production-assets.md) and [`docs/model-authoring-standard.md`](docs/model-authoring-standard.md).
+
+## Animation
+
+PF3 evaluates authored GLB/GLTF clips from authoritative Engine time. Episode JSON targets semantic clip ids rather than DCC names, and seek/restart/fixed-frame export all use the same absolute-time sampler. One-shot/loop timing, speed, offsets, and deterministic blend windows are documented in [`docs/animation-runtime.md`](docs/animation-runtime.md).
+
+## Production workflow
+
+Production episodes use a four-file package: `creative-brief.md`, `storyboard.json`, `episode.json`, and `text.json`. Studio discovers complete episode folders automatically and exposes storyboard shot navigation beside the deterministic preview.
+
+Create a new scaffold with:
+
+```bash
+pnpm create:episode -- --id artifact-005-topic --title "Why does this happen?"
+```
+
+Validate creative/shot structure with `pnpm validate:production`; the full `npm run check` gate includes this automatically. See [`docs/production-workflow.md`](docs/production-workflow.md) — includes the Studio Author drawer, four-file workflow, and episode duplication/scaffolding tools.
+
+The current 14-video production content sprint is defined in [`docs/production-slate-006-019.md`](docs/production-slate-006-019.md), with reusable-asset sequencing in [`docs/content-sprint-implementation-plan.md`](docs/content-sprint-implementation-plan.md).
 
 ## Current limitations (v0.1)
 
-- All geometry, characters, and effects are procedural; no `.glb`/audio loading yet.
-- No offline video export (MindForge Renderer is deferred to v0.2).
+- Bundled Voxel/Toybox model descriptors still resolve to procedural fallbacks; PF2 now provides the authored GLB/GLTF contract and validation pipeline, but the first curated production model pack is not bundled yet. Demo SFX/reference narration likewise remain replaceable production assets.
+- Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - One character (`character.observer`); the walk cycle is stationary (in-place).
 
@@ -115,3 +145,5 @@ motion is procedural TypeScript or a future baked clip.
 
 pnpm workspaces · Vite · TypeScript (strict) · Three.js + post-processing · Zod · Vitest ·
 ESLint · Prettier. React is used **only** in MindForge Studio.
+
+PF4 layered effect runtime: see `docs/effect-runtime.md`.

@@ -4,14 +4,22 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
+import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import type {
+  AudioMixerBus,
+  AudioSyncReason,
   CapabilityRegistries,
   EngineConfig,
   EngineFrameInfo,
   LayerName,
+  PostProcessingConfig,
+  RendererPresentationConfig,
+  SceneCompositionLayerInfo,
 } from './EngineTypes';
 import { PlaybackController } from './PlaybackController';
 import { SceneRuntime, type SceneLayer } from './SceneRuntime';
+import { isExternalModelAsset } from './RuntimeAssets';
+import { resolveRendererPresentation } from './RendererPresentation';
 
 /** MindForge renders natively in 9:16. */
 export const ASPECT_WIDTH = 9;
@@ -58,11 +66,12 @@ export class MindForgeEngine {
   /** The renderer-free evaluation core. Owns the scene, camera, and evaluateAt. */
   private readonly runtime = new SceneRuntime();
 
-  private readonly config: EngineConfig;
+  private config: EngineConfig;
   private readonly composer: EffectComposer;
   private readonly renderPass: RenderPass;
   private readonly bloomPass: UnrealBloomPass;
   private readonly vignettePass: ShaderPass;
+  private readonly reflectionEnvironment: THREE.WebGLRenderTarget;
 
   private playback = new PlaybackController(0);
   /** Exclusive lower bound of the next forward callback-crossing interval. */
@@ -80,30 +89,44 @@ export class MindForgeEngine {
   constructor(config: EngineConfig) {
     this.config = config;
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      preserveDrawingBuffer: config.preserveDrawingBuffer ?? false,
+      powerPreference: 'high-performance',
+    });
     this.renderer.setClearColor(0x000000, 1);
     this.renderer.setPixelRatio(this.resolvePixelRatio());
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
 
+    // Give every PBR material a restrained neutral reflection field. This is
+    // deliberately presentation-only: environments still own the visible sky,
+    // fog, sun and world lighting, while authored/procedural materials gain the
+    // specular response required to stop reading as flat primitives.
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    const room = new RoomEnvironment();
+    this.reflectionEnvironment = pmrem.fromScene(room, 0.04);
+    pmrem.dispose();
+    disposeTemporaryEnvironment(room);
+    this.applyRendererPresentation(config.rendererPresentation);
+
     this.renderPass = new RenderPass(this.runtime.scene, this.runtime.camera);
-    const post = { ...DEFAULT_POST, ...(config.postProcessing ?? {}) };
     this.bloomPass = new UnrealBloomPass(
       new THREE.Vector2(720, 1280),
-      post.bloom?.strength ?? DEFAULT_POST.bloom.strength,
-      post.bloom?.radius ?? DEFAULT_POST.bloom.radius,
-      post.bloom?.threshold ?? DEFAULT_POST.bloom.threshold,
+      DEFAULT_POST.bloom.strength,
+      DEFAULT_POST.bloom.radius,
+      DEFAULT_POST.bloom.threshold,
     );
     this.vignettePass = new ShaderPass(VignetteShader);
-    this.vignettePass.uniforms.offset.value = post.vignette?.offset ?? DEFAULT_POST.vignette.offset;
-    this.vignettePass.uniforms.darkness.value =
-      post.vignette?.darkness ?? DEFAULT_POST.vignette.darkness;
-    this.vignettePass.enabled = post.vignette !== null;
 
+    // Keep presentation passes in a stable composer chain. Theme/app code may
+    // reconfigure their values at runtime without rebuilding the renderer.
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(this.renderPass);
-    if (post.enabled !== false) this.composer.addPass(this.bloomPass);
+    this.composer.addPass(this.bloomPass);
     this.composer.addPass(this.vignettePass);
     this.composer.addPass(new OutputPass());
+    this.applyPostProcessing(config.postProcessing);
   }
 
   /** The scene owned by the runtime (public API preserved). */
@@ -116,6 +139,33 @@ export class MindForgeEngine {
   }
   get registries(): CapabilityRegistries {
     return this.config.registries;
+  }
+
+  /**
+   * Swap the active capability registries — i.e. change theme.
+   *
+   * The Engine stays theme-blind: it never learns what a theme *is*, only that
+   * a different set of factories now backs the same semantic ids. The caller is
+   * responsible for reloading the episode afterwards, because scene state must
+   * be rebuilt from the new factories.
+   */
+  setRegistries(registries: CapabilityRegistries): void {
+    this.config = { ...this.config, registries };
+  }
+
+  /**
+   * Atomically replace the mutable visual runtime configuration. This remains
+   * theme-blind: callers provide capability factories and plain renderer
+   * presentation numbers, then reload the current episode from those factories.
+   */
+  reconfigure(
+    registries: CapabilityRegistries,
+    postProcessing?: PostProcessingConfig,
+    rendererPresentation?: RendererPresentationConfig,
+  ): void {
+    this.config = { ...this.config, registries, postProcessing, rendererPresentation };
+    this.applyRendererPresentation(rendererPresentation);
+    this.applyPostProcessing(postProcessing);
   }
   get currentEpisodeId(): string | undefined {
     return this.runtime.currentEpisodeId;
@@ -151,8 +201,14 @@ export class MindForgeEngine {
   /** Validate + build an episode from raw JSON, replacing any current one. */
   loadEpisode(raw: unknown): void {
     try {
-      const episodeId = this.runtime.load(raw, this.config.registries);
+      const episodeId = this.runtime.load(raw, this.config.registries, this.config.assetRuntime);
       this.playback = new PlaybackController(this.runtime.duration);
+      this.config.audioRuntime?.load(
+        this.runtime.getAudioEvents(),
+        this.config.registries.audio,
+        this.runtime.duration,
+      );
+      this.syncAudio('load');
       this.endedFired = false;
       this.callbackBoundary = -Infinity;
       this.buildDebugAnchors();
@@ -165,28 +221,72 @@ export class MindForgeEngine {
     }
   }
 
+  /**
+   * Preload every authored model descriptor in the active registry. This is an
+   * explicit async boundary so deterministic scene construction itself remains
+   * synchronous and seek-safe. Procedural-only themes resolve immediately.
+   */
+  async prepareAssets(): Promise<void> {
+    const descriptors = this.config.registries.assets
+      .list()
+      .map((id) => this.config.registries.assets.get(id));
+    const externalModels = descriptors.filter(isExternalModelAsset);
+    if (externalModels.length === 0) return;
+    if (!this.config.assetRuntime) {
+      throw new Error(
+        `This MindForge configuration references ${externalModels.length} external model asset(s) but has no assetRuntime.`,
+      );
+    }
+    await this.config.assetRuntime.preload(externalModels);
+  }
+
   play(): void {
     this.playback.play();
+    this.config.audioRuntime?.unlock();
+    this.syncAudio('play');
     this.endedFired = false;
   }
   pause(): void {
     this.playback.pause();
+    this.syncAudio('pause');
   }
   resume(): void {
     this.play();
   }
   restart(): void {
     this.playback.restart();
+    this.syncAudio('restart');
     this.endedFired = false;
     this.evaluateAndRender(0);
   }
   seek(time: number): void {
     this.playback.seek(time);
+    this.syncAudio('seek');
     this.endedFired = false;
     this.evaluateAndRender(this.playback.time);
   }
   setSpeed(speed: number): void {
     this.playback.setSpeed(speed);
+    this.syncAudio('speed');
+  }
+
+  /** Resume/unlock browser audio from an explicit user gesture. */
+  unlockAudio(): void {
+    this.config.audioRuntime?.unlock();
+    this.syncAudio('play');
+  }
+
+  setAudioMuted(muted: boolean): void {
+    this.config.audioRuntime?.setMuted(muted);
+  }
+  isAudioMuted(): boolean {
+    return this.config.audioRuntime?.isMuted() ?? false;
+  }
+  setAudioBusVolume(bus: AudioMixerBus, volume: number): void {
+    this.config.audioRuntime?.setBusVolume(bus, volume);
+  }
+  getAudioBusVolume(bus: AudioMixerBus): number {
+    return this.config.audioRuntime?.getBusVolume(bus) ?? 1;
   }
 
   setLayerEnabled(layer: LayerName, enabled: boolean): void {
@@ -204,6 +304,11 @@ export class MindForgeEngine {
     return layer === 'anchors' ? this.anchorsEnabled : this.runtime.isLayerEnabled(layer as SceneLayer);
   }
 
+  /** Ordered semantic scene-composition layers for Studio/debug inspection. */
+  getCompositionLayers(): readonly SceneCompositionLayerInfo[] {
+    return this.runtime.getCompositionLayers();
+  }
+
   getFrameInfo(): EngineFrameInfo {
     return {
       time: this.playback.time,
@@ -213,6 +318,23 @@ export class MindForgeEngine {
       speed: this.playback.speed,
       activeTexts: [...this.runtime.getActiveTexts()],
     };
+  }
+
+  /**
+   * Set an exact render target size without requiring a mounted DOM container.
+   * Offline video export uses pixelRatio=1 so 1080×1920 means exactly that many
+   * encoded pixels. Normal mounted playback continues to use resize().
+   */
+  setRenderSize(width: number, height: number, pixelRatio = 1): void {
+    const w = Math.max(1, Math.floor(width));
+    const h = Math.max(1, Math.floor(height));
+    this.renderer.setPixelRatio(Math.max(0.1, pixelRatio));
+    this.renderer.setSize(w, h, false);
+    this.composer.setSize(w, h);
+    this.bloomPass.setSize(w, h);
+    this.camera.aspect = w / h;
+    this.camera.updateProjectionMatrix();
+    this.renderComposer();
   }
 
   /**
@@ -239,9 +361,11 @@ export class MindForgeEngine {
     this.resizeObserver?.disconnect();
     this.resizeObserver = undefined;
     this.runtime.dispose();
+    this.config.audioRuntime?.dispose();
     this.debugAnchors = [];
     this.composer.dispose();
     this.bloomPass.dispose();
+    this.reflectionEnvironment.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }
@@ -276,6 +400,7 @@ export class MindForgeEngine {
     try {
       // Deterministic scene state via the single shared evaluation path.
       this.runtime.evaluateAt(now);
+      this.syncAudio('tick');
       // Live side effects: fire callbacks crossed while moving forward only.
       if (now > from) {
         for (const cb of this.runtime.callbacksInInterval(from, now)) {
@@ -317,6 +442,46 @@ export class MindForgeEngine {
     }
   }
 
+  private syncAudio(reason: AudioSyncReason): void {
+    this.config.audioRuntime?.sync(
+      {
+        time: this.playback.time,
+        duration: this.playback.duration,
+        playing: this.playback.playing,
+        speed: this.playback.speed,
+      },
+      reason,
+    );
+  }
+
+  private applyRendererPresentation(config?: RendererPresentationConfig): void {
+    const resolved = resolveRendererPresentation(config);
+    this.renderer.toneMapping = resolved.toneMapping;
+    this.renderer.toneMappingExposure = resolved.exposure;
+    this.renderer.shadowMap.enabled = resolved.shadowsEnabled;
+    this.renderer.shadowMap.type = resolved.shadowMapType;
+    this.runtime.scene.environment = resolved.imageBasedLightingEnabled
+      ? this.reflectionEnvironment.texture
+      : null;
+    this.runtime.scene.environmentIntensity = resolved.imageBasedLightingIntensity;
+  }
+
+  private applyPostProcessing(config?: PostProcessingConfig): void {
+    const enabled = config?.enabled !== false;
+    const bloom = config?.bloom ?? DEFAULT_POST.bloom;
+    this.bloomPass.strength = bloom.strength;
+    this.bloomPass.radius = bloom.radius;
+    this.bloomPass.threshold = bloom.threshold;
+    this.bloomPass.enabled = enabled;
+
+    const vignette = config?.vignette === undefined ? DEFAULT_POST.vignette : config.vignette;
+    this.vignettePass.enabled = enabled && vignette !== null;
+    if (vignette) {
+      this.vignettePass.uniforms.offset.value = vignette.offset;
+      this.vignettePass.uniforms.darkness.value = vignette.darkness;
+    }
+  }
+
   private buildDebugAnchors(): void {
     this.debugAnchors = [];
     const geometry = new THREE.SphereGeometry(0.045, 8, 6);
@@ -351,6 +516,20 @@ export function fit916(boundsWidth: number, boundsHeight: number): { width: numb
     width = height * targetRatio;
   }
   return { width: Math.max(1, Math.floor(width)), height: Math.max(1, Math.floor(height)) };
+}
+
+function disposeTemporaryEnvironment(root: THREE.Object3D): void {
+  const geometries = new Set<THREE.BufferGeometry>();
+  const materials = new Set<THREE.Material>();
+  root.traverse((object) => {
+    const mesh = object as THREE.Mesh;
+    if (mesh.geometry) geometries.add(mesh.geometry);
+    if (!mesh.material) return;
+    const owned = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const material of owned) materials.add(material);
+  });
+  for (const geometry of geometries) geometry.dispose();
+  for (const material of materials) material.dispose();
 }
 
 function now(): number {

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why can a sound come back to you?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "travel",
+      "content": "Sound spreads through the air and reaches the canyon wall.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "return",
+      "content": "The wall reflects part of that sound back toward you.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "delay",
+      "content": "Because the round trip takes time, the reflected sound arrives later.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "That delayed reflected sound is an echo.",
+      "style": "explanation",
+      "placement": "center"
+    }
+  ]
+}

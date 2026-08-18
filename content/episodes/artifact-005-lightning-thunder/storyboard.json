@@ -1,0 +1,62 @@
+{
+  "episode": "artifact-005-lightning-thunder",
+  "title": "Why do you see lightning before thunder?",
+  "aspect": "9:16",
+  "durationSeconds": 15,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [0, 3.2],
+      "beat": "Distant storm",
+      "intent": "Establish the Observer and a clearly distant storm source in the same frame before anything happens.",
+      "camera": { "preset": "camera.pullBack", "target": "observer" },
+      "effects": [],
+      "text": [{ "id": "hook" }]
+    },
+    {
+      "id": "s2-same-event",
+      "t": [3.2, 6.5],
+      "beat": "One event, instant flash",
+      "intent": "Fire the light and sound cues from the same source, but let only the light reach the Observer immediately.",
+      "camera": { "preset": "camera.reveal", "target": "observer" },
+      "effects": [
+        { "id": "light-path", "purpose": "Instant visual connection from storm source to Observer." },
+        { "id": "storm-burst", "purpose": "Marks the shared origin event." }
+      ],
+      "text": [{ "id": "together" }]
+    },
+    {
+      "id": "s3-sound-travel",
+      "t": [6.5, 9.5],
+      "beat": "Sound is still crossing the air",
+      "intent": "Hold enough spatial context to watch the slower pressure/sound signal travel while the light explanation lands.",
+      "camera": { "preset": "camera.pullBack", "target": "observer" },
+      "effects": [
+        { "id": "sound-wave", "purpose": "Expanding pressure wave from the storm source." },
+        { "id": "sound-stream", "purpose": "Slow moving signal connecting the storm to the Observer." }
+      ],
+      "text": [{ "id": "light" }]
+    },
+    {
+      "id": "s4-thunder-arrives",
+      "t": [9.5, 12],
+      "beat": "Delayed thunder",
+      "intent": "Make the delayed arrival physical: impact at the Observer, audible reaction cue, and a readable recoil.",
+      "camera": { "preset": "camera.reactionCloseup", "target": "observer" },
+      "effects": [{ "id": "thunder-impact", "purpose": "Delayed arrival at the Observer." }],
+      "text": [{ "id": "sound" }]
+    },
+    {
+      "id": "s5-answer",
+      "t": [12, 15],
+      "beat": "Same cause, different speeds",
+      "intent": "Resolve on both signal types in one composition so the viewer leaves with a visual comparison, not just a number.",
+      "camera": { "preset": "camera.pullBack", "target": "observer" },
+      "effects": [
+        { "id": "compare-light", "purpose": "Clean fast-signal reference." },
+        { "id": "compare-sound", "purpose": "Slower signal reference." }
+      ],
+      "text": [{ "id": "answer" }]
+    }
+  ]
+}

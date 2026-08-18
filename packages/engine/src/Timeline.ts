@@ -11,6 +11,8 @@ import type {
   ResolvedText,
 } from './EngineTypes';
 import { applyEasing } from './easing';
+import type { AnimationTrack } from './AnimationRuntime';
+import type { EffectInfluenceBus, EffectInfluenceSink } from './EffectInfluence';
 
 /** Default window lengths (seconds) when an event omits `duration`. */
 export const DEFAULT_DURATIONS = {
@@ -77,6 +79,12 @@ export class EffectAction {
     private readonly easing: Easing | undefined,
     readonly instance: EffectInstance,
   ) {}
+  contributeInfluence(frame: FrameContext, enabled: boolean, sink: EffectInfluenceSink): void {
+    if (!enabled || !this.instance.contributeInfluence) return;
+    const ctx = makeActionContext(frame, this.at, this.duration, this.easing);
+    if (!ctx.active) return;
+    this.instance.contributeInfluence(ctx, sink);
+  }
   evaluate(frame: FrameContext, enabled: boolean): void {
     if (!enabled) {
       this.instance.object3d.visible = false;
@@ -96,6 +104,8 @@ interface CameraWindow {
   readonly at: number;
   readonly duration: number;
   readonly easing: Easing | undefined;
+  /** Optional deterministic cross-shot blend at the start of this camera window. */
+  readonly blendDuration?: number;
   readonly shot: CameraShot;
 }
 
@@ -304,6 +314,7 @@ export interface TimelineLayers {
  * of `frame.time`, which is what makes seeking and restart deterministic.
  */
 export class Timeline {
+  private readonly animations: AnimationTrack[] = [];
   private readonly motions: MotionAction[] = [];
   private readonly effects: EffectAction[] = [];
   private readonly cameras: CameraWindow[] = [];
@@ -312,8 +323,21 @@ export class Timeline {
   private readonly visibility: VisibilityTrack[] = [];
   private readonly faces: FaceTrack[] = [];
   private readonly properties: PropertyTrack[] = [];
+  private readonly cameraSourceScratch: CameraState = {
+    position: new THREE.Vector3(),
+    target: new THREE.Vector3(),
+    fov: 38,
+  };
+  private readonly cameraDestinationScratch: CameraState = {
+    position: new THREE.Vector3(),
+    target: new THREE.Vector3(),
+    fov: 38,
+  };
   private activeTexts: ResolvedText[] = [];
 
+  addAnimationTrack(track: AnimationTrack): void {
+    this.animations.push(track);
+  }
   addMotion(action: MotionAction): void {
     this.motions.push(action);
   }
@@ -350,10 +374,29 @@ export class Timeline {
    * up-to-date anchor positions.
    */
   evaluatePose(frame: FrameContext): void {
+    // Authored clips establish the base animated pose first. Procedural face,
+    // motion, and property tracks may then intentionally layer/override it.
+    for (const track of this.animations) track.evaluate(frame.time);
     for (const track of this.faces) track.evaluate(frame.time);
     for (const action of this.motions) action.evaluate(frame);
     for (const track of this.properties) track.evaluate(frame.time);
     for (const track of this.visibility) track.evaluate(frame.time);
+  }
+
+  /**
+   * PF4 pre-pass: rebuild the frame-local production response bus from the
+   * exact same absolute timestamp that will drive environment/layer updates.
+   * This prevents one-frame lag and makes direct seeking reconstruct the same
+   * world reaction as normal playback.
+   */
+  evaluateEffectInfluences(
+    frame: FrameContext,
+    enabled: boolean,
+    bus: EffectInfluenceBus,
+  ): void {
+    bus.beginFrame();
+    if (!enabled) return;
+    for (const action of this.effects) action.contributeInfluence(frame, true, bus);
   }
 
   /**
@@ -384,7 +427,13 @@ export class Timeline {
     return out;
   }
 
-  /** Compute the governing camera state, writing into `out` (reused). */
+  /**
+   * Compute the governing camera state, writing into `out` (reused). Camera
+   * windows can opt into a short deterministic cross-shot blend by supplying
+   * `blendDuration`. The source pose is evaluated from the previous shot (or
+   * the environment default for the first shot) at the *same timestamp*, so
+   * seeking directly into a transition reconstructs the exact same frame.
+   */
   evaluateCameraState(
     frame: FrameContext,
     enabled: boolean,
@@ -395,17 +444,42 @@ export class Timeline {
       copyCameraState(defaultCamera, out);
       return;
     }
-    let governing: CameraWindow | undefined;
-    for (const window of this.cameras) {
-      if (window.at <= frame.time) governing = window;
+
+    let governingIndex = -1;
+    for (let i = 0; i < this.cameras.length; i++) {
+      if (this.cameras[i].at <= frame.time) governingIndex = i;
       else break;
     }
-    if (!governing) {
+    if (governingIndex < 0) {
       copyCameraState(defaultCamera, out);
       return;
     }
+
+    const governing = this.cameras[governingIndex];
+    const destination = this.cameraDestinationScratch;
     const ctx = makeActionContext(frame, governing.at, governing.duration, governing.easing);
-    governing.shot.evaluate(ctx, out);
+    governing.shot.evaluate(ctx, destination);
+
+    const blendDuration = Math.max(0, governing.blendDuration ?? 0);
+    const elapsed = frame.time - governing.at;
+    if (blendDuration <= 0 || elapsed >= blendDuration) {
+      copyCameraState(destination, out);
+      return;
+    }
+
+    const source = this.cameraSourceScratch;
+    if (governingIndex === 0) {
+      copyCameraState(defaultCamera, source);
+    } else {
+      const previous = this.cameras[governingIndex - 1];
+      const previousCtx = makeActionContext(frame, previous.at, previous.duration, previous.easing);
+      previous.shot.evaluate(previousCtx, source);
+    }
+
+    const blend = applyEasing(elapsed / blendDuration, 'easeInOutSine');
+    out.position.lerpVectors(source.position, destination.position, blend);
+    out.target.lerpVectors(source.target, destination.target, blend);
+    out.fov = source.fov + (destination.fov - source.fov) * blend;
   }
 
   getActiveTexts(): readonly ResolvedText[] {
@@ -427,6 +501,7 @@ export class Timeline {
   }
 
   reset(): void {
+    for (const track of this.animations) track.reset();
     for (const action of this.motions) action.reset();
     for (const action of this.effects) action.reset();
     for (const track of this.visibility) track.reset();
@@ -436,9 +511,11 @@ export class Timeline {
   }
 
   dispose(): void {
+    for (const track of this.animations) track.dispose();
     for (const action of this.motions) action.dispose();
     for (const action of this.effects) action.dispose();
     for (const window of this.cameras) window.shot.dispose?.();
+    this.animations.length = 0;
     this.motions.length = 0;
     this.effects.length = 0;
     this.cameras.length = 0;

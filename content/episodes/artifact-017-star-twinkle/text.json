@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why do stars twinkle while planets look steadier?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "star",
+      "content": "A star is so far away that it looks almost like a single point of light.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "planet",
+      "content": "Turbulent air bends incoming light by tiny changing amounts.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "average",
+      "content": "A planet looks like a tiny disk, so many light paths average those changes together.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Point-like stars twinkle more; planets usually stay steadier.",
+      "style": "explanation",
+      "placement": "center"
+    }
+  ]
+}

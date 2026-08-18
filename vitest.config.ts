@@ -13,6 +13,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@mindforge/schema': pkg('schema'),
+      '@mindforge/audio': pkg('audio'),
       '@mindforge/engine': pkg('engine'),
       '@mindforge/style': pkg('style'),
       '@mindforge/characters': pkg('characters'),
@@ -22,6 +23,8 @@ export default defineConfig({
       '@mindforge/environments': pkg('environments'),
       '@mindforge/library': pkg('library'),
       '@mindforge/themes': pkg('themes'),
+      '@content': fileURLToPath(new URL('./content', import.meta.url)),
+      '@mindforge/video-export': pkg('video-export'),
     },
   },
 });

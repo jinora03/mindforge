@@ -18,7 +18,7 @@ export const createInformationStream: EffectFactory = ({ event, services }): Eff
   const tile = readNumber(event, 'size', 0.06);
 
   const material = createSignalLight({});
-  material.color = effectColor(event, 'signalPink');
+  material.color = effectColor(event, 'information');
   const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(tile, tile, tile), material, density);
   mesh.visible = false;
 

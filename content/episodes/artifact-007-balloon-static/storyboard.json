@@ -1,0 +1,131 @@
+{
+  "episode": "artifact-007-balloon-static",
+  "title": "Why does a balloon stick to the wall?",
+  "aspect": "9:16",
+  "durationSeconds": 28,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        3.8
+      ],
+      "beat": "The sticky-balloon puzzle",
+      "intent": "Show the Observer holding/working beside the balloon because they are about to create the charge; keep the wall visible as the future destination.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "balloon"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-rub",
+      "t": [
+        3.8,
+        9.5
+      ],
+      "beat": "Create the charge",
+      "intent": "Make the Observer visibly rub the balloon with a dedicated two-handed friction motion while charge packets accumulate.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "charge-stream",
+          "purpose": "Visualizes charge transfer during the physical rubbing action."
+        }
+      ],
+      "text": [
+        {
+          "id": "rub"
+        }
+      ]
+    },
+    {
+      "id": "s3-charged",
+      "t": [
+        9.5,
+        14.7
+      ],
+      "beat": "The balloon now carries charge",
+      "intent": "Hide the Observer and let the balloon become the sole subject while the static state is made readable.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "static-burst",
+          "purpose": "Makes the accumulated charge state visible."
+        }
+      ],
+      "text": [
+        {
+          "id": "charge"
+        }
+      ]
+    },
+    {
+      "id": "s4-wall",
+      "t": [
+        14.7,
+        22
+      ],
+      "beat": "The wall polarizes and attraction wins",
+      "intent": "Keep balloon and wall together in frame as the balloon moves, the wall responds, and the balloon sticks; no idle character competes with the cause/effect.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "polarize-path",
+          "purpose": "Links the charged balloon to the wall response."
+        },
+        {
+          "id": "wall-burst",
+          "purpose": "Shows local charge rearrangement at the wall surface."
+        }
+      ],
+      "text": [
+        {
+          "id": "wall"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        22,
+        28
+      ],
+      "beat": "Stuck by electrostatic attraction",
+      "intent": "Stay on the attached balloon and polarized wall for the answer so the final frame preserves the phenomenon itself.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "balloon"
+      },
+      "effects": [
+        {
+          "id": "answer-path",
+          "purpose": "Keeps the attraction relationship visible during the explanation."
+        },
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the conceptual resolution."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 import type * as THREE from 'three';
 import type {
+  AudioBus,
+  AudioEvent,
   CameraEvent,
   EffectEvent,
   FaceState,
@@ -7,8 +9,10 @@ import type {
   ObjectMotionEvent,
   TextPlacement,
   TextStyle,
+  SceneLayerRole,
 } from '@mindforge/schema';
 import type { PoseableRig } from './humanoid';
+import type { EffectInfluenceReader, EffectInfluenceSink } from './EffectInfluence';
 
 /**
  * The single authoritative frame snapshot. Every runtime system derives its
@@ -54,7 +58,7 @@ export interface Disposable {
   dispose(): void;
 }
 
-export type EntityKind = 'character' | 'primitive' | 'group' | 'light';
+export type EntityKind = 'character' | 'prefab' | 'primitive' | 'group' | 'light';
 
 /**
  * A generic scene participant. The Engine never knows what an entity *means*;
@@ -67,6 +71,8 @@ export interface Entity extends Disposable {
   readonly object3d: THREE.Object3D;
   /** Present on characters: the additive posing surface motions write to. */
   readonly rig?: PoseableRig;
+  /** Semantic authored animation clips exposed by PF3-capable entities. */
+  readonly animationClips?: Readonly<Record<string, THREE.AnimationClip>>;
   /** Resolve a named world-space anchor (e.g. `head`, `handRight`). */
   getAnchor(name: string): THREE.Object3D | undefined;
   /** List anchor names this entity exposes (for debug overlays). */
@@ -89,6 +95,10 @@ export interface SceneServices {
   readonly scene: THREE.Scene;
   readonly camera: THREE.PerspectiveCamera;
   readonly duration: number;
+  /** Synchronous access to production assets that were preloaded before scene build. */
+  readonly assets: RuntimeAssetAccess;
+  /** Frame-local effect influence state computed from the authoritative timeline time. */
+  readonly effectInfluences: EffectInfluenceReader;
   /** Resolve an entity by id or throw a clear error. */
   getEntity(id: string): Entity;
   tryGetEntity(id: string): Entity | undefined;
@@ -133,6 +143,11 @@ export interface EffectInstance extends Disposable {
   readonly object3d: THREE.Object3D;
   /** Update visuals from the window context (uses ctx.progress / ctx.active). */
   update(ctx: ActionContext): void;
+  /**
+   * Optional PF4 production-response recipe. The Engine calls this in a
+   * deterministic pre-pass before environment/layer updates for the same frame.
+   */
+  contributeInfluence?(ctx: ActionContext, sink: EffectInfluenceSink): void;
   /** Return to the pre-activation (hidden / empty) state for seek safety. */
   reset(): void;
 }
@@ -177,28 +192,255 @@ export interface EnvironmentInstance extends Disposable {
 
 export type EnvironmentFactory = (ctx: EnvironmentBuildContext) => EnvironmentInstance;
 
+/* ------------------------------------------------------ scene composition -- */
+
+/**
+ * Build context for one semantic scene-composition layer. Layers are theme
+ * capabilities like environments/prefabs: content names what is needed while
+ * the active theme decides how it looks.
+ */
+export interface SceneCompositionLayerBuildContext {
+  readonly id: string;
+  readonly role: SceneLayerRole;
+  readonly parameters: Readonly<Record<string, unknown>>;
+  readonly services: SceneServices;
+  /** Deterministic per-layer seed derived from episode id + local layer id. */
+  readonly seed: number;
+}
+
+/**
+ * Runtime instance for weather, atmosphere, lighting, set dressing, surfaces,
+ * and other reusable scene systems. `update` must derive state from the supplied
+ * absolute FrameContext rather than accumulate its own clock.
+ */
+export interface SceneCompositionLayerInstance extends Disposable {
+  readonly object3d: THREE.Object3D;
+  update(ctx: FrameContext): void;
+}
+
+export type SceneCompositionLayerFactory = (
+  ctx: SceneCompositionLayerBuildContext,
+) => SceneCompositionLayerInstance;
+
+/** Read-only runtime metadata exposed for Studio/debug tooling. */
+export interface SceneCompositionLayerInfo {
+  readonly id: string;
+  readonly factory: string;
+  readonly role: SceneLayerRole;
+  readonly enabled: boolean;
+}
+
 /* ------------------------------------------------------------- characters -- */
 
 export interface CharacterBuildContext {
   readonly id: string;
   readonly parameters: Readonly<Record<string, unknown>>;
+  /** Asset-aware scene services for authored character models. */
+  readonly services: SceneServices;
 }
 
 export type CharacterFactory = (ctx: CharacterBuildContext) => Entity;
 
+/* ---------------------------------------------------------------- prefabs -- */
+
+export interface PrefabBuildContext {
+  readonly id: string;
+  readonly parameters: Readonly<Record<string, unknown>>;
+  /** Asset-aware scene services for authored prefab models. */
+  readonly services: SceneServices;
+}
+
+/**
+ * Theme-owned visual assembly for a semantic scene object. Anchors are named
+ * parts that episode choreography may target without knowing the mesh tree.
+ */
+export interface PrefabInstance {
+  readonly object3d: THREE.Object3D;
+  readonly anchors?: Readonly<Record<string, THREE.Object3D>>;
+  /** Semantic authored clips passed through by model-backed prefabs for PF3. */
+  readonly animationClips?: Readonly<Record<string, THREE.AnimationClip>>;
+  dispose?(): void;
+}
+
+export type PrefabFactory = (ctx: PrefabBuildContext) => PrefabInstance;
+
 /* ---------------------------------------------------------------- assets --- */
 
 /**
- * Describes an asset by stable id. v0.1 content is procedural, so `url` is
- * usually absent; the descriptor exists so episodes reference ids and the
- * Renderer can later load real `.glb` / audio files.
+ * Describes an asset by stable id. Procedural entries omit `url`; authored
+ * production models may point to GLB/GLTF files preloaded by a runtime asset
+ * manager without exposing file paths to episode content.
  */
+export type ModelAssetCategory =
+  | 'environment'
+  | 'terrain'
+  | 'vegetation'
+  | 'rock'
+  | 'prop'
+  | 'character'
+  | 'fx';
+
+export type ModelQualityTier = 'background' | 'standard' | 'hero';
+
+/**
+ * One-time normalization applied when an authored model is instantiated. This
+ * exists for DCC/vendor import differences only; episode staging still belongs
+ * to entities/timeline data. Rotation values are radians in XYZ order.
+ */
+export interface ModelImportTransform {
+  readonly scale?: number;
+  readonly rotation?: readonly [number, number, number];
+  readonly offset?: readonly [number, number, number];
+}
+
+/** Guardrails used by asset validation before a model enters production. */
+export interface ModelAssetBudget {
+  readonly maxTriangles: number;
+  readonly maxMaterials: number;
+  readonly maxTextures: number;
+}
+
+/**
+ * Production contract for an authored GLB/GLTF. Semantic clip ids are mapped to
+ * authored animation names exactly like semantic anchors are mapped to nodes.
+ */
+export interface ModelAssetProfile {
+  readonly category: ModelAssetCategory;
+  readonly quality: ModelQualityTier;
+  readonly units: 'meters';
+  readonly upAxis: 'Y';
+  readonly forwardAxis?: '-Z' | '+Z';
+  readonly origin: 'ground-center' | 'center' | 'authored';
+  readonly materialPolicy: 'embedded-pbr' | 'theme-remap';
+  readonly importTransform?: ModelImportTransform;
+  readonly clips?: Readonly<Record<string, string>>;
+  readonly budget: ModelAssetBudget;
+  readonly castShadow?: boolean;
+  readonly receiveShadow?: boolean;
+}
+
+/** Source/licensing metadata kept with authored production assets. */
+export interface AssetProvenance {
+  readonly source: 'original' | 'licensed' | 'public-domain' | 'generated';
+  readonly license?: string;
+  readonly attribution?: string;
+  readonly sourceUrl?: string;
+}
+
 export interface AssetDescriptor {
   readonly id: string;
   readonly kind: 'model' | 'animation' | 'texture' | 'audio' | 'font';
+  /** Browser-resolvable production asset URL. Procedural assets omit it. */
   readonly url?: string;
   readonly procedural?: boolean;
   readonly description?: string;
+  /**
+   * Semantic anchor name -> authored Object3D/node name inside a model asset.
+   * Episode content targets the semantic key and never depends on GLB node names.
+   */
+  readonly anchors?: Readonly<Record<string, string>>;
+  /** Authored-model production rules. Required by PF2 validation for URL-backed models. */
+  readonly model?: ModelAssetProfile;
+  /** Provenance is required by PF2 validation for URL-backed production assets. */
+  readonly provenance?: AssetProvenance;
+}
+
+/** A named reusable grouping of theme assets for production planning/browsing. */
+export interface AssetPackDescriptor {
+  readonly id: string;
+  readonly label: string;
+  readonly description?: string;
+  readonly maturity: 'fallback' | 'production';
+  readonly assetIds: readonly string[];
+  readonly tags?: readonly string[];
+}
+
+/** A detached, scene-owned clone of one preloaded model asset. */
+export interface RuntimeModelAsset {
+  readonly object3d: THREE.Object3D;
+  readonly anchors: Readonly<Record<string, THREE.Object3D>>;
+  readonly animations: readonly THREE.AnimationClip[];
+  /** Semantic clip id -> detached AnimationClip for PF3's deterministic animation runtime. */
+  readonly clips: Readonly<Record<string, THREE.AnimationClip>>;
+}
+
+/** Synchronous model access handed to factories while a scene is being built. */
+export interface RuntimeAssetAccess {
+  has(id: string): boolean;
+  instantiateModel(id: string): RuntimeModelAsset;
+}
+
+/**
+ * Preload-capable runtime owned by the application/export pipeline. The Engine
+ * only consumes it; it never owns provider-specific loading state.
+ */
+export interface RuntimeAssetManager extends RuntimeAssetAccess, Disposable {
+  preload(descriptors: readonly AssetDescriptor[]): Promise<void>;
+}
+
+/* ----------------------------------------------------------------- audio --- */
+
+/** PCM returned by a deterministic procedural cue renderer. */
+export interface AudioPcmData {
+  readonly sampleRate: number;
+  readonly channels: readonly Float32Array[];
+}
+
+export type AudioCueSource =
+  | {
+      readonly kind: 'procedural';
+      /** Pure PCM generator. It must return the same samples for the same rate. */
+      readonly render: (sampleRate: number) => AudioPcmData;
+    }
+  | {
+      readonly kind: 'url';
+      readonly url: string;
+    };
+
+/** Reusable semantic sound registered in the Library. */
+export interface AudioCueDefinition {
+  readonly id: string;
+  readonly bus: AudioBus;
+  /** Guaranteed fallback/source used when no production override is available. */
+  readonly source: AudioCueSource;
+  /** Optional production asset tried before `source`; failure falls back cleanly. */
+  readonly preferredSource?: AudioCueSource;
+  readonly defaultGain?: number;
+  readonly loop?: boolean;
+  /** Short source-level fades used by both live preview and offline export. */
+  readonly fadeIn?: number;
+  readonly fadeOut?: number;
+  readonly description?: string;
+}
+
+export type AudioMixerBus = 'master' | AudioBus;
+export type AudioSyncReason = 'load' | 'play' | 'pause' | 'seek' | 'restart' | 'speed' | 'tick';
+
+export interface AudioTransportState {
+  readonly time: number;
+  readonly duration: number;
+  readonly playing: boolean;
+  readonly speed: number;
+}
+
+/**
+ * Browser/live audio implementation injected into the Engine. The Engine owns
+ * authoritative time; the runtime only mirrors that transport and never owns a
+ * separate episode clock. A future offline renderer can implement the same
+ * semantic cue contract without Web Audio.
+ */
+export interface AudioRuntime extends Disposable {
+  load(
+    events: readonly AudioEvent[],
+    cues: ReadonlyRegistry<AudioCueDefinition>,
+    duration: number,
+  ): void;
+  sync(state: AudioTransportState, reason: AudioSyncReason): void;
+  unlock(): void;
+  setMuted(muted: boolean): void;
+  isMuted(): boolean;
+  setBusVolume(bus: AudioMixerBus, volume: number): void;
+  getBusVolume(bus: AudioMixerBus): number;
 }
 
 /* ------------------------------------------------------------- registries -- */
@@ -213,11 +455,14 @@ export interface ReadonlyRegistry<T> {
 /** The full set of capability registries the Engine executes against. */
 export interface CapabilityRegistries {
   readonly characters: ReadonlyRegistry<CharacterFactory>;
+  readonly prefabs: ReadonlyRegistry<PrefabFactory>;
   readonly motions: ReadonlyRegistry<MotionFactory>;
   readonly effects: ReadonlyRegistry<EffectFactory>;
   readonly cameras: ReadonlyRegistry<CameraFactory>;
   readonly environments: ReadonlyRegistry<EnvironmentFactory>;
+  readonly sceneLayers: ReadonlyRegistry<SceneCompositionLayerFactory>;
   readonly assets: ReadonlyRegistry<AssetDescriptor>;
+  readonly audio: ReadonlyRegistry<AudioCueDefinition>;
 }
 
 /* ---------------------------------------------------------- engine surface -- */
@@ -247,14 +492,41 @@ export interface EngineFrameInfo {
 export interface PostProcessingConfig {
   readonly enabled?: boolean;
   readonly bloom?: { strength: number; radius: number; threshold: number };
-  readonly vignette?: { offset: number; darkness: number };
+  readonly vignette?: { offset: number; darkness: number } | null;
+}
+
+/**
+ * Renderer-level presentation that may vary by theme without leaking theme ids
+ * into the Engine. These values affect every lit material, including authored
+ * GLB assets loaded through the production asset runtime.
+ */
+export interface RendererPresentationConfig {
+  readonly toneMapping?: 'none' | 'acesFilmic';
+  /** Linear exposure multiplier applied by the renderer tone mapper. */
+  readonly exposure?: number;
+  readonly shadows?: {
+    readonly enabled?: boolean;
+    readonly type?: 'pcf' | 'pcfSoft';
+  };
+  readonly imageBasedLighting?: {
+    readonly enabled?: boolean;
+    /** Strength of the neutral reflection environment used by PBR materials. */
+    readonly intensity?: number;
+  };
 }
 
 export interface EngineConfig {
   readonly registries: CapabilityRegistries;
+  /** Optional production model runtime. Procedural-only projects may omit it. */
+  readonly assetRuntime?: RuntimeAssetManager;
   /** Cap on `devicePixelRatio` to keep fill-rate stable. Defaults to 2. */
   readonly pixelRatioCap?: number;
   readonly postProcessing?: PostProcessingConfig;
+  readonly rendererPresentation?: RendererPresentationConfig;
+  /** Optional live audio backend. Headless/runtime tests may omit it. */
+  readonly audioRuntime?: AudioRuntime;
+  /** Preserve the WebGL back buffer for exact canvas capture during offline export. */
+  readonly preserveDrawingBuffer?: boolean;
   readonly autoResize?: boolean;
   onFrame?(info: EngineFrameInfo): void;
   onLoaded?(episodeId: string): void;

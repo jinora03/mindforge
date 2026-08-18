@@ -12,10 +12,12 @@ export const createReactionCloseupShot: CameraFactory = ({ event, services }): C
   const target = event.target ? services.resolveAnchor(event.target) : undefined;
   return new CameraDirector({
     target,
-    startOffset: readVec3(event.from, new THREE.Vector3(0, 1.25, 2.5)),
-    endOffset: readVec3(event.to, new THREE.Vector3(0, 1.2, 2.3)),
-    startFov: event.fov ?? 32,
-    endFov: event.fov ?? 31,
-    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 1.3, 0)),
+    startOffset: readVec3(event.from, new THREE.Vector3(0, 1.55, 4.0)),
+    endOffset: readVec3(event.to, new THREE.Vector3(0, 1.45, 3.6)),
+    startFov: event.fov ?? 40,
+    endFov: event.fov ?? 38,
+    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 1.35, 0)),
+    minDistance: 3.6,
+    camera: services.camera,
   });
 };

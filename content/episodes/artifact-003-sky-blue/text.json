@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    { "id": "hook", "content": "Why is the sky blue?", "style": "question", "placement": "upper" },
+    { "id": "carry", "content": "Sunlight arrives carrying every colour at once.", "style": "explanation", "placement": "lower" },
+    { "id": "scatter", "content": "Air molecules deflect short wavelengths hardest.", "style": "explanation", "placement": "lower" },
+    { "id": "answer", "content": "So blue reaches your eyes from every direction.", "style": "explanation", "placement": "lower" },
+    { "id": "label", "content": "Artifact 003 / The Prism", "style": "artifactLabel", "placement": "bottom" }
+  ]
+}

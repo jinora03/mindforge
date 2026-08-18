@@ -17,7 +17,16 @@
     "lint": "eslint .",
     "test": "vitest run",
     "validate:episodes": "tsx tools/validate-episodes.ts",
-    "generate:catalog": "tsx tools/generate-library-catalog.ts"
+    "generate:catalog": "tsx tools/generate-library-catalog.ts",
+    "check": "pnpm lint && pnpm test && pnpm validate:assets && pnpm validate:audio && pnpm validate:production && pnpm validate:episodes && pnpm build",
+    "validate:production": "tsx tools/validate-production.ts",
+    "create:episode": "tsx tools/create-episode.ts",
+    "validate:audio": "tsx tools/validate-audio.ts",
+    "validate:audio:production": "tsx tools/validate-audio.ts --production",
+    "audio:replace": "tsx tools/replace-audio.ts",
+    "duplicate:episode": "tsx tools/duplicate-episode.ts",
+    "validate:assets": "tsx tools/validate-assets.ts",
+    "inspect:model": "tsx tools/inspect-model.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",

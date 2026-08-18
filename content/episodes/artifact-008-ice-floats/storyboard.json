@@ -1,0 +1,123 @@
+{
+  "episode": "artifact-008-ice-floats",
+  "title": "Why does ice float on water?",
+  "aspect": "9:16",
+  "durationSeconds": 30,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4.5
+      ],
+      "beat": "The tank is the protagonist",
+      "intent": "Open directly on the transparent tank and ice. No humanoid is present because the phenomenon itself is the subject.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "tank"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-drop",
+      "t": [
+        4.5,
+        10
+      ],
+      "beat": "Ice drops, splashes, and refuses to sink",
+      "intent": "Follow the cube into the water and hold the waterline clearly enough that the surprising floating state reads without a witness character.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "tank"
+      },
+      "effects": [
+        {
+          "id": "splash-ring",
+          "purpose": "Makes the water contact readable at phone size."
+        }
+      ],
+      "text": [
+        {
+          "id": "odd"
+        }
+      ]
+    },
+    {
+      "id": "s3-open-structure",
+      "t": [
+        10,
+        17
+      ],
+      "beat": "Freezing opens the structure",
+      "intent": "Orbit the ice as it expands conceptually; the transformation, not a character reaction, carries the explanation.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "tank.ice"
+      },
+      "effects": [
+        {
+          "id": "structure-burst",
+          "purpose": "Suggests the more open frozen structure without cluttering the tank."
+        }
+      ],
+      "text": [
+        {
+          "id": "freeze"
+        }
+      ]
+    },
+    {
+      "id": "s4-density",
+      "t": [
+        17,
+        24
+      ],
+      "beat": "Same mass, more volume",
+      "intent": "Show the cube rise and begin a subtle bob while the water-to-ice relationship visualizes lower density.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "tank"
+      },
+      "effects": [
+        {
+          "id": "density-stream",
+          "purpose": "Connects liquid water and the lower-density solid."
+        }
+      ],
+      "text": [
+        {
+          "id": "density"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        24,
+        30
+      ],
+      "beat": "Buoyancy supports the lower-density ice",
+      "intent": "Finish tightly on the floating cube at the waterline; the tank and buoyancy cue are the complete payoff.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "tank.ice"
+      },
+      "effects": [
+        {
+          "id": "buoyancy-ring",
+          "purpose": "Readable upward-support/buoyancy emphasis around the ice."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

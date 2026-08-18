@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why does the Moon look huge near the horizon?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "same",
+      "content": "Move it higher in the sky and it seems smaller.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "measure",
+      "content": "But its angular size is essentially the same.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "context",
+      "content": "Near the horizon, buildings and terrain give your brain strong size comparisons.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "The \u201cbigger\u201d horizon Moon is a perception illusion.",
+      "style": "explanation",
+      "placement": "center"
+    }
+  ]
+}

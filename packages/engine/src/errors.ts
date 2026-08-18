@@ -8,6 +8,7 @@ export interface ErrorLocation {
   episodeId?: string;
   eventId?: string;
   entityId?: string;
+  layerId?: string;
   registryId?: string;
 }
 
@@ -16,6 +17,7 @@ function suffix(loc: ErrorLocation): string {
   if (loc.episodeId) parts.push(`episode="${loc.episodeId}"`);
   if (loc.eventId) parts.push(`event="${loc.eventId}"`);
   if (loc.entityId) parts.push(`entity="${loc.entityId}"`);
+  if (loc.layerId) parts.push(`layer="${loc.layerId}"`);
   if (loc.registryId) parts.push(`id="${loc.registryId}"`);
   return parts.length ? ` (${parts.join(', ')})` : '';
 }
@@ -50,6 +52,22 @@ export class MissingEntityError extends MindForgeError {
   constructor(entityId: string, location: ErrorLocation = {}) {
     super(`Missing entity "${entityId}"`, { ...location, entityId });
     this.name = 'MissingEntityError';
+  }
+}
+
+/** A semantic authored animation clip was not exposed by its target entity. */
+export class MissingAnimationClipError extends MindForgeError {
+  constructor(
+    entityId: string,
+    clipId: string,
+    available: readonly string[],
+    location: ErrorLocation = {},
+  ) {
+    super(
+      `Missing animation clip "${clipId}" on entity "${entityId}"; available clips: ${available.join(', ') || '(none)'}`,
+      { ...location, entityId },
+    );
+    this.name = 'MissingAnimationClipError';
   }
 }
 

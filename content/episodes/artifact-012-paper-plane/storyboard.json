@@ -1,0 +1,131 @@
+{
+  "episode": "artifact-012-paper-plane",
+  "title": "Why does a paper airplane stay in the air?",
+  "aspect": "9:16",
+  "durationSeconds": 28,
+  "shots": [
+    {
+      "id": "s1-plane",
+      "t": [
+        0,
+        4
+      ],
+      "beat": "The glider",
+      "intent": "Establish the folded plane as the only protagonist.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "plane"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-launch",
+      "t": [
+        4,
+        10
+      ],
+      "beat": "Forward speed",
+      "intent": "Launch the plane through the open classroom lane.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "plane"
+      },
+      "effects": [
+        {
+          "id": "launch-trail",
+          "purpose": "Shows the direction and energy of launch."
+        }
+      ],
+      "text": [
+        {
+          "id": "speed"
+        }
+      ]
+    },
+    {
+      "id": "s3-airflow",
+      "t": [
+        10,
+        18
+      ],
+      "beat": "Air meets the wings",
+      "intent": "Ride alongside the plane while airflow traces across both wing paths.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "plane"
+      },
+      "effects": [
+        {
+          "id": "air-left",
+          "purpose": "Airflow over left wing."
+        },
+        {
+          "id": "air-right",
+          "purpose": "Airflow over right wing."
+        }
+      ],
+      "text": [
+        {
+          "id": "lift"
+        }
+      ]
+    },
+    {
+      "id": "s4-balance",
+      "t": [
+        18,
+        24
+      ],
+      "beat": "Lift, gravity and drag",
+      "intent": "Keep the plane moving but begin a visible descent while pressure contours remain around the wings.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "plane"
+      },
+      "effects": [
+        {
+          "id": "wing-pressure-left",
+          "purpose": "Wing loading visual."
+        },
+        {
+          "id": "wing-pressure-right",
+          "purpose": "Wing loading visual."
+        }
+      ],
+      "text": [
+        {
+          "id": "balance"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        24,
+        28
+      ],
+      "beat": "A glide, not a hover",
+      "intent": "Resolve on the descending plane and concise takeaway.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "plane"
+      },
+      "effects": [
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the explanation payoff."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

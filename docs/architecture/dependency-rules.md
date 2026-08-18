@@ -10,8 +10,9 @@ Studio ─────┐
             ├──> Engine
 Player ─────┘
 Engine ─────────> Schema
-Library ────────> Themes, Motions, Cameras
-Themes ─────────> Characters, Effects, Environments, Style
+Library ────────> Themes, Motions, Cameras, Audio
+Audio ─────────> Engine contract + Schema types
+Themes ─────────> Characters, Effects, Environments, Style, semantic Prefabs
 Applications ──> Library, Content (as data)
 Content ───────> Schema ids only (by string; never imports)
 ```
@@ -36,17 +37,20 @@ Schema → Three.js               Style → episode content
 - **Schema is Three-free.** It validates the MindForge Script shape only; registry-id
   *existence* is checked by the Engine/CLI against the Library, not by the schema.
 
-- **Themes are composition, not runtime state.** A theme chooses visual implementations for
-  stable semantic ids before an Engine is constructed. The Engine never branches on a theme
-  name. See [`themes.md`](themes.md).
+- **Themes are composition, not Engine-owned runtime state.** A theme chooses character, prefab, effect,
+  environment, scene-layer, and presentation implementations for stable semantic ids. Studio / Player may
+  replace those generic registries and presentation values at runtime, then rebuild the same
+  episode. The Engine never branches on a theme name. See [`themes.md`](themes.md).
+- **Audio is injected, not Engine-owned implementation.** `packages/audio` implements the Engine's generic `AudioRuntime` contract. The Engine mirrors authoritative transport state into it but never imports Web Audio code or semantic cue implementations.
 - **The Engine never imports the component packages.** The apps build a `MindForgeLibrary`
   (which implements the Engine's `CapabilityRegistries`) and hand it to the Engine.
 - **Camera application lives in the Engine.** The Engine owns the authoritative camera, so it
   performs shot *selection* and application. `packages/cameras/CameraDirector` is the reusable
   helper the presets are built from (target resolution, offset interpolation, framing, shake);
   it operates only on Engine types and never touches the renderer.
-- **Post-processing config is data.** `style` exports plain bloom/vignette numbers; the app
-  passes them into the Engine, which builds the composer. This avoids `Engine → Style`.
+- **Post-processing config is data.** Voxel and Toybox each own their bloom/vignette numbers.
+  The app passes those plain values into the Engine and swaps them together with capability
+  registries during a theme change; the Engine never imports either theme.
 - **Motions pose characters without depending on `characters`.** The Engine defines
   `PoseableRig`; characters implement it and expose it as `entity.rig`; motions consume it.
 - **The Bibles are never a runtime dependency.** Compiled code uses the resulting style

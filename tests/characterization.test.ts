@@ -14,13 +14,14 @@ describe('characterization — Heat scene state', () => {
   it('opens on the hook with the core present', () => {
     const s = snapshotOracleAt(heat, 0.5);
     expect(s.activeText).toContain('hook');
-    expect(s.entities.core).toBeDefined();
+    expect(s.entities.machine).toBeDefined();
+    expect(s.anchors['machine.core']).toBeDefined();
   });
 
   it('reaches the answer + a heated core in the back half', () => {
     const s = snapshotOracleAt(heat, 12.5);
     expect(s.activeText).toContain('answer');
-    expect(s.materials.core.emissiveIntensity).toBeGreaterThan(0.15);
+    expect(s.materials['machine.core'].emissiveIntensity).toBeGreaterThan(0.15);
   });
 
   it('is identical when evaluated at the same time twice', () => {

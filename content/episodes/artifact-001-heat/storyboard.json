@@ -1,0 +1,53 @@
+{
+  "episode": "artifact-001-heat",
+  "title": "Why Does Your Computer Get Hot?",
+  "aspect": "9:16",
+  "durationSeconds": 15,
+  "shots": [
+    {
+      "id": "s1-input",
+      "t": [0, 2.7],
+      "beat": "Information enters",
+      "intent": "Open on a readable machine and immediately establish information flowing into it.",
+      "camera": { "preset": "camera.establish", "target": "machine" },
+      "effects": [{ "id": "info-in", "purpose": "Information stream connects inlet to machine." }],
+      "text": [{ "id": "hook" }, { "id": "enters" }]
+    },
+    {
+      "id": "s2-activation",
+      "t": [2.7, 5.8],
+      "beat": "Machine activates",
+      "intent": "Push closer as the mechanism spins, the core pulses and heat becomes visible.",
+      "camera": { "preset": "camera.pushIn", "target": "machine" },
+      "effects": [{ "id": "pulse-a" }, { "id": "pulse-b" }],
+      "text": []
+    },
+    {
+      "id": "s3-pressure",
+      "t": [5.8, 9],
+      "beat": "Energy cost builds",
+      "intent": "Reveal pressure around the increasingly hot core; make the machine feel physically stressed.",
+      "camera": { "preset": "camera.reveal", "target": "machine" },
+      "effects": [{ "id": "pressure" }],
+      "text": [{ "id": "cost" }]
+    },
+    {
+      "id": "s4-release",
+      "t": [9, 12],
+      "beat": "Heat release",
+      "intent": "The shell opens and the accumulated energy escapes as the episode's largest visual beat.",
+      "camera": { "preset": "camera.pullBack", "target": "machine" },
+      "effects": [{ "id": "shockwave" }, { "id": "flash" }],
+      "text": []
+    },
+    {
+      "id": "s5-answer",
+      "t": [12, 15],
+      "beat": "Resolution",
+      "intent": "Let the machine cool while the answer lands and the artifact label closes the piece.",
+      "camera": { "preset": "camera.pullBack", "target": "machine" },
+      "effects": [],
+      "text": [{ "id": "answer" }, { "id": "label" }]
+    }
+  ]
+}

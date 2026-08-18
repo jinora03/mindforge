@@ -1,10 +1,9 @@
 import * as THREE from 'three';
-import { PALETTE } from '@mindforge/style';
 import type { ActionContext, EffectFactory, EffectInstance } from '@mindforge/engine';
-import { readNumber } from './EffectTypes';
+import { effectColor, legacyToneColor, readNumber } from './EffectTypes';
 
 /**
- * A pink-to-white burst radiating from a point. Low intensity reads as a
+ * A semantic reaction/heat burst radiating from a point. Low intensity reads as a
  * playful sensation; high intensity as a strong surprise. Point count is kept
  * modest so the burst stays readable at phone size.
  */
@@ -28,7 +27,7 @@ export const createReactionBurst: EffectFactory = ({ event, services }): EffectI
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   const material = new THREE.PointsMaterial({
     size: readNumber(event, 'size', 0.06),
-    color: new THREE.Color(PALETTE.signalPink),
+    color: effectColor(event, 'reaction'),
     transparent: true,
     toneMapped: false,
     depthWrite: false,
@@ -36,8 +35,8 @@ export const createReactionBurst: EffectFactory = ({ event, services }): EffectI
   const points = new THREE.Points(geometry, material);
   points.visible = false;
 
-  const pink = new THREE.Color(PALETTE.signalPink);
-  const white = new THREE.Color(event.color ?? PALETTE.insightWhite);
+  const start = effectColor(event, 'reaction');
+  const end = legacyToneColor('insight');
   const worldPos = new THREE.Vector3();
 
   return {
@@ -54,7 +53,7 @@ export const createReactionBurst: EffectFactory = ({ event, services }): EffectI
         positions[i * 3 + 2] = directions[i].z * reach;
       }
       geometry.attributes.position.needsUpdate = true;
-      material.color.copy(pink).lerp(white, ctx.progress);
+      material.color.copy(start).lerp(end, ctx.progress);
       material.opacity = intensity * (1 - ctx.progress);
     },
     reset(): void {

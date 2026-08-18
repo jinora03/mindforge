@@ -1,0 +1,127 @@
+{
+  "episode": "artifact-010-seatbelts",
+  "title": "Why do seatbelts save you in a sudden stop?",
+  "aspect": "9:16",
+  "durationSeconds": 32,
+  "shots": [
+    {
+      "id": "s1-cruise",
+      "t": [
+        0,
+        5
+      ],
+      "beat": "Moving together",
+      "intent": "Establish the moving cabin and seated passenger; the rig is the subject, not an idle mascot.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "rig"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-latch",
+      "t": [
+        5,
+        10
+      ],
+      "beat": "Belt engages",
+      "intent": "Focus the belt and latch so the restraint is established before the stop.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "rig.latch"
+      },
+      "effects": [
+        {
+          "id": "belt-path",
+          "purpose": "Shows the belt crossing the passenger chest."
+        }
+      ],
+      "text": [
+        {
+          "id": "moving"
+        }
+      ]
+    },
+    {
+      "id": "s3-stop",
+      "t": [
+        10,
+        17
+      ],
+      "beat": "Sudden stop",
+      "intent": "Passenger surges forward into the fixed belt and rebounds while the camera shakes briefly.",
+      "camera": {
+        "preset": "camera.impactShake",
+        "target": "rig.passenger"
+      },
+      "effects": [
+        {
+          "id": "stop-burst",
+          "purpose": "Marks the braking/contact beat."
+        }
+      ],
+      "text": [
+        {
+          "id": "inertia"
+        }
+      ]
+    },
+    {
+      "id": "s4-without-belt",
+      "t": [
+        17,
+        24
+      ],
+      "beat": "Inertia continues",
+      "intent": "Hold the real passenger restrained while a ghost trajectory continues forward to show the counterfactual.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "rig.chest"
+      },
+      "effects": [
+        {
+          "id": "ghost-forward",
+          "purpose": "Shows where the body would continue without restraint."
+        }
+      ],
+      "text": [
+        {
+          "id": "without"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        24,
+        32
+      ],
+      "beat": "The belt changes motion",
+      "intent": "Resolve on the belt/passenger contact and stopping force.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "rig"
+      },
+      "effects": [
+        {
+          "id": "answer-path",
+          "purpose": "Connects chest to belt as the stopping interaction."
+        },
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the takeaway."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

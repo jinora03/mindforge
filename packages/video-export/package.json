@@ -1,0 +1,18 @@
+{
+  "name": "@mindforge/video-export",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "types": "./src/index.ts",
+  "dependencies": {
+    "@mediabunny/aac-encoder": "1.52.2",
+    "@mindforge/audio": "workspace:*",
+    "@mindforge/engine": "workspace:*",
+    "@mindforge/schema": "workspace:*",
+    "@mindforge/themes": "workspace:*",
+    "mediabunny": "1.52.2"
+  }
+}

@@ -1,9 +1,13 @@
 import type {
   AssetDescriptor,
+  AssetPackDescriptor,
   CharacterFactory,
   EffectFactory,
   EnvironmentFactory,
+  PrefabFactory,
   PostProcessingConfig,
+  RendererPresentationConfig,
+  SceneCompositionLayerFactory,
 } from '@mindforge/engine';
 import type { TextPlacement, TextStyle } from '@mindforge/schema';
 
@@ -20,10 +24,11 @@ export type ThemeTypography = Readonly<
 
 /**
  * Browser-facing presentation values that belong to a visual theme rather than
- * to the generic Engine. The Engine only receives the post-processing numbers;
- * Studio / Player own DOM typography and safe-zone presentation.
+ * to the generic Engine. The Engine receives only plain renderer/post-processing
+ * values; Studio / Player own DOM typography and safe-zone presentation.
  */
 export interface ThemePresentation {
+  readonly renderer: RendererPresentationConfig;
   readonly postProcessing: PostProcessingConfig;
   readonly typography: ThemeTypography;
   readonly safeZones: ThemeSafeZones;
@@ -39,8 +44,13 @@ export interface MindForgeTheme {
   readonly label: string;
   readonly description: string;
   readonly characters: Readonly<Record<string, CharacterFactory>>;
+  readonly prefabs: Readonly<Record<string, PrefabFactory>>;
   readonly effects: Readonly<Record<string, EffectFactory>>;
   readonly environments: Readonly<Record<string, EnvironmentFactory>>;
+  /** Reusable theme-owned world composition systems (weather, atmosphere, etc.). */
+  readonly sceneLayers: Readonly<Record<string, SceneCompositionLayerFactory>>;
   readonly assets: readonly AssetDescriptor[];
+  /** Build-time/runtime-browsing groups used to evolve procedural fallbacks into authored packs. */
+  readonly assetPacks: readonly AssetPackDescriptor[];
   readonly presentation: ThemePresentation;
 }

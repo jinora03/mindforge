@@ -13,6 +13,10 @@
     "@mindforge/engine": "workspace:*",
     "@mindforge/environments": "workspace:*",
     "@mindforge/schema": "workspace:*",
-    "@mindforge/style": "workspace:*"
+    "@mindforge/style": "workspace:*",
+    "three": "^0.169.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.169.0"
   }
 }

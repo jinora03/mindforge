@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-017-star-twinkle",
+  "title": "Why do stars twinkle but planets usually do not?",
+  "artifactName": "The Twinkle",
+  "artifactNumber": 17,
+  "artifactType": "loom",
+  "domain": "signal-ocean",
+  "duration": 18,
+  "environment": "environment.observatory",
+  "metadata": {
+    "logline": "A point-like star visibly flickers through changing atmospheric paths while a wider planet stays steadier because many rays average together.",
+    "beats": "question -> star flicker -> atmosphere bends light -> planet comparison -> averaging -> answer",
+    "productionStatus": "content-sprint-wave3",
+    "narrationStatus": "caption-led-until-production-voice",
+    "pacingPolicy": "max-20s-no-dead-air",
+    "sharedAssets": [
+      "environment.observatory",
+      "prefab.starPlanetPair",
+      "audio.ambience.observatory",
+      "audio.sfx.twinkle"
+    ]
+  },
+  "entities": [
+    {
+      "id": "sky",
+      "type": "prefab",
+      "factory": "prefab.starPlanetPair",
+      "position": [
+        2.2,
+        0,
+        -10
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 18,
+      "cue": "audio.ambience.observatory",
+      "loop": true,
+      "volume": 0.34
+    },
+    {
+      "id": "cam-star",
+      "type": "camera",
+      "at": 0,
+      "duration": 2.5,
+      "preset": "camera.pushIn",
+      "target": "sky.star",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.2,
+      "duration": 2.3,
+      "textId": "hook"
+    },
+    {
+      "id": "star-pulse",
+      "type": "objectMotion",
+      "at": 2.3,
+      "duration": 4.0,
+      "target": "sky.star",
+      "motion": "motion.object.pulse",
+      "parameters": {
+        "amplitude": 0.22,
+        "frequency": 3.1
+      }
+    },
+    {
+      "id": "star-path",
+      "type": "effect",
+      "at": 2.35,
+      "duration": 4.0,
+      "effect": "effect.informationStream",
+      "through": [
+        "sky.star",
+        "sky.starMidA",
+        "sky.starMidB",
+        "sky.viewer"
+      ],
+      "tone": "information",
+      "intensity": 0.74,
+      "parameters": {
+        "density": 24,
+        "speed": 0.76,
+        "size": 0.045,
+        "bow": 0.1
+      }
+    },
+    {
+      "id": "twinkle-a",
+      "type": "audio",
+      "at": 2.45,
+      "cue": "audio.sfx.twinkle",
+      "volume": 0.48
+    },
+    {
+      "id": "twinkle-b",
+      "type": "audio",
+      "at": 3.45,
+      "cue": "audio.sfx.twinkle",
+      "volume": 0.42
+    },
+    {
+      "id": "twinkle-c",
+      "type": "audio",
+      "at": 4.45,
+      "cue": "audio.sfx.twinkle",
+      "volume": 0.38
+    },
+    {
+      "id": "cam-atmosphere",
+      "type": "camera",
+      "at": 2.4,
+      "duration": 4.0,
+      "preset": "camera.reveal",
+      "target": "sky.star",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 5.5,
+        "height": 4.5,
+        "startAngle": 0.1,
+        "endAngle": -0.08
+      }
+    },
+    {
+      "id": "star-text",
+      "type": "text",
+      "at": 2.55,
+      "duration": 3.7,
+      "textId": "star"
+    },
+    {
+      "id": "planet-path",
+      "type": "effect",
+      "at": 6.2,
+      "duration": 3.5,
+      "effect": "effect.informationStream",
+      "through": [
+        "sky.planet",
+        "sky.planetMidA",
+        "sky.planetMidB",
+        "sky.viewer"
+      ],
+      "tone": "information",
+      "intensity": 0.7,
+      "parameters": {
+        "density": 26,
+        "speed": 0.72,
+        "size": 0.045,
+        "bow": -0.08
+      }
+    },
+    {
+      "id": "cam-planet",
+      "type": "camera",
+      "at": 6.2,
+      "duration": 3.6,
+      "preset": "camera.pushIn",
+      "target": "sky.planet",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "planet-text",
+      "type": "text",
+      "at": 6.35,
+      "duration": 3.35,
+      "textId": "planet"
+    },
+    {
+      "id": "cam-compare",
+      "type": "camera",
+      "at": 9.7,
+      "duration": 4.0,
+      "preset": "camera.pullBack",
+      "target": "sky",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "star-contour",
+      "type": "effect",
+      "at": 9.9,
+      "duration": 3.2,
+      "effect": "effect.contour.pressure",
+      "target": "sky.star",
+      "tone": "reaction",
+      "intensity": 0.56,
+      "parameters": {
+        "radius": 0.7,
+        "segments": 16
+      }
+    },
+    {
+      "id": "planet-contour",
+      "type": "effect",
+      "at": 9.9,
+      "duration": 3.2,
+      "effect": "effect.contour.pressure",
+      "target": "sky.planet",
+      "tone": "insight",
+      "intensity": 0.56,
+      "parameters": {
+        "radius": 1.0,
+        "segments": 16
+      }
+    },
+    {
+      "id": "average-text",
+      "type": "text",
+      "at": 9.95,
+      "duration": 3.5,
+      "textId": "average"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 13.45,
+      "duration": 0.85,
+      "effect": "effect.insight.flash",
+      "target": "sky",
+      "tone": "insight",
+      "intensity": 0.72
+    },
+    {
+      "id": "answer-sfx",
+      "type": "audio",
+      "at": 13.5,
+      "cue": "audio.sfx.insight",
+      "volume": 0.6
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 13.4,
+      "duration": 4.6,
+      "preset": "camera.establish",
+      "target": "sky",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer",
+      "type": "text",
+      "at": 13.55,
+      "duration": 4.2,
+      "textId": "answer"
+    }
+  ]
+}

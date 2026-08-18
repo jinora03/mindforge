@@ -10,10 +10,14 @@ export const createPushInShot: CameraFactory = ({ event, services }): CameraShot
   return new CameraDirector({
     target: absolute ? undefined : target,
     absolute,
-    startOffset: readVec3(event.from, new THREE.Vector3(0, 0.6, 4.6)),
-    endOffset: readVec3(event.to, new THREE.Vector3(0, 0.3, 2.5)),
-    startFov: event.fov ?? 42,
-    endFov: event.fov ?? 34,
-    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 0.4, 0)),
+    startOffset: readVec3(event.from, new THREE.Vector3(0, 1.1, 7.2)),
+    endOffset: readVec3(event.to, new THREE.Vector3(0, 0.9, 5.2)),
+    startFov: event.fov ?? 48,
+    endFov: event.fov ?? 43,
+    framingOffset: readVec3(event.framingOffset, new THREE.Vector3(0, 0.8, 0)),
+    fitTarget: true,
+    fitPadding: 1.08,
+    minDistance: 4.8,
+    camera: services.camera,
   });
 };

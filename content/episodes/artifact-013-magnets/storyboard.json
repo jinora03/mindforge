@@ -1,0 +1,126 @@
+{
+  "episode": "artifact-013-magnets",
+  "title": "Why do magnets attract some metals but not all?",
+  "aspect": "9:16",
+  "durationSeconds": 34,
+  "shots": [
+    {
+      "id": "s1-predict",
+      "t": [
+        0,
+        5
+      ],
+      "beat": "Three targets",
+      "intent": "Show steel, aluminium and wood together with the magnet so the viewer can predict.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "kit"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-aluminium",
+      "t": [
+        5,
+        12
+      ],
+      "beat": "Metal that does not snap",
+      "intent": "Move the magnet to aluminium and visibly fail to pull it.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "kit.aluminium"
+      },
+      "effects": [
+        {
+          "id": "aluminium-field",
+          "purpose": "Shows field presence without motion."
+        }
+      ],
+      "text": [
+        {
+          "id": "aluminium"
+        }
+      ]
+    },
+    {
+      "id": "s3-wood",
+      "t": [
+        12,
+        18
+      ],
+      "beat": "Nonmetal control",
+      "intent": "Repeat over wood as a control; again no attraction.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "kit.wood"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "wood"
+        }
+      ]
+    },
+    {
+      "id": "s4-steel",
+      "t": [
+        18,
+        26
+      ],
+      "beat": "Steel snaps",
+      "intent": "Move magnet over steel and make the steel sample jump decisively.",
+      "camera": {
+        "preset": "camera.impactShake",
+        "target": "kit.steel"
+      },
+      "effects": [
+        {
+          "id": "steel-field",
+          "purpose": "Builds the magnetic interaction before the snap."
+        },
+        {
+          "id": "steel-burst",
+          "purpose": "Accents contact."
+        }
+      ],
+      "text": [
+        {
+          "id": "steel"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        26,
+        34
+      ],
+      "beat": "Ferromagnetic domains",
+      "intent": "Hold magnet and steel together while information flow explains why steel responds strongly.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "kit.magnetTip"
+      },
+      "effects": [
+        {
+          "id": "answer-stream",
+          "purpose": "Represents aligned magnetic response."
+        },
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the takeaway."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}
