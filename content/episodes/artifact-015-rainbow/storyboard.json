@@ -11,10 +11,10 @@
         2.2
       ],
       "beat": "Rain plus question",
-      "intent": "Establish the droplet splitter and low sunlight immediately.",
+      "intent": "Establish the hero raindrop against the rainy meadow immediately.",
       "camera": {
         "preset": "camera.establish",
-        "target": "prism"
+        "target": "prism.center"
       },
       "effects": [],
       "text": [
@@ -29,14 +29,17 @@
         2.2,
         4.5
       ],
-      "beat": "Sunlight enters",
-      "intent": "Track one bright beam directly into the droplet.",
+      "beat": "Sunlight enters and refracts",
+      "intent": "Follow the white ray into the droplet and make the first bend readable.",
       "camera": {
         "preset": "camera.pushIn",
         "target": "prism.center"
       },
       "effects": [
-        "effect.signal.path"
+        "prism.entryBeam",
+        "prism.refractBeam",
+        "prism.reflectionBeam",
+        "prism.exitBeam"
       ],
       "text": [
         {
@@ -50,14 +53,20 @@
         4.5,
         8.3
       ],
-      "beat": "White light separates",
-      "intent": "Reveal six spectrum beams in a fast cascade.",
+      "beat": "Internal reflection to spectrum",
+      "intent": "Show the ray reflect inside, exit, then fan into six colors in a fast cascade.",
       "camera": {
         "preset": "camera.reveal",
         "target": "prism"
       },
       "effects": [
-        "effect.insight.flash"
+        "effect.insight.flash",
+        "prism.red",
+        "prism.orange",
+        "prism.yellow",
+        "prism.green",
+        "prism.blue",
+        "prism.violet"
       ],
       "text": [
         {
@@ -71,8 +80,8 @@
         8.3,
         12.0
       ],
-      "beat": "Different wavelengths bend differently",
-      "intent": "Push toward the optical core while the spectrum remains visible.",
+      "beat": "Different wavelengths leave at different angles",
+      "intent": "Push toward the optical core while the complete internal path and spectrum stay readable.",
       "camera": {
         "preset": "camera.pushIn",
         "target": "prism.center"
@@ -92,14 +101,14 @@
         12.0,
         15.6
       ],
-      "beat": "Rain supplies many splitters",
-      "intent": "Pull out to the rainy world and connect one droplet to many droplets.",
+      "beat": "Rain supplies many optical paths",
+      "intent": "Pull out to reveal many droplets performing the same process instead of a generic particle burst.",
       "camera": {
         "preset": "camera.pullBack",
-        "target": "prism"
+        "target": "droplets"
       },
       "effects": [
-        "effect.reaction.burst"
+        "droplets"
       ],
       "text": [
         {
@@ -114,12 +123,13 @@
         20
       ],
       "beat": "Rainbow payoff",
-      "intent": "Hold the full spectrum only long enough to read the answer.",
+      "intent": "Reveal a restrained rainbow arc in the actual landscape and hold only long enough to read the answer.",
       "camera": {
         "preset": "camera.establish",
-        "target": "prism"
+        "target": "rainbow"
       },
       "effects": [
+        "rainbow",
         "effect.insight.flash"
       ],
       "text": [

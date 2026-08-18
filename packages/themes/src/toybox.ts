@@ -50,7 +50,9 @@ const TOYBOX_ASSETS: AssetDescriptor[] = [
   { id: 'model.environment.nightOverlook', kind: 'model', procedural: true, description: 'Reusable night overlook for horizon and perception scenes' },
   { id: 'model.environment.observatory', kind: 'model', procedural: true, description: 'Reusable observatory for astronomy and atmosphere scenes' },
   { id: 'model.prop.soundRig', kind: 'model', procedural: true, description: 'Reusable sound source/listener/reflector rig' },
-  { id: 'model.prop.prismDrop', kind: 'model', procedural: true, description: 'Reusable optical splitter with spectrum anchors' },
+  { id: 'model.prop.prismDrop', kind: 'model', procedural: true, description: 'Production optical rig with refraction, internal reflection and dispersion anchors' },
+  { id: 'model.prop.rainDropletField', kind: 'model', procedural: true, description: 'Reusable many-raindrop field for optics scale-up shots' },
+  { id: 'model.prop.rainbowArc', kind: 'model', procedural: true, description: 'Reusable landscape-scale spectral arc payoff' },
   { id: 'model.prop.moonPair', kind: 'model', procedural: true, description: 'Reusable equal-size Moon perception comparison rig' },
   { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];

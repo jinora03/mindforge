@@ -256,33 +256,126 @@ export const createToyboxSoundRig: PrefabFactory = (): PrefabInstance => {
   return { object3d: root, anchors: { source, listener, reflector } };
 };
 
-/** Moulded optical splitter with six spectrum-beam anchors. */
+/** Production optical rig with theme-parity anchors for refraction, reflection, dispersion and payoff. */
 export const createToyboxPrismDrop: PrefabFactory = (): PrefabInstance => {
   const root = new THREE.Group();
   root.name = 'toybox.prismDrop';
-  const glass = plastic('#D6F7FF', { transparent: true, opacity: 0.5, roughness: 0.08, emissive: '#83DFF6', emissiveIntensity: 0.14 });
-  const core = part(new THREE.OctahedronGeometry(0.9, 1), glass);
-  core.name = 'core';
-  core.scale.set(0.9, 1.25, 0.9);
+  const glass = plastic('#D9F7FF', { transparent: true, opacity: 0.43, roughness: 0.07, emissive: '#7ED8EC', emissiveIntensity: 0.09 });
+  glass.depthWrite = false;
+  const core = part(new THREE.OctahedronGeometry(0.95, 1), glass);
+  core.name = 'toybox-prism-core-shell';
+  core.scale.set(0.92, 1.28, 0.92);
   root.add(core);
 
-  const input = new THREE.Object3D(); input.position.set(-2.3, 0.1, 0); root.add(input);
-  const center = new THREE.Object3D(); center.position.set(0, 0.05, 0); root.add(center);
+  const input = new THREE.Object3D(); input.name = 'input'; input.position.set(-1.9, 0.46, 0); root.add(input);
+  const center = new THREE.Object3D(); center.name = 'center'; center.position.set(0, 0.04, 0); root.add(center);
+  const bend = new THREE.Object3D(); bend.name = 'bend'; bend.position.set(-0.58, 0.30, 0.04); root.add(bend);
+  const reflect = new THREE.Object3D(); reflect.name = 'reflect'; reflect.position.set(0.58, -0.34, 0.04); root.add(reflect);
+  const exit = new THREE.Object3D(); exit.name = 'exit'; exit.position.set(0.68, 0.46, 0.04); root.add(exit);
+
+  const makeBeam = (
+    name: string,
+    start: [number, number, number],
+    end: [number, number, number],
+    color: string,
+    thickness: number,
+    intensity: number,
+    segments = 10,
+  ): THREE.Group => {
+    const group = new THREE.Group();
+    group.name = name;
+    group.position.set(...start);
+    const direction = new THREE.Vector3(end[0] - start[0], end[1] - start[1], end[2] - start[2]);
+    const length = direction.length();
+    group.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), direction.normalize());
+    const segmentLength = length / segments;
+    const material = plastic(color, { emissive: color, emissiveIntensity: intensity, roughness: 0.08, transparent: true, opacity: 0.88 });
+    material.depthWrite = false;
+    const mesh = new THREE.InstancedMesh(moulded(segmentLength * 0.82, thickness, thickness), material, segments);
+    const matrix = new THREE.Matrix4();
+    for (let i = 0; i < segments; i++) {
+      matrix.makeTranslation((i + 0.5) * segmentLength, 0, 0);
+      mesh.setMatrixAt(i, matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    group.add(mesh);
+    group.scale.x = 0.015;
+    root.add(group);
+    return group;
+  };
+
+  const entryBeam = makeBeam('entryBeam', [-1.9, 0.46, 0.05], [-0.58, 0.30, 0.05], '#FFF5D6', 0.08, 0.74, 8);
+  const refractBeam = makeBeam('refractBeam', [-0.58, 0.30, 0.05], [0.58, -0.34, 0.05], '#EAFBFF', 0.07, 0.78, 8);
+  const reflectionBeam = makeBeam('reflectionBeam', [0.58, -0.34, 0.05], [0.68, 0.46, 0.05], '#F7FDFF', 0.07, 0.86, 7);
+  const exitBeam = makeBeam('exitBeam', [0.68, 0.46, 0.05], [1.18, 0.54, 0.05], '#FFFFFF', 0.075, 0.88, 4);
+
   const colors = [
-    ['red', '#F45B5B', 0.72], ['orange', '#F08A45', 0.45], ['yellow', '#F5D85A', 0.18],
-    ['green', '#63D27A', -0.1], ['blue', '#5A8FE8', -0.38], ['violet', '#9B70E8', -0.66],
+    ['red', '#F25A5A', 1.45], ['orange', '#F28B45', 1.0], ['yellow', '#F4D85A', 0.55],
+    ['green', '#5FD177', 0.1], ['blue', '#5B92E8', -0.35], ['violet', '#9470E4', -0.8],
   ] as const;
-  const anchors: Record<string, THREE.Object3D> = { input, center };
-  colors.forEach(([name, color, y], index) => {
-    const beam = part(moulded(3.2, 0.075, 0.075), plastic(color, { emissive: color, emissiveIntensity: 0.72, roughness: 0.16 }), [2.1, y, 0]);
-    beam.name = name;
-    beam.rotation.z = (y * 0.08) - index * 0.004;
-    beam.scale.x = 0.015;
-    root.add(beam);
+  const anchors: Record<string, THREE.Object3D> = { input, center, bend, reflect, exit, entryBeam, refractBeam, reflectionBeam, exitBeam };
+  colors.forEach(([name, color, endY], index) => {
+    const beam = makeBeam(name, [0.72, 0.46, 0.03], [2.85, endY, 0.03], color, 0.065, 0.64 + index * 0.025, 12);
     anchors[name] = beam;
   });
+
   return { object3d: root, anchors };
 };
+
+export const createToyboxRainDropletField: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.rainDropletField';
+  const dropMaterial = plastic('#D2EEF4', { transparent: true, opacity: 0.3, roughness: 0.08, emissive: '#85D1E1', emissiveIntensity: 0.05 });
+  dropMaterial.depthWrite = false;
+  const dropletMesh = new THREE.InstancedMesh(ballGeometry(1, 10), dropMaterial, 24);
+  const matrix = new THREE.Matrix4();
+  const position = new THREE.Vector3();
+  const scale = new THREE.Vector3();
+  const identity = new THREE.Quaternion();
+  for (let i = 0; i < 24; i++) {
+    position.set(((i * 37) % 17 - 8) * 0.38, -1.05 + ((i * 19) % 13) * 0.31, -1.4 - (i % 5) * 0.75);
+    const size = 0.09 + (i % 4) * 0.018;
+    scale.set(size, size * 1.35, size);
+    matrix.compose(position, identity, scale);
+    dropletMesh.setMatrixAt(i, matrix);
+  }
+  dropletMesh.instanceMatrix.needsUpdate = true;
+  dropletMesh.castShadow = false;
+  root.add(dropletMesh);
+  return { object3d: root };
+};
+
+export const createToyboxRainbowArc: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.rainbowArc';
+  const colors = ['#EF6262', '#F08A4B', '#F0D15B', '#67C978', '#5E91DC', '#8B70D7'] as const;
+  colors.forEach((color, band) => {
+    const radius = 4.2 - band * 0.13;
+    const material = plastic(color, { emissive: color, emissiveIntensity: 0.2, transparent: true, opacity: 0.58, roughness: 0.12 });
+    material.depthWrite = false;
+    const arc = new THREE.InstancedMesh(moulded(0.2, 0.095, 0.08), material, 30);
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3(1, 1, 1);
+    const zAxis = new THREE.Vector3(0, 0, 1);
+    for (let i = 0; i < 30; i++) {
+      const t = i / 29;
+      const angle = THREE.MathUtils.lerp(Math.PI * 0.12, Math.PI * 0.88, t);
+      position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      quaternion.setFromAxisAngle(zAxis, angle + Math.PI / 2);
+      matrix.compose(position, quaternion, scale);
+      arc.setMatrixAt(i, matrix);
+    }
+    arc.instanceMatrix.needsUpdate = true;
+    arc.castShadow = false;
+    root.add(arc);
+  });
+  return { object3d: root };
+};
+
 
 /** Two equal toy moon discs placed in different sky contexts. */
 export const createToyboxMoonPair: PrefabFactory = (): PrefabInstance => {
@@ -351,6 +444,8 @@ export const TOYBOX_PRODUCTION_PREFAB_FACTORIES: Record<string, PrefabFactory> =
   'prefab.magnetKit': createToyboxMagnetKit,
   'prefab.soundRig': createToyboxSoundRig,
   'prefab.prismDrop': createToyboxPrismDrop,
+  'prefab.rainDropletField': createToyboxRainDropletField,
+  'prefab.rainbowArc': createToyboxRainbowArc,
   'prefab.moonPair': createToyboxMoonPair,
   'prefab.starPlanetPair': createToyboxStarPlanetPair,
 };

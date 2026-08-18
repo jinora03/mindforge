@@ -21,6 +21,8 @@ const NEW_ENVIRONMENTS = [
 const NEW_PREFABS = [
   'prefab.soundRig',
   'prefab.prismDrop',
+  'prefab.rainDropletField',
+  'prefab.rainbowArc',
   'prefab.moonPair',
   'prefab.starPlanetPair',
 ] as const;

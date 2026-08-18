@@ -326,46 +326,169 @@ export const createVoxelSoundRig: PrefabFactory = (): PrefabInstance => {
   return { object3d: root, anchors: { source: speaker, listener, reflector } };
 };
 
-/** Optical splitter with an incoming-light anchor and six reusable spectrum beams. */
+/** Production optical rig: faceted raindrop, internal ray path, spectrum, many-droplet field and final rainbow arc. */
 export const createVoxelPrismDrop: PrefabFactory = (): PrefabInstance => {
   const root = new THREE.Group();
   root.name = 'voxel.prismDrop';
-  const glass = createVoxelMaterial('#CFF5FF', { pixelVariation: 0, transparent: true, opacity: 0.52, roughness: 0.08, emissive: '#7CDDF6', emissiveIntensity: 0.12 });
+
+  const glass = createVoxelMaterial('#D7F7FF', {
+    pixelVariation: 0,
+    transparent: true,
+    opacity: 0.42,
+    roughness: 0.08,
+    emissive: '#76D7F0',
+    emissiveIntensity: 0.08,
+  });
+  glass.depthWrite = false;
+
   const core = new THREE.Group();
-  core.name = 'core';
-  core.add(block([1.15, 1.15, 1.15], glass));
-  core.add(block([0.75, 1.65, 0.75], glass));
-  core.rotation.z = Math.PI / 4;
+  core.name = 'voxel-prism-core-shell';
+  const coreMain = block([1.22, 1.22, 1.05], glass.clone());
+  coreMain.rotation.z = Math.PI / 4;
+  core.add(coreMain);
+  for (const [x, y, scale] of [
+    [-0.52, 0.0, 0.62], [0.52, 0.0, 0.62], [0.0, 0.52, 0.62], [0.0, -0.52, 0.62],
+  ] as const) {
+    const facet = block([0.72 * scale, 0.72 * scale, 0.88], glass.clone(), [x, y, 0]);
+    facet.rotation.z = Math.PI / 4;
+    facet.castShadow = false;
+    core.add(facet);
+  }
+  const caustic = block([0.28, 0.28, 0.3], createVoxelGlow('#F3FDFF', 0.5), [0.1, 0.02, 0.1]);
+  caustic.name = 'voxel-prism-caustic';
+  caustic.castShadow = false;
+  core.add(caustic);
   root.add(core);
 
-  const input = new THREE.Object3D();
-  input.name = 'input';
-  input.position.set(-2.3, 0.1, 0);
-  root.add(input);
-  const center = new THREE.Object3D();
-  center.name = 'center';
-  center.position.set(0, 0.05, 0);
-  root.add(center);
+  const input = new THREE.Object3D(); input.name = 'input'; input.position.set(-1.9, 0.46, 0); root.add(input);
+  const center = new THREE.Object3D(); center.name = 'center'; center.position.set(0, 0.04, 0); root.add(center);
+  const bend = new THREE.Object3D(); bend.name = 'bend'; bend.position.set(-0.58, 0.30, 0.04); root.add(bend);
+  const reflect = new THREE.Object3D(); reflect.name = 'reflect'; reflect.position.set(0.58, -0.34, 0.04); root.add(reflect);
+  const exit = new THREE.Object3D(); exit.name = 'exit'; exit.position.set(0.68, 0.46, 0.04); root.add(exit);
+
+  const makeBeam = (
+    name: string,
+    start: [number, number, number],
+    end: [number, number, number],
+    color: string,
+    thickness: number,
+    intensity: number,
+    segments = 11,
+  ): THREE.Group => {
+    const group = new THREE.Group();
+    group.name = name;
+    group.position.set(...start);
+    const direction = new THREE.Vector3(end[0] - start[0], end[1] - start[1], end[2] - start[2]);
+    const length = direction.length();
+    group.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), direction.normalize());
+    const segmentLength = length / segments;
+    const material = createVoxelGlow(color, intensity);
+    material.transparent = true;
+    material.opacity = 0.9;
+    material.depthWrite = false;
+    const mesh = new THREE.InstancedMesh(
+      new THREE.BoxGeometry(segmentLength * 0.78, thickness, thickness),
+      material,
+      segments,
+    );
+    const matrix = new THREE.Matrix4();
+    for (let i = 0; i < segments; i++) {
+      matrix.makeTranslation((i + 0.5) * segmentLength, 0, 0);
+      mesh.setMatrixAt(i, matrix);
+    }
+    mesh.instanceMatrix.needsUpdate = true;
+    mesh.castShadow = false;
+    mesh.receiveShadow = false;
+    group.add(mesh);
+    group.scale.x = 0.015;
+    root.add(group);
+    return group;
+  };
+
+  const entryBeam = makeBeam('entryBeam', [-1.9, 0.46, 0.05], [-0.58, 0.30, 0.05], '#FFF6D6', 0.085, 0.78, 9);
+  const refractBeam = makeBeam('refractBeam', [-0.58, 0.30, 0.05], [0.58, -0.34, 0.05], '#EAFBFF', 0.075, 0.82, 9);
+  const reflectionBeam = makeBeam('reflectionBeam', [0.58, -0.34, 0.05], [0.68, 0.46, 0.05], '#F5FDFF', 0.075, 0.9, 7);
+  const exitBeam = makeBeam('exitBeam', [0.68, 0.46, 0.05], [1.18, 0.54, 0.05], '#FFFFFF', 0.08, 0.92, 4);
 
   const colors = [
-    ['red', '#F45B5B', 0.72],
-    ['orange', '#F08A45', 0.45],
-    ['yellow', '#F5D85A', 0.18],
-    ['green', '#63D27A', -0.1],
-    ['blue', '#5A8FE8', -0.38],
-    ['violet', '#9B70E8', -0.66],
+    ['red', '#F25A5A', 1.45],
+    ['orange', '#F28B45', 1.0],
+    ['yellow', '#F4D85A', 0.55],
+    ['green', '#5FD177', 0.1],
+    ['blue', '#5B92E8', -0.35],
+    ['violet', '#9470E4', -0.8],
   ] as const;
-  const anchors: Record<string, THREE.Object3D> = { input, center };
-  colors.forEach(([name, color, y], index) => {
-    const beam = block([3.2, 0.08, 0.08], createVoxelGlow(color, 0.68), [2.1, y, 0]);
-    beam.name = name;
-    beam.rotation.z = (y * 0.08) - index * 0.004;
+  const anchors: Record<string, THREE.Object3D> = {
+    input, center, bend, reflect, exit, entryBeam, refractBeam, reflectionBeam, exitBeam,
+  };
+
+  colors.forEach(([name, color, endY], index) => {
+    const beam = makeBeam(name, [0.72, 0.46, 0.03], [2.85, endY, 0.03], color, 0.07, 0.66 + index * 0.025, 13);
     beam.scale.x = 0.015;
-    root.add(beam);
     anchors[name] = beam;
   });
+
   return { object3d: root, anchors };
 };
+
+/** Reusable field of stylized raindrops used when one optical path scales to many drops. */
+export const createVoxelRainDropletField: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.rainDropletField';
+  const fieldGlass = createVoxelMaterial('#CDECF2', { pixelVariation: 0, transparent: true, opacity: 0.34, roughness: 0.12, emissive: '#7ECDE0', emissiveIntensity: 0.05 });
+  fieldGlass.depthWrite = false;
+  const dropletMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.35, 1), fieldGlass, 24);
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 4));
+  const position = new THREE.Vector3();
+  const scale = new THREE.Vector3();
+  for (let i = 0; i < 24; i++) {
+    position.set(((i * 37) % 17 - 8) * 0.38, -1.05 + ((i * 19) % 13) * 0.31, -1.4 - (i % 5) * 0.75);
+    const size = 0.12 + (i % 4) * 0.025;
+    scale.setScalar(size);
+    matrix.compose(position, quaternion, scale);
+    dropletMesh.setMatrixAt(i, matrix);
+  }
+  dropletMesh.instanceMatrix.needsUpdate = true;
+  dropletMesh.castShadow = false;
+  dropletMesh.receiveShadow = false;
+  root.add(dropletMesh);
+  return { object3d: root };
+};
+
+/** Landscape-scale spectral payoff, kept separate from the prism so hidden geometry cannot distort camera fitting. */
+export const createVoxelRainbowArc: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.rainbowArc';
+  const colors = ['#EF6262', '#F08A4B', '#F0D15B', '#67C978', '#5E91DC', '#8B70D7'] as const;
+  colors.forEach((color, band) => {
+    const radius = 4.2 - band * 0.13;
+    const material = createVoxelGlow(color, 0.24);
+    material.transparent = true;
+    material.opacity = 0.64;
+    material.depthWrite = false;
+    const arc = new THREE.InstancedMesh(new THREE.BoxGeometry(0.2, 0.1, 0.08), material, 30);
+    const matrix = new THREE.Matrix4();
+    const position = new THREE.Vector3();
+    const quaternion = new THREE.Quaternion();
+    const scale = new THREE.Vector3(1, 1, 1);
+    const zAxis = new THREE.Vector3(0, 0, 1);
+    for (let i = 0; i < 30; i++) {
+      const t = i / 29;
+      const angle = THREE.MathUtils.lerp(Math.PI * 0.12, Math.PI * 0.88, t);
+      position.set(Math.cos(angle) * radius, Math.sin(angle) * radius, 0);
+      quaternion.setFromAxisAngle(zAxis, angle + Math.PI / 2);
+      matrix.compose(position, quaternion, scale);
+      arc.setMatrixAt(i, matrix);
+    }
+    arc.instanceMatrix.needsUpdate = true;
+    arc.castShadow = false;
+    arc.receiveShadow = false;
+    root.add(arc);
+  });
+  return { object3d: root };
+};
+
 
 /** Two identical moon discs in different sky contexts for perception comparisons. */
 export const createVoxelMoonPair: PrefabFactory = (): PrefabInstance => {
@@ -427,6 +550,8 @@ export const VOXEL_PRODUCTION_PREFAB_FACTORIES: Record<string, PrefabFactory> = 
   'prefab.magnetKit': createVoxelMagnetKit,
   'prefab.soundRig': createVoxelSoundRig,
   'prefab.prismDrop': createVoxelPrismDrop,
+  'prefab.rainDropletField': createVoxelRainDropletField,
+  'prefab.rainbowArc': createVoxelRainbowArc,
   'prefab.moonPair': createVoxelMoonPair,
   'prefab.starPlanetPair': createVoxelStarPlanetPair,
 };

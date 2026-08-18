@@ -3,37 +3,37 @@
   "entries": [
     {
       "id": "hook",
-      "content": "How can white sunlight turn into a rainbow?",
+      "content": "How does rain turn sunlight into a rainbow?",
       "style": "question",
       "placement": "upper"
     },
     {
       "id": "input",
-      "content": "Sunlight enters each raindrop and bends.",
+      "content": "Sunlight bends as it enters a raindrop.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "split",
-      "content": "Different wavelengths bend by slightly different amounts.",
+      "content": "Inside, the light reflects and bends again as it leaves.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "bend",
-      "content": "That separates the light into visible colors.",
+      "content": "Different colors leave at slightly different angles.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "many",
-      "content": "Millions of raindrops can do this at once.",
+      "content": "Millions of raindrops do this at once.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "answer",
-      "content": "The separated light reaches your eyes as a rainbow.",
+      "content": "Together, those droplets send a rainbow toward your eyes.",
       "style": "explanation",
       "placement": "center"
     }
