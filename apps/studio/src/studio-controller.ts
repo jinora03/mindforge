@@ -1,5 +1,5 @@
 import { BrowserAudioRuntime, DEFAULT_AUDIO_MIXER_VOLUMES } from '@mindforge/audio';
-import { MindForgeEngine, type EngineFrameInfo, type LayerName, type ResolvedText } from '@mindforge/engine';
+import { BrowserAssetRuntime, MindForgeEngine, type EngineFrameInfo, type LayerName, type ResolvedText } from '@mindforge/engine';
 import { createLibraryForTheme, type MindForgeLibrary } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
 import {
@@ -66,6 +66,7 @@ interface PlaybackSnapshot {
 export class StudioController {
   readonly episodes = EPISODES.map((e) => ({ id: e.id, title: e.title }));
   private readonly engine: MindForgeEngine;
+  private readonly assetRuntime = new BrowserAssetRuntime();
   private library: MindForgeLibrary;
   private theme: MindForgeTheme;
   private readonly listeners = new Set<Listener>();
@@ -94,6 +95,7 @@ export class StudioController {
     this.library = createLibraryForTheme(this.theme.id);
     this.engine = new MindForgeEngine({
       registries: this.library,
+      assetRuntime: this.assetRuntime,
       postProcessing: this.theme.presentation.postProcessing,
       audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.onFrame(info),
@@ -162,7 +164,7 @@ export class StudioController {
     }
   }
 
-  load(episodeId: string): void {
+  async load(episodeId: string): Promise<void> {
     const entry = getEpisode(episodeId);
     if (!entry) {
       this.patch({ error: `Episode "${episodeId}" not found.` });
@@ -170,6 +172,7 @@ export class StudioController {
     }
     try {
       this.lastExportBlob = undefined;
+      await this.engine.prepareAssets();
       this.engine.loadEpisode(entry.input);
       this.patch({
         episodeId,
@@ -199,7 +202,7 @@ export class StudioController {
    * Engine still receives only generic factories/configuration and never sees a
    * theme id.
    */
-  setTheme(themeId: string): void {
+  async setTheme(themeId: string): Promise<void> {
     if (themeId === this.state.themeId) return;
 
     const previousTheme = this.theme;
@@ -217,6 +220,7 @@ export class StudioController {
       this.theme = nextTheme;
       this.library = nextLibrary;
       this.engine.reconfigure(nextLibrary, nextTheme.presentation.postProcessing);
+      await this.engine.prepareAssets();
 
       if (entry) {
         this.engine.loadEpisode(entry.input);
@@ -337,6 +341,7 @@ export class StudioController {
         episode: entry.input,
         registries: exportLibrary,
         theme: exportTheme,
+        assetRuntime: this.assetRuntime,
         width: encoding.width,
         height: encoding.height,
         fps: encoding.fps,
@@ -403,6 +408,7 @@ export class StudioController {
   dispose(): void {
     this.exportAbort?.abort();
     this.engine.dispose();
+    this.assetRuntime.dispose();
   }
 
 

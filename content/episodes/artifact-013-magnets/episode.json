@@ -1,0 +1,355 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-013-magnets",
+  "title": "Why do magnets attract some metals but not all?",
+  "artifactName": "The Selector",
+  "artifactNumber": 13,
+  "artifactType": "mirror",
+  "domain": "crucible",
+  "duration": 34,
+  "environment": "environment.materialLab",
+  "metadata": {
+    "logline": "One magnet tests aluminium, wood and steel; only the ferromagnetic steel snaps toward it.",
+    "beats": "predict -> aluminium -> wood -> steel snap -> domains",
+    "productionStatus": "content-sprint-wave2",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.materialLab",
+      "prefab.magnetKit",
+      "audio.ambience.lab",
+      "audio.sfx.materialTap",
+      "audio.sfx.magnetSnap"
+    ]
+  },
+  "entities": [
+    {
+      "id": "kit",
+      "type": "prefab",
+      "factory": "prefab.magnetKit",
+      "position": [
+        0,
+        1.45,
+        -3.0
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 34,
+      "cue": "audio.ambience.lab",
+      "loop": true,
+      "volume": 0.4
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 5,
+      "preset": "camera.pullBack",
+      "target": "kit",
+      "from": [
+        3.0,
+        2.8,
+        6.7
+      ],
+      "to": [
+        3.6,
+        3.0,
+        7.8
+      ],
+      "fov": 43,
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.4,
+      "duration": 4.1,
+      "textId": "hook"
+    },
+    {
+      "id": "magnet-to-aluminium",
+      "type": "property",
+      "at": 5.1,
+      "duration": 2.2,
+      "target": "kit.magnet",
+      "property": "position",
+      "from": [
+        -2.0,
+        0.72,
+        0.9
+      ],
+      "to": [
+        0,
+        1.25,
+        0.25
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "aluminium-field",
+      "type": "effect",
+      "at": 7.1,
+      "duration": 3.2,
+      "effect": "effect.contour.pressure",
+      "target": "kit.aluminium",
+      "tone": "information",
+      "intensity": 0.42,
+      "parameters": {
+        "radius": 0.75,
+        "segments": 16
+      }
+    },
+    {
+      "id": "aluminium-tap",
+      "type": "audio",
+      "at": 7.2,
+      "cue": "audio.sfx.materialTap",
+      "volume": 0.52
+    },
+    {
+      "id": "cam-aluminium",
+      "type": "camera",
+      "at": 5,
+      "duration": 7,
+      "preset": "camera.pushIn",
+      "target": "kit.aluminium",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "aluminium-text",
+      "type": "text",
+      "at": 5.35,
+      "duration": 6.0,
+      "textId": "aluminium"
+    },
+    {
+      "id": "magnet-to-wood",
+      "type": "property",
+      "at": 12.1,
+      "duration": 2.4,
+      "target": "kit.magnet",
+      "property": "position",
+      "from": [
+        0,
+        1.25,
+        0.25
+      ],
+      "to": [
+        1.8,
+        1.25,
+        0.25
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "wood-tap",
+      "type": "audio",
+      "at": 14.55,
+      "cue": "audio.sfx.materialTap",
+      "volume": 0.46
+    },
+    {
+      "id": "cam-wood",
+      "type": "camera",
+      "at": 12,
+      "duration": 6,
+      "preset": "camera.reveal",
+      "target": "kit.wood",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "wood-text",
+      "type": "text",
+      "at": 12.35,
+      "duration": 5.1,
+      "textId": "wood"
+    },
+    {
+      "id": "magnet-to-steel",
+      "type": "property",
+      "at": 18.1,
+      "duration": 3.0,
+      "target": "kit.magnet",
+      "property": "position",
+      "from": [
+        1.8,
+        1.25,
+        0.25
+      ],
+      "to": [
+        -1.8,
+        1.25,
+        0.25
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "steel-field",
+      "type": "effect",
+      "at": 20.0,
+      "duration": 4.8,
+      "effect": "effect.informationStream",
+      "through": [
+        "kit.magnetTip",
+        "kit.steel"
+      ],
+      "tone": "information",
+      "intensity": 0.82,
+      "parameters": {
+        "density": 26,
+        "speed": 0.72,
+        "size": 0.05,
+        "bow": 0.05
+      }
+    },
+    {
+      "id": "steel-snap",
+      "type": "property",
+      "at": 21.25,
+      "duration": 0.34,
+      "target": "kit.steel",
+      "property": "position",
+      "from": [
+        -1.8,
+        0.59,
+        -0.68
+      ],
+      "to": [
+        -1.8,
+        1.08,
+        -0.03
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "magnet-sfx",
+      "type": "audio",
+      "at": 21.5,
+      "cue": "audio.sfx.magnetSnap",
+      "volume": 0.95
+    },
+    {
+      "id": "steel-burst",
+      "type": "effect",
+      "at": 21.48,
+      "duration": 0.9,
+      "effect": "effect.reaction.burst",
+      "target": "kit.steel",
+      "tone": "reaction",
+      "intensity": 0.72,
+      "parameters": {
+        "count": 26,
+        "radius": 0.65,
+        "size": 0.05
+      }
+    },
+    {
+      "id": "cam-steel-approach",
+      "type": "camera",
+      "at": 18,
+      "duration": 3.2,
+      "preset": "camera.pushIn",
+      "target": "kit.steel",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "cam-steel-hit",
+      "type": "camera",
+      "at": 21.2,
+      "duration": 1.0,
+      "preset": "camera.impactShake",
+      "target": "kit.steel",
+      "shake": 0.14,
+      "easing": "easeOut"
+    },
+    {
+      "id": "cam-steel-hold",
+      "type": "camera",
+      "at": 22.2,
+      "duration": 3.8,
+      "preset": "camera.reveal",
+      "target": "kit.steel",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 3.5,
+        "height": 2.4,
+        "startAngle": 0.08,
+        "endAngle": -0.12
+      }
+    },
+    {
+      "id": "steel-text",
+      "type": "text",
+      "at": 18.4,
+      "duration": 7.0,
+      "textId": "steel"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 26,
+      "duration": 8,
+      "preset": "camera.pushIn",
+      "target": "kit.magnetTip",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-stream",
+      "type": "effect",
+      "at": 26.2,
+      "duration": 6.0,
+      "effect": "effect.informationStream",
+      "through": [
+        "kit.magnetTip",
+        "kit.steel"
+      ],
+      "tone": "insight",
+      "intensity": 0.94,
+      "parameters": {
+        "density": 34,
+        "speed": 0.58,
+        "size": 0.055,
+        "bow": 0.06
+      }
+    },
+    {
+      "id": "steel-glow",
+      "type": "property",
+      "at": 26.2,
+      "duration": 5.0,
+      "target": "kit.steel",
+      "property": "emissiveIntensity",
+      "from": 0,
+      "to": 0.7,
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 31.4,
+      "duration": 0.9,
+      "effect": "effect.insight.flash",
+      "target": "kit.steel",
+      "tone": "insight",
+      "intensity": 0.7
+    },
+    {
+      "id": "insight-sfx",
+      "type": "audio",
+      "at": 31.45,
+      "cue": "audio.sfx.insight",
+      "volume": 0.68
+    },
+    {
+      "id": "answer-text",
+      "type": "text",
+      "at": 26.35,
+      "duration": 7.1,
+      "textId": "answer"
+    }
+  ]
+}

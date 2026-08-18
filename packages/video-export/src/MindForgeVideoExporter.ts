@@ -1,5 +1,5 @@
 import { registerAacEncoder } from '@mediabunny/aac-encoder';
-import type { AudioMixerBus, CapabilityRegistries } from '@mindforge/engine';
+import type { AudioMixerBus, CapabilityRegistries, RuntimeAssetManager } from '@mindforge/engine';
 import { loadEpisode, MindForgeEngine } from '@mindforge/engine';
 import type { MindForgeTheme } from '@mindforge/themes';
 import {
@@ -46,6 +46,8 @@ export interface MindForgeVideoExportRequest {
   readonly episode: unknown;
   readonly registries: CapabilityRegistries;
   readonly theme: MindForgeTheme;
+  /** Shared preloaded-model runtime used by authored GLB/GLTF theme assets. */
+  readonly assetRuntime?: RuntimeAssetManager;
   readonly width?: number;
   readonly height?: number;
   readonly fps?: number;
@@ -158,11 +160,13 @@ export async function exportMindForgeVideo(
 
     engine = new MindForgeEngine({
       registries: request.registries,
+      assetRuntime: request.assetRuntime,
       postProcessing: request.theme.presentation.postProcessing,
       autoResize: false,
       pixelRatioCap: 1,
       preserveDrawingBuffer: true,
     });
+    await engine.prepareAssets();
     engine.setRenderSize(width, height, 1);
     engine.loadEpisode(request.episode);
 

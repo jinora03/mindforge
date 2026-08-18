@@ -1,0 +1,132 @@
+{
+  "episode": "artifact-015-rainbow",
+  "title": "Why does a rainbow appear?",
+  "aspect": "9:16",
+  "durationSeconds": 20,
+  "shots": [
+    {
+      "id": "s1-hook",
+      "t": [
+        0,
+        2.2
+      ],
+      "beat": "Rain plus question",
+      "intent": "Establish the droplet splitter and low sunlight immediately.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "prism"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-input",
+      "t": [
+        2.2,
+        4.5
+      ],
+      "beat": "Sunlight enters",
+      "intent": "Track one bright beam directly into the droplet.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "prism.center"
+      },
+      "effects": [
+        "effect.signal.path"
+      ],
+      "text": [
+        {
+          "id": "input"
+        }
+      ]
+    },
+    {
+      "id": "s3-split",
+      "t": [
+        4.5,
+        8.3
+      ],
+      "beat": "White light separates",
+      "intent": "Reveal six spectrum beams in a fast cascade.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "prism"
+      },
+      "effects": [
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "split"
+        }
+      ]
+    },
+    {
+      "id": "s4-bend",
+      "t": [
+        8.3,
+        12.0
+      ],
+      "beat": "Different wavelengths bend differently",
+      "intent": "Push toward the optical core while the spectrum remains visible.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "prism.center"
+      },
+      "effects": [
+        "effect.contour.pressure"
+      ],
+      "text": [
+        {
+          "id": "bend"
+        }
+      ]
+    },
+    {
+      "id": "s5-many",
+      "t": [
+        12.0,
+        15.6
+      ],
+      "beat": "Rain supplies many splitters",
+      "intent": "Pull out to the rainy world and connect one droplet to many droplets.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "prism"
+      },
+      "effects": [
+        "effect.reaction.burst"
+      ],
+      "text": [
+        {
+          "id": "many"
+        }
+      ]
+    },
+    {
+      "id": "s6-answer",
+      "t": [
+        15.6,
+        20
+      ],
+      "beat": "Rainbow payoff",
+      "intent": "Hold the full spectrum only long enough to read the answer.",
+      "camera": {
+        "preset": "camera.establish",
+        "target": "prism"
+      },
+      "effects": [
+        "effect.insight.flash"
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

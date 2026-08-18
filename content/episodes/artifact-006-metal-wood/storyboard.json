@@ -11,10 +11,10 @@
         4
       ],
       "beat": "The contradiction",
-      "intent": "Show metal and wood together in one lab so the viewer assumes they share the same room conditions.",
+      "intent": "Frame the Observer beside both samples only long enough to establish the sensory puzzle; the character is present because they will test the materials.",
       "camera": {
         "preset": "camera.pullBack",
-        "target": "observer"
+        "target": "samples"
       },
       "effects": [],
       "text": [
@@ -30,7 +30,7 @@
         8
       ],
       "beat": "Same temperature",
-      "intent": "Make the surprising premise explicit before touching either material.",
+      "intent": "Remove the Observer from frame and let the two samples own the shot while their equal condition is established.",
       "camera": {
         "preset": "camera.reveal",
         "target": "samples"
@@ -51,13 +51,13 @@
       "id": "s3-metal-touch",
       "t": [
         8,
-        15
+        14
       ],
-      "beat": "Fast heat loss",
-      "intent": "Show a dense, fast heat-flow stream leaving the hand for metal and visibly warming the metal sample.",
+      "beat": "Metal steals heat quickly",
+      "intent": "Bring the Observer back specifically to touch the metal; the fast stream and immediate flinch make the sensation causal rather than decorative.",
       "camera": {
         "preset": "camera.pushIn",
-        "target": "observer"
+        "target": "samples.metal"
       },
       "effects": [
         {
@@ -72,16 +72,16 @@
       ]
     },
     {
-      "id": "s4-wood-compare",
+      "id": "s4-wood-touch",
       "t": [
-        15,
-        21
+        14,
+        20
       ],
-      "beat": "Slow heat loss",
-      "intent": "Repeat the transfer toward wood with visibly fewer/slower packets for a direct visual comparison.",
+      "beat": "Wood transfers slowly",
+      "intent": "Repeat the experiment with the opposite hand on wood, but keep the performance calm while the stream is visibly sparse and slow.",
       "camera": {
-        "preset": "camera.pullBack",
-        "target": "samples"
+        "preset": "camera.pushIn",
+        "target": "samples.wood"
       },
       "effects": [
         {
@@ -98,16 +98,20 @@
     {
       "id": "s5-answer",
       "t": [
-        21,
+        20,
         26
       ],
       "beat": "Feeling comes from heat flow",
-      "intent": "Return to the Observer and resolve the sensation as a rate-of-heat-transfer story, not a temperature difference.",
+      "intent": "Remove the character again and resolve on the two materials themselves so the final takeaway is the comparison, not the mascot.",
       "camera": {
         "preset": "camera.pullBack",
-        "target": "observer"
+        "target": "samples"
       },
       "effects": [
+        {
+          "id": "answer-metal-path",
+          "purpose": "Re-centers the comparison as the conceptual answer."
+        },
         {
           "id": "answer-flash",
           "purpose": "Marks the conceptual resolution."

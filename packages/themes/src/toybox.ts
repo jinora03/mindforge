@@ -39,6 +39,20 @@ const TOYBOX_ASSETS: AssetDescriptor[] = [
   { id: 'model.environment.materialLab', kind: 'model', procedural: true, description: 'Reusable materials and bench laboratory environment' },
   { id: 'model.environment.classroomLab', kind: 'model', procedural: true, description: 'Reusable classroom demonstration environment' },
   { id: 'model.environment.kitchenLab', kind: 'model', procedural: true, description: 'Reusable kitchen-island experiment environment' },
+  { id: 'model.environment.vehicleCabin', kind: 'model', procedural: true, description: 'Reusable vehicle interior for inertia and safety demonstrations' },
+  { id: 'model.environment.dropLab', kind: 'model', procedural: true, description: 'Reusable vertical drop-test laboratory' },
+  { id: 'model.prop.seatRig', kind: 'model', procedural: true, description: 'Reusable seatbelt/inertia passenger rig' },
+  { id: 'model.prop.featherRock', kind: 'model', procedural: true, description: 'Reusable paired rock/feather drop rig' },
+  { id: 'model.prop.paperPlane', kind: 'model', procedural: true, description: 'Reusable paper glider with aerodynamic anchors' },
+  { id: 'model.prop.magnetKit', kind: 'model', procedural: true, description: 'Reusable magnet and material-target kit' },
+  { id: 'model.environment.canyon', kind: 'model', procedural: true, description: 'Reusable canyon corridor for echoes and wave travel' },
+  { id: 'model.environment.rainMeadow', kind: 'model', procedural: true, description: 'Reusable rainy meadow for optics and weather demonstrations' },
+  { id: 'model.environment.nightOverlook', kind: 'model', procedural: true, description: 'Reusable night overlook for horizon and perception scenes' },
+  { id: 'model.environment.observatory', kind: 'model', procedural: true, description: 'Reusable observatory for astronomy and atmosphere scenes' },
+  { id: 'model.prop.soundRig', kind: 'model', procedural: true, description: 'Reusable sound source/listener/reflector rig' },
+  { id: 'model.prop.prismDrop', kind: 'model', procedural: true, description: 'Reusable optical splitter with spectrum anchors' },
+  { id: 'model.prop.moonPair', kind: 'model', procedural: true, description: 'Reusable equal-size Moon perception comparison rig' },
+  { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];
 
 /**

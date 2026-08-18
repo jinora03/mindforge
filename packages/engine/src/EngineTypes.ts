@@ -91,6 +91,8 @@ export interface SceneServices {
   readonly scene: THREE.Scene;
   readonly camera: THREE.PerspectiveCamera;
   readonly duration: number;
+  /** Synchronous access to production assets that were preloaded before scene build. */
+  readonly assets: RuntimeAssetAccess;
   /** Resolve an entity by id or throw a clear error. */
   getEntity(id: string): Entity;
   tryGetEntity(id: string): Entity | undefined;
@@ -184,6 +186,8 @@ export type EnvironmentFactory = (ctx: EnvironmentBuildContext) => EnvironmentIn
 export interface CharacterBuildContext {
   readonly id: string;
   readonly parameters: Readonly<Record<string, unknown>>;
+  /** Asset-aware scene services for authored character models. */
+  readonly services: SceneServices;
 }
 
 export type CharacterFactory = (ctx: CharacterBuildContext) => Entity;
@@ -193,6 +197,8 @@ export type CharacterFactory = (ctx: CharacterBuildContext) => Entity;
 export interface PrefabBuildContext {
   readonly id: string;
   readonly parameters: Readonly<Record<string, unknown>>;
+  /** Asset-aware scene services for authored prefab models. */
+  readonly services: SceneServices;
 }
 
 /**
@@ -210,16 +216,43 @@ export type PrefabFactory = (ctx: PrefabBuildContext) => PrefabInstance;
 /* ---------------------------------------------------------------- assets --- */
 
 /**
- * Describes an asset by stable id. v0.1 content is procedural, so `url` is
- * usually absent; the descriptor exists so episodes reference ids and the
- * Renderer can later load real `.glb` / audio files.
+ * Describes an asset by stable id. Procedural entries omit `url`; authored
+ * production models may point to GLB/GLTF files preloaded by a runtime asset
+ * manager without exposing file paths to episode content.
  */
 export interface AssetDescriptor {
   readonly id: string;
   readonly kind: 'model' | 'animation' | 'texture' | 'audio' | 'font';
+  /** Browser-resolvable production asset URL. Procedural assets omit it. */
   readonly url?: string;
   readonly procedural?: boolean;
   readonly description?: string;
+  /**
+   * Semantic anchor name -> authored Object3D/node name inside a model asset.
+   * Episode content targets the semantic key and never depends on GLB node names.
+   */
+  readonly anchors?: Readonly<Record<string, string>>;
+}
+
+/** A detached, scene-owned clone of one preloaded model asset. */
+export interface RuntimeModelAsset {
+  readonly object3d: THREE.Object3D;
+  readonly anchors: Readonly<Record<string, THREE.Object3D>>;
+  readonly animations: readonly THREE.AnimationClip[];
+}
+
+/** Synchronous model access handed to factories while a scene is being built. */
+export interface RuntimeAssetAccess {
+  has(id: string): boolean;
+  instantiateModel(id: string): RuntimeModelAsset;
+}
+
+/**
+ * Preload-capable runtime owned by the application/export pipeline. The Engine
+ * only consumes it; it never owns provider-specific loading state.
+ */
+export interface RuntimeAssetManager extends RuntimeAssetAccess, Disposable {
+  preload(descriptors: readonly AssetDescriptor[]): Promise<void>;
 }
 
 /* ----------------------------------------------------------------- audio --- */
@@ -340,6 +373,8 @@ export interface PostProcessingConfig {
 
 export interface EngineConfig {
   readonly registries: CapabilityRegistries;
+  /** Optional production model runtime. Procedural-only projects may omit it. */
+  readonly assetRuntime?: RuntimeAssetManager;
   /** Cap on `devicePixelRatio` to keep fill-rate stable. Defaults to 2. */
   readonly pixelRatioCap?: number;
   readonly postProcessing?: PostProcessingConfig;

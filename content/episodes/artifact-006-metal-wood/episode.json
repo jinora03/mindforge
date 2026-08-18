@@ -10,7 +10,7 @@
   "environment": "environment.materialLab",
   "metadata": {
     "logline": "Metal and wood can be the same temperature, yet metal feels colder because it carries heat away from your skin much faster.",
-    "beats": "same room -> same temperature -> touch -> fast heat flow through metal -> slow heat flow through wood -> conduction answer",
+    "beats": "question -> same temperature -> metal touch + flinch -> wood touch + calm -> object-only heat-flow answer",
     "productionStatus": "content-sprint-wave1",
     "narrationStatus": "caption-led-until-production-voice",
     "sharedAssets": [
@@ -27,13 +27,13 @@
       "type": "character",
       "factory": "character.observer",
       "position": [
+        -1.45,
         0,
-        0,
-        0
+        -0.35
       ],
       "rotation": [
         0,
-        -0.12,
+        -0.28,
         0
       ]
     },
@@ -42,7 +42,7 @@
       "type": "prefab",
       "factory": "prefab.materialSamples",
       "position": [
-        0,
+        0.35,
         1.48,
         -2.7
       ]
@@ -77,7 +77,7 @@
       "id": "idle",
       "type": "motion",
       "at": 0,
-      "duration": 26,
+      "duration": 20,
       "target": "observer",
       "motion": "motion.humanoid.idle"
     },
@@ -85,7 +85,7 @@
       "id": "breathe",
       "type": "motion",
       "at": 0,
-      "duration": 26,
+      "duration": 20,
       "target": "observer",
       "motion": "motion.humanoid.breathe"
     },
@@ -95,38 +95,45 @@
       "at": 0,
       "duration": 4,
       "preset": "camera.pullBack",
-      "target": "observer",
+      "target": "samples",
       "from": [
-        2.8,
-        2.3,
-        5.8
+        2.4,
+        2.25,
+        5.5
       ],
       "to": [
-        3.6,
-        3.0,
-        8.2
+        3.2,
+        2.85,
+        7.25
       ],
-      "fov": 46,
+      "fov": 44,
       "framingOffset": [
-        0,
-        1.35,
-        -0.4
+        -0.45,
+        0.95,
+        -0.2
       ],
       "easing": "easeInOut"
     },
     {
       "id": "face-question",
       "type": "face",
-      "at": 0.4,
+      "at": 0.35,
       "target": "observer",
       "state": "confused"
     },
     {
       "id": "hook",
       "type": "text",
-      "at": 0.55,
-      "duration": 3.1,
+      "at": 0.45,
+      "duration": 3.2,
       "textId": "hook"
+    },
+    {
+      "id": "observer-hide-premise",
+      "type": "visibility",
+      "at": 3.9,
+      "target": "observer",
+      "visible": false
     },
     {
       "id": "cam-samples",
@@ -137,17 +144,17 @@
       "target": "samples",
       "easing": "easeInOut",
       "parameters": {
-        "radius": 5.0,
-        "height": 2.8,
-        "startAngle": 0.48,
-        "endAngle": 0.12
+        "radius": 4.6,
+        "height": 2.7,
+        "startAngle": 0.34,
+        "endAngle": -0.12
       }
     },
     {
       "id": "same-temp-link",
       "type": "effect",
-      "at": 4.25,
-      "duration": 3.2,
+      "at": 4.15,
+      "duration": 3.45,
       "effect": "effect.signal.path",
       "from": "samples.metal",
       "to": "samples.wood",
@@ -160,104 +167,218 @@
     {
       "id": "tap-metal",
       "type": "audio",
-      "at": 5.0,
+      "at": 4.75,
       "cue": "audio.sfx.materialTap",
-      "volume": 0.62
+      "volume": 0.58
+    },
+    {
+      "id": "tap-wood",
+      "type": "audio",
+      "at": 5.35,
+      "cue": "audio.sfx.materialTap",
+      "volume": 0.46
     },
     {
       "id": "same-temp",
       "type": "text",
-      "at": 4.55,
-      "duration": 3.15,
+      "at": 4.4,
+      "duration": 3.25,
       "textId": "sameTemp"
     },
     {
-      "id": "cam-touch",
+      "id": "observer-show-metal",
+      "type": "visibility",
+      "at": 7.75,
+      "target": "observer",
+      "visible": true
+    },
+    {
+      "id": "cam-metal-touch",
       "type": "camera",
       "at": 8,
-      "duration": 7,
+      "duration": 6,
       "preset": "camera.pushIn",
-      "target": "observer",
+      "target": "samples.metal",
       "easing": "easeInOut"
     },
     {
-      "id": "reach",
+      "id": "reach-metal",
       "type": "motion",
-      "at": 8.2,
-      "duration": 4.6,
+      "at": 8.05,
+      "duration": 3.0,
       "target": "observer",
       "motion": "motion.humanoid.reach",
       "intensity": 1.0
     },
     {
-      "id": "touch-sfx",
+      "id": "touch-metal-sfx",
       "type": "audio",
-      "at": 8.75,
+      "at": 9.0,
       "cue": "audio.sfx.touch",
-      "volume": 0.66
+      "volume": 0.7
     },
     {
       "id": "metal-flow",
       "type": "effect",
-      "at": 8.8,
-      "duration": 5.4,
+      "at": 9.0,
+      "duration": 4.4,
       "effect": "effect.informationStream",
       "through": [
         "observer.handRight",
         "samples.metalSurface"
       ],
       "tone": "heat",
-      "intensity": 1.05,
+      "intensity": 1.15,
       "parameters": {
-        "density": 30,
-        "speed": 1.2,
+        "density": 34,
+        "speed": 1.35,
         "size": 0.075,
-        "bow": 0.04
+        "bow": 0.03
       }
     },
     {
-      "id": "heat-flow-sfx",
+      "id": "heat-flow-metal-sfx",
       "type": "audio",
-      "at": 9.0,
+      "at": 9.05,
       "cue": "audio.sfx.heatTransfer",
-      "volume": 0.64
+      "volume": 0.68
     },
     {
       "id": "metal-warm",
       "type": "property",
       "at": 9.0,
-      "duration": 4.5,
+      "duration": 4.2,
       "target": "samples.metal",
       "property": "emissiveIntensity",
       "from": 0,
-      "to": 0.92,
+      "to": 0.98,
       "easing": "easeIn"
+    },
+    {
+      "id": "face-cold",
+      "type": "face",
+      "at": 9.18,
+      "target": "observer",
+      "state": "surprised"
+    },
+    {
+      "id": "cold-flinch",
+      "type": "motion",
+      "at": 9.22,
+      "duration": 2.0,
+      "target": "observer",
+      "motion": "motion.humanoid.surprisedSquirm",
+      "intensity": 0.55
     },
     {
       "id": "metal-text",
       "type": "text",
-      "at": 9.15,
-      "duration": 5.3,
+      "at": 9.1,
+      "duration": 4.5,
       "textId": "metal"
     },
     {
-      "id": "cam-compare",
+      "id": "face-reset",
+      "type": "face",
+      "at": 13.25,
+      "target": "observer",
+      "state": "neutral"
+    },
+    {
+      "id": "cam-wood-touch",
       "type": "camera",
-      "at": 15,
+      "at": 14,
+      "duration": 6,
+      "preset": "camera.pushIn",
+      "target": "samples.wood",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "reach-wood",
+      "type": "motion",
+      "at": 14.15,
+      "duration": 3.3,
+      "target": "observer",
+      "motion": "motion.humanoid.reach",
+      "mirror": true,
+      "intensity": 0.95
+    },
+    {
+      "id": "touch-wood-sfx",
+      "type": "audio",
+      "at": 15.1,
+      "cue": "audio.sfx.touch",
+      "volume": 0.52
+    },
+    {
+      "id": "wood-flow",
+      "type": "effect",
+      "at": 15.1,
+      "duration": 4.35,
+      "effect": "effect.informationStream",
+      "through": [
+        "observer.handLeft",
+        "samples.woodSurface"
+      ],
+      "tone": "heat",
+      "intensity": 0.46,
+      "parameters": {
+        "density": 9,
+        "speed": 0.3,
+        "size": 0.07,
+        "bow": 0.04
+      }
+    },
+    {
+      "id": "wood-warm",
+      "type": "property",
+      "at": 15.1,
+      "duration": 4.4,
+      "target": "samples.wood",
+      "property": "emissiveIntensity",
+      "from": 0,
+      "to": 0.28,
+      "easing": "easeIn"
+    },
+    {
+      "id": "face-compare",
+      "type": "face",
+      "at": 15.35,
+      "target": "observer",
+      "state": "focused"
+    },
+    {
+      "id": "wood-text",
+      "type": "text",
+      "at": 15.2,
+      "duration": 4.45,
+      "textId": "wood"
+    },
+    {
+      "id": "observer-hide-answer",
+      "type": "visibility",
+      "at": 19.8,
+      "target": "observer",
+      "visible": false
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 20,
       "duration": 6,
       "preset": "camera.pullBack",
       "target": "samples",
       "from": [
-        2.7,
         2.4,
-        5.0
+        2.2,
+        4.9
       ],
       "to": [
-        3.3,
+        3.4,
         3.0,
-        7.1
+        7.2
       ],
-      "fov": 43,
+      "fov": 42,
       "framingOffset": [
         0,
         0.9,
@@ -266,71 +387,23 @@
       "easing": "easeInOut"
     },
     {
-      "id": "wood-flow",
+      "id": "answer-metal-path",
       "type": "effect",
-      "at": 15.2,
-      "duration": 5.0,
-      "effect": "effect.informationStream",
-      "through": [
-        "observer.handRight",
-        "samples.woodSurface"
-      ],
-      "tone": "heat",
-      "intensity": 0.48,
+      "at": 20.2,
+      "duration": 4.7,
+      "effect": "effect.signal.path",
+      "from": "samples.metal",
+      "to": "samples.wood",
+      "tone": "insight",
+      "intensity": 0.5,
       "parameters": {
-        "density": 10,
-        "speed": 0.34,
-        "size": 0.07,
-        "bow": 0.05
+        "thickness": 0.07
       }
-    },
-    {
-      "id": "wood-warm",
-      "type": "property",
-      "at": 15.2,
-      "duration": 5.0,
-      "target": "samples.wood",
-      "property": "emissiveIntensity",
-      "from": 0,
-      "to": 0.28,
-      "easing": "easeIn"
-    },
-    {
-      "id": "wood-text",
-      "type": "text",
-      "at": 15.3,
-      "duration": 5.2,
-      "textId": "wood"
-    },
-    {
-      "id": "cam-answer",
-      "type": "camera",
-      "at": 21,
-      "duration": 5,
-      "preset": "camera.pullBack",
-      "target": "observer",
-      "from": [
-        2.7,
-        2.2,
-        5.5
-      ],
-      "to": [
-        3.6,
-        3.0,
-        8.0
-      ],
-      "fov": 45,
-      "framingOffset": [
-        0,
-        1.35,
-        -0.3
-      ],
-      "easing": "easeInOut"
     },
     {
       "id": "answer-flash",
       "type": "effect",
-      "at": 21.15,
+      "at": 20.3,
       "duration": 1.0,
       "effect": "effect.insight.flash",
       "tone": "insight",
@@ -342,22 +415,15 @@
     {
       "id": "answer-sfx",
       "type": "audio",
-      "at": 21.2,
+      "at": 20.35,
       "cue": "audio.sfx.insight",
       "volume": 0.6
     },
     {
-      "id": "face-answer",
-      "type": "face",
-      "at": 21.25,
-      "target": "observer",
-      "state": "focused"
-    },
-    {
       "id": "answer",
       "type": "text",
-      "at": 21.25,
-      "duration": 4.45,
+      "at": 20.35,
+      "duration": 5.3,
       "textId": "answer"
     }
   ]

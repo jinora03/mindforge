@@ -9,7 +9,7 @@ Rubbing a balloon can leave it with extra electrons. A nearby neutral wall is st
 
 ## 2. The unforgettable visual
 
-Charge packets visibly stream from the Observer's hand onto the balloon. The charged balloon then travels toward a neutral wall panel; the wall responds locally as its charges shift, and the balloon stays attached. The viewer should see **charge transfer → polarization → attraction** as one continuous causal chain.
+The Observer visibly rubs the balloon with both hands while charge packets accumulate. Then the Observer disappears from the composition: the charged balloon travels toward the wall, the wall polarizes, and the balloon sticks. The viewer should see **physical rubbing → charge transfer → polarization → attraction** as one continuous causal chain.
 
 ## 3. Composition
 
@@ -20,7 +20,7 @@ Charge packets visibly stream from the Observer's hand onto the balloon. The cha
 
 ## 4. Performance / transformation
 
-The Observer begins curious, reaches toward the balloon during charging, and becomes focused once the wall response is visible. The balloon itself is the hero performer: free-floating at first, then deliberately translated until it sticks.
+The Observer exists only for the charging action and uses a dedicated reusable rubbing motion rather than a generic reach. Once charging is complete, the Observer is hidden and the balloon becomes the hero performer through polarization and sticking.
 
 ## 5. Text strategy
 
@@ -32,6 +32,8 @@ This episode establishes `environment.classroomLab`, `prefab.balloon`, `prefab.d
 
 ## 7. Success criteria
 
+- The rubbing action visibly creates the charge instead of the balloon charging by itself.
+- The Observer disappears once their causal role is complete.
 - The viewer can follow charging, polarization and sticking without narration.
 - The wall is represented as neutral-but-polarized rather than magically becoming a permanent opposite charge.
 - Static effects remain readable in both themes.

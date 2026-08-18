@@ -9,7 +9,7 @@ Ice floats because freezing makes water molecules arrange into a more open struc
 
 ## 2. The unforgettable visual
 
-An ice cube drops into a transparent tank, splashes, then settles at the surface instead of sinking. The cube visibly expands during the explanation and then rises slightly, turning the abstract density idea into a physical before/after change.
+The tank is the protagonist. An ice cube drops, splashes, settles at the surface, expands conceptually to reveal the open frozen structure, then rises and gently bobs. No standing character is used because nothing about the explanation requires one.
 
 ## 3. Composition
 
@@ -20,7 +20,7 @@ An ice cube drops into a transparent tank, splashes, then settles at the surface
 
 ## 4. Performance / transformation
 
-The Observer is mostly a witness. Curiosity at the drop becomes focus during the density explanation. The tank/ice transformation carries the story so this episode still works when the character is visually small.
+There is no humanoid Observer in this episode. The waterline, ice cube, splash, expansion, rise, and buoyancy cue perform the entire explanation. This is the reference object-led composition for future density/fluid episodes.
 
 ## 5. Text strategy
 
@@ -32,6 +32,7 @@ This episode establishes `prefab.floatTank` and further exercises `environment.k
 
 ## 7. Success criteria
 
+- No idle character appears anywhere in the episode.
 - The waterline and floating position read instantly in both themes.
 - The episode never suggests that ice floats because it contains air bubbles.
 - Expansion and density are visually connected before the buoyancy answer.

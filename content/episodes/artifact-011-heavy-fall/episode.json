@@ -1,0 +1,339 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-011-heavy-fall",
+  "title": "Do heavier objects fall faster?",
+  "artifactName": "The Drop",
+  "artifactNumber": 11,
+  "artifactType": "mirror",
+  "domain": "crucible",
+  "duration": 30,
+  "environment": "environment.dropLab",
+  "metadata": {
+    "logline": "A rock beats a feather in air, then both fall together when air resistance is removed.",
+    "beats": "question -> air drop -> drag -> vacuum drop -> answer",
+    "productionStatus": "content-sprint-wave2",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.dropLab",
+      "prefab.featherRock",
+      "audio.ambience.lab",
+      "audio.sfx.dropRelease",
+      "audio.sfx.dropImpact"
+    ]
+  },
+  "entities": [
+    {
+      "id": "dropRig",
+      "type": "prefab",
+      "factory": "prefab.featherRock",
+      "position": [
+        0,
+        0,
+        -3.3
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 30,
+      "cue": "audio.ambience.lab",
+      "loop": true,
+      "volume": 0.38
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 4,
+      "preset": "camera.pullBack",
+      "target": "dropRig",
+      "from": [
+        3.7,
+        3.2,
+        8.4
+      ],
+      "to": [
+        4.3,
+        3.8,
+        10.0
+      ],
+      "fov": 42,
+      "framingOffset": [
+        0,
+        2.6,
+        0
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.4,
+      "duration": 3.2,
+      "textId": "hook"
+    },
+    {
+      "id": "release-air",
+      "type": "audio",
+      "at": 4.25,
+      "cue": "audio.sfx.dropRelease",
+      "volume": 0.75
+    },
+    {
+      "id": "air-rock-fall",
+      "type": "property",
+      "at": 4.3,
+      "duration": 2.2,
+      "target": "dropRig.airRock",
+      "property": "position",
+      "from": [
+        -1.15,
+        5.55,
+        0
+      ],
+      "to": [
+        -1.15,
+        0.42,
+        0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "air-feather-fall",
+      "type": "property",
+      "at": 4.3,
+      "duration": 9.4,
+      "target": "dropRig.airFeather",
+      "property": "position",
+      "from": [
+        1.15,
+        5.55,
+        0
+      ],
+      "to": [
+        1.15,
+        0.42,
+        0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "air-rock-impact",
+      "type": "audio",
+      "at": 6.5,
+      "cue": "audio.sfx.dropImpact",
+      "volume": 0.82
+    },
+    {
+      "id": "air-feather-impact",
+      "type": "audio",
+      "at": 13.7,
+      "cue": "audio.sfx.dropImpact",
+      "volume": 0.48
+    },
+    {
+      "id": "cam-air",
+      "type": "camera",
+      "at": 4,
+      "duration": 8,
+      "preset": "camera.pushIn",
+      "target": "dropRig",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "air-path",
+      "type": "effect",
+      "at": 4.3,
+      "duration": 6.3,
+      "effect": "effect.signal.path",
+      "from": "dropRig.airRock",
+      "to": "dropRig.floor",
+      "tone": "information",
+      "intensity": 0.5,
+      "parameters": {
+        "speed": 0.55,
+        "size": 0.045,
+        "bow": 0
+      }
+    },
+    {
+      "id": "air-text",
+      "type": "text",
+      "at": 4.5,
+      "duration": 6.7,
+      "textId": "air"
+    },
+    {
+      "id": "cam-drag",
+      "type": "camera",
+      "at": 12,
+      "duration": 4,
+      "preset": "camera.reveal",
+      "target": "dropRig.airFeather",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "drag-pressure",
+      "type": "effect",
+      "at": 12.1,
+      "duration": 3.2,
+      "effect": "effect.contour.pressure",
+      "target": "dropRig.airFeather",
+      "tone": "suppression",
+      "intensity": 0.8,
+      "parameters": {
+        "radius": 0.8,
+        "segments": 18
+      }
+    },
+    {
+      "id": "drag-text",
+      "type": "text",
+      "at": 12.15,
+      "duration": 3.5,
+      "textId": "drag"
+    },
+    {
+      "id": "hide-air-rock",
+      "type": "visibility",
+      "at": 15.8,
+      "target": "dropRig.airRock",
+      "visible": false
+    },
+    {
+      "id": "hide-air-feather",
+      "type": "visibility",
+      "at": 15.8,
+      "target": "dropRig.airFeather",
+      "visible": false
+    },
+    {
+      "id": "show-vac-rock",
+      "type": "visibility",
+      "at": 15.8,
+      "target": "dropRig.vacuumRock",
+      "visible": true
+    },
+    {
+      "id": "show-vac-feather",
+      "type": "visibility",
+      "at": 15.8,
+      "target": "dropRig.vacuumFeather",
+      "visible": true
+    },
+    {
+      "id": "vacuum-flash",
+      "type": "effect",
+      "at": 15.9,
+      "duration": 0.8,
+      "effect": "effect.insight.flash",
+      "target": "dropRig.chamber",
+      "tone": "information",
+      "intensity": 0.65
+    },
+    {
+      "id": "release-vac",
+      "type": "audio",
+      "at": 17.0,
+      "cue": "audio.sfx.dropRelease",
+      "volume": 0.75
+    },
+    {
+      "id": "vac-rock-fall",
+      "type": "property",
+      "at": 17.05,
+      "duration": 3.0,
+      "target": "dropRig.vacuumRock",
+      "property": "position",
+      "from": [
+        -1.15,
+        5.55,
+        0
+      ],
+      "to": [
+        -1.15,
+        0.42,
+        0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "vac-feather-fall",
+      "type": "property",
+      "at": 17.05,
+      "duration": 3.0,
+      "target": "dropRig.vacuumFeather",
+      "property": "position",
+      "from": [
+        1.15,
+        5.55,
+        0
+      ],
+      "to": [
+        1.15,
+        0.42,
+        0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "vac-impact",
+      "type": "audio",
+      "at": 20.05,
+      "cue": "audio.sfx.dropImpact",
+      "volume": 0.9
+    },
+    {
+      "id": "cam-vac",
+      "type": "camera",
+      "at": 16,
+      "duration": 9,
+      "preset": "camera.pullBack",
+      "target": "dropRig",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "vacuum-text",
+      "type": "text",
+      "at": 16.3,
+      "duration": 7.7,
+      "textId": "vacuum"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 25,
+      "duration": 5,
+      "preset": "camera.pushIn",
+      "target": "dropRig.floor",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 25.2,
+      "duration": 1.0,
+      "effect": "effect.insight.flash",
+      "target": "dropRig.floor",
+      "tone": "insight",
+      "intensity": 0.75
+    },
+    {
+      "id": "insight-sfx",
+      "type": "audio",
+      "at": 25.25,
+      "cue": "audio.sfx.insight",
+      "volume": 0.7
+    },
+    {
+      "id": "answer-text",
+      "type": "text",
+      "at": 25.25,
+      "duration": 4.4,
+      "textId": "answer"
+    }
+  ]
+}

@@ -10,11 +10,11 @@
         0,
         4.5
       ],
-      "beat": "The floating puzzle",
-      "intent": "Establish the tank and Observer before the ice enters the water.",
+      "beat": "The tank is the protagonist",
+      "intent": "Open directly on the transparent tank and ice. No humanoid is present because the phenomenon itself is the subject.",
       "camera": {
-        "preset": "camera.pullBack",
-        "target": "observer"
+        "preset": "camera.reveal",
+        "target": "tank"
       },
       "effects": [],
       "text": [
@@ -29,8 +29,8 @@
         4.5,
         10
       ],
-      "beat": "Ice refuses to sink",
-      "intent": "Drop the ice into the tank and make the splash/settled floating position physically readable.",
+      "beat": "Ice drops, splashes, and refuses to sink",
+      "intent": "Follow the cube into the water and hold the waterline clearly enough that the surprising floating state reads without a witness character.",
       "camera": {
         "preset": "camera.pushIn",
         "target": "tank"
@@ -38,7 +38,7 @@
       "effects": [
         {
           "id": "splash-ring",
-          "purpose": "Marks the ice-water contact."
+          "purpose": "Makes the water contact readable at phone size."
         }
       ],
       "text": [
@@ -53,8 +53,8 @@
         10,
         17
       ],
-      "beat": "Freezing expands the structure",
-      "intent": "Scale the ice slightly and surround it with a sparse structural burst to represent more open molecular spacing.",
+      "beat": "Freezing opens the structure",
+      "intent": "Orbit the ice as it expands conceptually; the transformation, not a character reaction, carries the explanation.",
       "camera": {
         "preset": "camera.reveal",
         "target": "tank.ice"
@@ -62,7 +62,7 @@
       "effects": [
         {
           "id": "structure-burst",
-          "purpose": "Visual shorthand for an open solid structure."
+          "purpose": "Suggests the more open frozen structure without cluttering the tank."
         }
       ],
       "text": [
@@ -77,8 +77,8 @@
         17,
         24
       ],
-      "beat": "Less dense than water",
-      "intent": "Let the expanded ice rise to its floating position while water-to-ice packets emphasize the surrounding liquid.",
+      "beat": "Same mass, more volume",
+      "intent": "Show the cube rise and begin a subtle bob while the water-to-ice relationship visualizes lower density.",
       "camera": {
         "preset": "camera.pullBack",
         "target": "tank"
@@ -101,11 +101,11 @@
         24,
         30
       ],
-      "beat": "Buoyancy wins",
-      "intent": "Hold the final floating state and resolve the explanation as density plus upward support from water.",
+      "beat": "Buoyancy supports the lower-density ice",
+      "intent": "Finish tightly on the floating cube at the waterline; the tank and buoyancy cue are the complete payoff.",
       "camera": {
-        "preset": "camera.pullBack",
-        "target": "observer"
+        "preset": "camera.pushIn",
+        "target": "tank.ice"
       },
       "effects": [
         {

@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "A magnet can attract steel \u2014 so why not every metal?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "aluminium",
+      "content": "Ordinary aluminium is metal, but it does not snap toward this magnet.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "wood",
+      "content": "Wood stays put too. \u201cMetal\u201d alone is not the rule.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "steel",
+      "content": "Steel responds strongly because it contains ferromagnetic material.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "Its magnetic domains can align strongly with the magnet\u2019s field \u2014 so attraction becomes obvious.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 013 / The Selector",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

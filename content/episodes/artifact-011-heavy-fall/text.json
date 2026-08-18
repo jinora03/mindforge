@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Do heavier objects really fall faster?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "air",
+      "content": "In air, the rock wins. The feather is slowed much more by drag.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "drag",
+      "content": "That difference is mostly the air \u2014 not stronger gravity on the rock.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "vacuum",
+      "content": "Remove the air, release them together\u2026",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "\u2026and rock and feather accelerate together under gravity.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 011 / The Drop",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

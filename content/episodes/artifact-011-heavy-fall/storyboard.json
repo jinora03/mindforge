@@ -1,0 +1,123 @@
+{
+  "episode": "artifact-011-heavy-fall",
+  "title": "Do heavier objects fall faster?",
+  "aspect": "9:16",
+  "durationSeconds": 30,
+  "shots": [
+    {
+      "id": "s1-question",
+      "t": [
+        0,
+        4
+      ],
+      "beat": "The common intuition",
+      "intent": "Frame rock and feather together at the top of the drop tower.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "dropRig"
+      },
+      "effects": [],
+      "text": [
+        {
+          "id": "hook"
+        }
+      ]
+    },
+    {
+      "id": "s2-air",
+      "t": [
+        4,
+        12
+      ],
+      "beat": "Drop in air",
+      "intent": "Release both together; rock lands first while feather visibly lags.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "dropRig.airRock"
+      },
+      "effects": [
+        {
+          "id": "air-path",
+          "purpose": "Marks the shared gravity direction while their motion diverges."
+        }
+      ],
+      "text": [
+        {
+          "id": "air"
+        }
+      ]
+    },
+    {
+      "id": "s3-drag",
+      "t": [
+        12,
+        16
+      ],
+      "beat": "Air is the difference",
+      "intent": "Hold the lagging feather and make drag the explanatory variable before the vacuum test.",
+      "camera": {
+        "preset": "camera.reveal",
+        "target": "dropRig.airFeather"
+      },
+      "effects": [
+        {
+          "id": "drag-pressure",
+          "purpose": "Visualizes air resistance around the feather."
+        }
+      ],
+      "text": [
+        {
+          "id": "drag"
+        }
+      ]
+    },
+    {
+      "id": "s4-vacuum",
+      "t": [
+        16,
+        25
+      ],
+      "beat": "Remove the air",
+      "intent": "Swap to the vacuum pair and drop both with identical timing.",
+      "camera": {
+        "preset": "camera.pullBack",
+        "target": "dropRig"
+      },
+      "effects": [
+        {
+          "id": "vacuum-flash",
+          "purpose": "Marks the experimental condition change."
+        }
+      ],
+      "text": [
+        {
+          "id": "vacuum"
+        }
+      ]
+    },
+    {
+      "id": "s5-answer",
+      "t": [
+        25,
+        30
+      ],
+      "beat": "Gravity result",
+      "intent": "Resolve on both objects together at the bottom.",
+      "camera": {
+        "preset": "camera.pushIn",
+        "target": "dropRig.floor"
+      },
+      "effects": [
+        {
+          "id": "answer-flash",
+          "purpose": "Marks the equal-acceleration takeaway."
+        }
+      ],
+      "text": [
+        {
+          "id": "answer"
+        }
+      ]
+    }
+  ]
+}

@@ -174,10 +174,259 @@ export const createVoxelBowlSpoon: PrefabFactory = (): PrefabInstance => {
   return { object3d: root, anchors: { soup, spoon, handle, soupSurface, handleTip } };
 };
 
+
+
+/** Seat + belt + simplified seated passenger for safety/inertia demonstrations. */
+export const createVoxelSeatRig: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.seatRig';
+  const seatMat = createBlockMaterial('planks', { size: [2.2, 0.45, 2.2], tint: '#455866' });
+  const frameMat = createBlockMaterial('metalPlate', { size: [0.18, 2.8, 0.18], tint: '#77858C' });
+  root.add(block([2.25, 0.42, 2.2], seatMat, [0, 0.52, 0]));
+  root.add(block([2.25, 2.6, 0.42], seatMat, [0, 1.95, -0.88]));
+  for (const x of [-0.95, 0.95]) root.add(block([0.18, 1.1, 0.18], frameMat, [x, 0.15, -0.75]));
+
+  const passenger = new THREE.Group();
+  passenger.name = 'passenger';
+  const body = createVoxelMaterial('#45A7A1', { texture: 'cloth', size: [1.25, 1.25, 0.65], roughness: 0.9 });
+  const skin = createVoxelMaterial('#C88F6F', { pixelVariation: 0.02, roughness: 0.9 });
+  const trousers = createVoxelMaterial('#405D78', { texture: 'cloth', size: [0.48, 1.25, 0.48], roughness: 0.95 });
+  passenger.add(block([1.25, 1.25, 0.65], body, [0, 1.75, -0.05]));
+  passenger.add(block([0.78, 0.78, 0.78], skin, [0, 2.72, -0.02]));
+  for (const x of [-0.36, 0.36]) {
+    const leg = block([0.46, 1.28, 0.46], trousers, [x, 0.72, 0.62]);
+    leg.rotation.x = -0.82;
+    passenger.add(leg);
+  }
+  root.add(passenger);
+
+  const beltMat = createVoxelMaterial('#E6B84A', { pixelVariation: 0, roughness: 0.55, emissive: '#8A5F18', emissiveIntensity: 0.05 });
+  const belt = new THREE.Group();
+  belt.name = 'belt';
+  const strap = block([0.16, 1.85, 0.12], beltMat, [0, 1.8, 0.38]);
+  strap.rotation.z = -0.58;
+  belt.add(strap);
+  belt.add(block([1.35, 0.13, 0.12], beltMat, [0, 1.26, 0.42]));
+  root.add(belt);
+
+  const chest = new THREE.Object3D();
+  chest.name = 'chest';
+  chest.position.set(0, 1.85, 0.36);
+  passenger.add(chest);
+  const latch = new THREE.Object3D();
+  latch.name = 'latch';
+  latch.position.set(0.48, 1.26, 0.48);
+  root.add(latch);
+  return { object3d: root, anchors: { passenger, chest, belt, latch } };
+};
+
+/** Paired rock/feather drop rig with separate air and vacuum test objects. */
+export const createVoxelFeatherRock: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.featherRock';
+  const frame = createBlockMaterial('metalPlate', { size: [0.12, 6.4, 0.12], tint: '#7C8990' });
+  for (const x of [-2.4, 2.4]) for (const z of [-0.75, 0.75]) root.add(block([0.12, 6.4, 0.12], frame, [x, 3.2, z]));
+  root.add(block([5.0, 0.15, 1.65], frame, [0, 6.35, 0]));
+  root.add(block([5.0, 0.18, 1.65], frame, [0, 0.1, 0]));
+
+  const rockMat = createVoxelMaterial('#7D8589', { texture: 'stone', size: [0.72, 0.72, 0.72], roughness: 0.95 });
+  const featherMat = createVoxelMaterial('#F1E9D1', { pixelVariation: 0, roughness: 0.86 });
+  const makeRock = (name: string, x: number): THREE.Group => {
+    const g = new THREE.Group(); g.name = name; g.position.set(x, 5.55, 0);
+    const a = block([0.72, 0.62, 0.68], rockMat); a.rotation.set(0.12, 0.22, -0.09); g.add(a);
+    return g;
+  };
+  const makeFeather = (name: string, x: number): THREE.Group => {
+    const g = new THREE.Group(); g.name = name; g.position.set(x, 5.55, 0);
+    const stem = block([0.08, 0.9, 0.08], featherMat); stem.rotation.z = -0.15; g.add(stem);
+    const vane = block([0.48, 0.72, 0.08], featherMat, [0.15, 0.06, 0]); vane.rotation.z = -0.38; g.add(vane);
+    return g;
+  };
+  const airRock = makeRock('airRock', -1.15);
+  const airFeather = makeFeather('airFeather', 1.15);
+  const vacuumRock = makeRock('vacuumRock', -1.15);
+  const vacuumFeather = makeFeather('vacuumFeather', 1.15);
+  vacuumRock.visible = false;
+  vacuumFeather.visible = false;
+  root.add(airRock, airFeather, vacuumRock, vacuumFeather);
+
+  const chamberMaterial = createVoxelMaterial('#BFEAFF', { pixelVariation: 0, transparent: true, opacity: 0.1, roughness: 0.05 });
+  chamberMaterial.depthWrite = false;
+  const chamber = block([5.25, 6.15, 1.8], chamberMaterial, [0, 3.2, 0]);
+  chamber.castShadow = false;
+  chamber.receiveShadow = false;
+  chamber.name = 'chamber';
+  root.add(chamber);
+  const floor = new THREE.Object3D(); floor.position.set(0, 0.3, 0); root.add(floor);
+  return { object3d: root, anchors: { airRock, airFeather, vacuumRock, vacuumFeather, chamber, floor } };
+};
+
+/** Reusable block-built paper glider with semantic aerodynamic anchors. */
+export const createVoxelPaperPlane: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.paperPlane';
+  const paper = createVoxelMaterial('#F4F2E8', { pixelVariation: 0, roughness: 0.82 });
+  root.add(block([0.16, 0.16, 3.0], paper));
+  const left = block([1.55, 0.09, 2.15], paper, [-0.72, 0, -0.12]); left.rotation.y = -0.36; root.add(left);
+  const right = block([1.55, 0.09, 2.15], paper, [0.72, 0, -0.12]); right.rotation.y = 0.36; root.add(right);
+  const tail = block([0.12, 0.72, 0.9], paper, [0, 0.34, -1.05]); tail.rotation.x = 0.05; root.add(tail);
+  const nose = new THREE.Object3D(); nose.position.set(0, 0, 1.58); root.add(nose);
+  const wingLeft = new THREE.Object3D(); wingLeft.position.set(-1.25, 0, 0); root.add(wingLeft);
+  const wingRight = new THREE.Object3D(); wingRight.position.set(1.25, 0, 0); root.add(wingRight);
+  const tailAnchor = new THREE.Object3D(); tailAnchor.position.set(0, 0.18, -1.42); root.add(tailAnchor);
+  return { object3d: root, anchors: { nose, wingLeft, wingRight, tail: tailAnchor } };
+};
+
+/** Horseshoe-style magnet with steel/aluminium/wood targets for material selection demos. */
+export const createVoxelMagnetKit: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.magnetKit';
+  root.add(block([6.2, 0.24, 2.6], createBlockMaterial('stoneBrick', { size: [6.2, 0.24, 2.6], tint: '#AAB3B7' }), [0, 0.12, 0]));
+  const magnet = new THREE.Group(); magnet.name = 'magnet'; magnet.position.set(-2.0, 0.72, 0.9);
+  const red = createVoxelMaterial('#E15050', { pixelVariation: 0, roughness: 0.52 });
+  const blue = createVoxelMaterial('#4D7FD8', { pixelVariation: 0, roughness: 0.52 });
+  magnet.add(block([0.42, 1.4, 0.42], red, [-0.45, 0, 0]));
+  magnet.add(block([0.42, 1.4, 0.42], blue, [0.45, 0, 0]));
+  magnet.add(block([1.32, 0.42, 0.42], createVoxelMaterial('#C9D2D7', { texture: 'metalPlate', size: [1.32, 0.42, 0.42], metalness: 0.55 }), [0, 0.49, 0]));
+  root.add(magnet);
+  const target = (name: string, x: number, material: THREE.Material): THREE.Mesh => { const m = block([0.82, 0.7, 0.82], material, [x, 0.59, -0.68]); m.name = name; root.add(m); return m; };
+  const steel = target('steel', -1.8, createVoxelMaterial('#AEBBC2', { texture: 'metalPlate', size: [0.82, 0.7, 0.82], metalness: 0.62, emissive: '#5ED9FF', emissiveIntensity: 0 }));
+  const aluminium = target('aluminium', 0, createVoxelMaterial('#D4DCE0', { texture: 'metalPlate', size: [0.82, 0.7, 0.82], metalness: 0.42, emissive: '#5ED9FF', emissiveIntensity: 0 }));
+  const wood = target('wood', 1.8, createVoxelMaterial('#FFFFFF', { texture: 'planks', size: [0.82, 0.7, 0.82], emissive: '#5ED9FF', emissiveIntensity: 0 }));
+  const tip = new THREE.Object3D(); tip.position.set(0, -0.62, -0.3); magnet.add(tip);
+  return { object3d: root, anchors: { magnet, magnetTip: tip, steel, aluminium, wood } };
+};
+
+
+/** Sound emitter/listener rig with a far semantic reflector anchor for echo demos. */
+export const createVoxelSoundRig: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.soundRig';
+  const base = createBlockMaterial('stoneBrick', { size: [4.2, 0.28, 1.6], tint: '#8A9296' });
+  root.add(block([4.2, 0.28, 1.6], base, [0, 0.14, 0]));
+
+  const speaker = new THREE.Group();
+  speaker.name = 'source';
+  speaker.position.set(-1.3, 0.85, 0);
+  const speakerMat = createVoxelMaterial('#26323A', { texture: 'metalPlate', size: [0.9, 1.25, 0.7], metalness: 0.32, roughness: 0.62 });
+  speaker.add(block([0.9, 1.25, 0.7], speakerMat));
+  speaker.add(block([0.48, 0.48, 0.08], createVoxelGlow('#6DDDF7', 0.52), [0, 0, 0.39]));
+  root.add(speaker);
+
+  const listener = new THREE.Group();
+  listener.name = 'listener';
+  listener.position.set(1.3, 0.7, 0);
+  listener.add(block([0.55, 1.0, 0.55], createVoxelMaterial('#D7E2E6', { pixelVariation: 0.02, roughness: 0.7 })));
+  listener.add(block([0.16, 0.16, 0.16], createVoxelGlow('#FFD875', 0.6), [0, 0.42, 0.3]));
+  root.add(listener);
+
+  const reflector = block([0.65, 0.65, 0.18], createVoxelGlow('#82E6FF', 0.62), [0, 3.0, -21.5]);
+  reflector.name = 'reflector';
+  root.add(reflector);
+  return { object3d: root, anchors: { source: speaker, listener, reflector } };
+};
+
+/** Optical splitter with an incoming-light anchor and six reusable spectrum beams. */
+export const createVoxelPrismDrop: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.prismDrop';
+  const glass = createVoxelMaterial('#CFF5FF', { pixelVariation: 0, transparent: true, opacity: 0.52, roughness: 0.08, emissive: '#7CDDF6', emissiveIntensity: 0.12 });
+  const core = new THREE.Group();
+  core.name = 'core';
+  core.add(block([1.15, 1.15, 1.15], glass));
+  core.add(block([0.75, 1.65, 0.75], glass));
+  core.rotation.z = Math.PI / 4;
+  root.add(core);
+
+  const input = new THREE.Object3D();
+  input.name = 'input';
+  input.position.set(-2.3, 0.1, 0);
+  root.add(input);
+  const center = new THREE.Object3D();
+  center.name = 'center';
+  center.position.set(0, 0.05, 0);
+  root.add(center);
+
+  const colors = [
+    ['red', '#F45B5B', 0.72],
+    ['orange', '#F08A45', 0.45],
+    ['yellow', '#F5D85A', 0.18],
+    ['green', '#63D27A', -0.1],
+    ['blue', '#5A8FE8', -0.38],
+    ['violet', '#9B70E8', -0.66],
+  ] as const;
+  const anchors: Record<string, THREE.Object3D> = { input, center };
+  colors.forEach(([name, color, y], index) => {
+    const beam = block([3.2, 0.08, 0.08], createVoxelGlow(color, 0.68), [2.1, y, 0]);
+    beam.name = name;
+    beam.rotation.z = (y * 0.08) - index * 0.004;
+    beam.scale.x = 0.015;
+    root.add(beam);
+    anchors[name] = beam;
+  });
+  return { object3d: root, anchors };
+};
+
+/** Two identical moon discs in different sky contexts for perception comparisons. */
+export const createVoxelMoonPair: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.moonPair';
+  const moonMatA = createVoxelMaterial('#F4E8C3', { pixelVariation: 0.02, emissive: '#EAD89A', emissiveIntensity: 0.55, roughness: 0.72 });
+  const moonMatB = moonMatA.clone();
+  const horizonMoon = block([1.6, 1.6, 0.32], moonMatA, [-2.6, 1.9, 0]);
+  horizonMoon.name = 'horizonMoon';
+  const highMoon = block([1.6, 1.6, 0.32], moonMatB, [2.4, 5.8, 0]);
+  highMoon.name = 'highMoon';
+  root.add(horizonMoon, highMoon);
+
+  const marker = createVoxelMaterial('#8FE8FF', { pixelVariation: 0, emissive: '#5ED4F2', emissiveIntensity: 0.7, transparent: true, opacity: 0.76 });
+  const horizonFrame = new THREE.Group();
+  horizonFrame.name = 'horizonFrame';
+  horizonFrame.position.copy(horizonMoon.position);
+  horizonFrame.scale.setScalar(0.001);
+  horizonFrame.add(block([2.15, 0.06, 0.08], marker, [0, 1.08, 0.18]));
+  horizonFrame.add(block([2.15, 0.06, 0.08], marker, [0, -1.08, 0.18]));
+  const highFrame = horizonFrame.clone();
+  highFrame.name = 'highFrame';
+  highFrame.position.copy(highMoon.position);
+  root.add(horizonFrame, highFrame);
+  return { object3d: root, anchors: { horizonMoon, highMoon, horizonFrame, highFrame } };
+};
+
+/** Star/planet comparison rig with semantic atmosphere checkpoints. */
+export const createVoxelStarPlanetPair: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'voxel.starPlanetPair';
+  const star = block([0.34, 0.34, 0.18], createVoxelGlow('#F8FBFF', 1.05), [-2.4, 5.3, 0]);
+  star.name = 'star';
+  const planet = block([0.86, 0.86, 0.22], createVoxelMaterial('#B8D9F3', { pixelVariation: 0.02, emissive: '#7EBDE9', emissiveIntensity: 0.52 }), [2.4, 5.3, 0]);
+  planet.name = 'planet';
+  root.add(star, planet);
+
+  const atmosphere = createVoxelMaterial('#73CFF3', { pixelVariation: 0, transparent: true, opacity: 0.12, emissive: '#4ABCE8', emissiveIntensity: 0.12, roughness: 0.12 });
+  atmosphere.depthWrite = false;
+  for (const y of [3.9, 3.0, 2.1]) root.add(block([7.5, 0.07, 0.08], atmosphere, [0, y, 0]));
+
+  const starMidA = new THREE.Object3D(); starMidA.position.set(-1.65, 3.9, 0); root.add(starMidA);
+  const starMidB = new THREE.Object3D(); starMidB.position.set(-1.0, 2.7, 0); root.add(starMidB);
+  const planetMidA = new THREE.Object3D(); planetMidA.position.set(1.65, 3.9, 0); root.add(planetMidA);
+  const planetMidB = new THREE.Object3D(); planetMidB.position.set(1.0, 2.7, 0); root.add(planetMidB);
+  const viewer = new THREE.Object3D(); viewer.position.set(0, 0.8, 0); root.add(viewer);
+  return { object3d: root, anchors: { star, planet, starMidA, starMidB, planetMidA, planetMidB, viewer } };
+};
+
 export const VOXEL_PRODUCTION_PREFAB_FACTORIES: Record<string, PrefabFactory> = {
   'prefab.materialSamples': createVoxelMaterialSamples,
   'prefab.balloon': createVoxelBalloon,
   'prefab.demoPanel': createVoxelDemoPanel,
   'prefab.floatTank': createVoxelFloatTank,
   'prefab.bowlSpoon': createVoxelBowlSpoon,
+  'prefab.seatRig': createVoxelSeatRig,
+  'prefab.featherRock': createVoxelFeatherRock,
+  'prefab.paperPlane': createVoxelPaperPlane,
+  'prefab.magnetKit': createVoxelMagnetKit,
+  'prefab.soundRig': createVoxelSoundRig,
+  'prefab.prismDrop': createVoxelPrismDrop,
+  'prefab.moonPair': createVoxelMoonPair,
+  'prefab.starPlanetPair': createVoxelStarPlanetPair,
 };

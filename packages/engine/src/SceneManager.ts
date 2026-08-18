@@ -12,6 +12,7 @@ import type {
   EnvironmentInstance,
   Entity,
   ResolvedText,
+  RuntimeAssetAccess,
 } from './EngineTypes';
 import { EntityManager } from './EntityManager';
 import { SceneContext } from './SceneContext';
@@ -41,6 +42,7 @@ import {
 import { InstanceCreationError, type ErrorLocation } from './errors';
 import { hashSeed } from './rng';
 import type { LoadedEpisode } from './EpisodeLoader';
+import { unavailableRuntimeAssets } from './RuntimeAssets';
 
 export interface BuiltScene {
   readonly entities: EntityManager;
@@ -61,15 +63,16 @@ export class SceneManager {
     registries: CapabilityRegistries,
     scene: THREE.Scene,
     camera: THREE.PerspectiveCamera,
+    assets: RuntimeAssetAccess = unavailableRuntimeAssets,
   ): BuiltScene {
     const { script } = loaded;
     const entities = new EntityManager();
-    const context = new SceneContext(scene, camera, script.duration, entities, script.id);
+    const context = new SceneContext(scene, camera, script.duration, entities, script.id, assets);
 
     const environment = this.buildEnvironment(script, registries, context);
     scene.add(environment.object3d);
 
-    this.buildEntities(script.entities, registries, scene, entities);
+    this.buildEntities(script.entities, registries, scene, entities, context);
 
     const timeline = this.buildTimeline(loaded, registries, scene, context, entities);
 
@@ -96,15 +99,16 @@ export class SceneManager {
     registries: CapabilityRegistries,
     parent: THREE.Object3D,
     entities: EntityManager,
+    context: SceneContext,
     group?: GroupEntityImpl,
   ): void {
     for (const def of definitions) {
-      const entity = this.buildEntity(def, registries, entities);
+      const entity = this.buildEntity(def, registries, entities, context);
       parent.add(entity.object3d);
       entities.register(entity);
       if (group) group.registerChildAnchor(def.id, entity.object3d);
       if (def.type === 'group') {
-        this.buildEntities(def.children, registries, entity.object3d, entities, entity as GroupEntityImpl);
+        this.buildEntities(def.children, registries, entity.object3d, entities, context, entity as GroupEntityImpl);
       }
     }
   }
@@ -113,13 +117,14 @@ export class SceneManager {
     def: EntityDefinition,
     registries: CapabilityRegistries,
     _entities: EntityManager,
+    context: SceneContext,
   ): Entity {
     switch (def.type) {
       case 'character': {
         const factory = registries.characters.get(def.factory);
         let entity: Entity;
         try {
-          entity = factory({ id: def.id, parameters: def.parameters ?? {} });
+          entity = factory({ id: def.id, parameters: def.parameters ?? {}, services: context });
         } catch (cause) {
           throw new InstanceCreationError(`character "${def.factory}"`, cause, {
             entityId: def.id,
@@ -132,7 +137,7 @@ export class SceneManager {
         const factory = registries.prefabs.get(def.factory);
         let instance;
         try {
-          instance = factory({ id: def.id, parameters: def.parameters ?? {} });
+          instance = factory({ id: def.id, parameters: def.parameters ?? {}, services: context });
         } catch (cause) {
           throw new InstanceCreationError(`prefab "${def.factory}"`, cause, {
             entityId: def.id,

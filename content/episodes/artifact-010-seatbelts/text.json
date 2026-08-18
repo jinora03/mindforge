@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "0.1",
+  "entries": [
+    {
+      "id": "hook",
+      "content": "Why does a seatbelt matter so much in a sudden stop?",
+      "style": "question",
+      "placement": "upper"
+    },
+    {
+      "id": "moving",
+      "content": "You and the car are moving together.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "inertia",
+      "content": "The car can stop first. Your body still has forward motion.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "without",
+      "content": "Without restraint, that motion continues until something else stops you.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "answer",
+      "content": "The belt supplies the force that stops you with the car \u2014 before the interior does.",
+      "style": "explanation",
+      "placement": "lower"
+    },
+    {
+      "id": "label",
+      "content": "Artifact 010 / The Restraint",
+      "style": "artifactLabel",
+      "placement": "bottom"
+    }
+  ]
+}

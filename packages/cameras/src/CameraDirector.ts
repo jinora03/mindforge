@@ -20,6 +20,17 @@ export interface CameraDirectorOptions {
   shake?: number;
   /** When true, shake decays over the window (impact). */
   shakeDecays?: boolean;
+  /**
+   * Keep the full visual bounds of a target inside the camera frame. This is
+   * especially important for portrait output, where horizontal FOV is narrow.
+   */
+  fitTarget?: boolean;
+  /** Extra breathing room around automatically fitted target bounds. */
+  fitPadding?: number;
+  /** Hard lower bound on camera-to-look distance, even for tiny/empty anchors. */
+  minDistance?: number;
+  /** Live camera reference used to read the current preview/export aspect. */
+  camera?: THREE.PerspectiveCamera;
 }
 
 /**
@@ -28,15 +39,19 @@ export interface CameraDirectorOptions {
  * already-eased progress, frames a look-at point, and adds deterministic shake
  * derived from time. Presets are thin configurations over this class.
  *
- * Camera application to the authoritative camera is the Engine's job; this
- * class only *computes* a {@link CameraState}, so it stays free of renderer
- * state and content meaning (the Observer's curiosity lives in the presets).
+ * Production framing is bounds-aware: when a preset opts into `fitTarget`, a
+ * tall or wide target is never allowed to spill out of a narrow 9:16 frame just
+ * because its origin happens to sit near the bottom or centre. This remains
+ * generic camera grammar — no episode/theme knowledge is involved.
  */
 export class CameraDirector implements CameraShot {
   private readonly framing: THREE.Vector3;
   private readonly lookPoint: THREE.Vector3;
   private readonly pivot = new THREE.Vector3();
   private readonly look = new THREE.Vector3();
+  private readonly bounds = new THREE.Box3();
+  private readonly boundsSize = new THREE.Vector3();
+  private readonly away = new THREE.Vector3();
 
   constructor(private readonly options: CameraDirectorOptions) {
     this.framing = options.framingOffset ?? new THREE.Vector3();
@@ -59,14 +74,24 @@ export class CameraDirector implements CameraShot {
       this.pivot.z + lerp(options.startOffset.z, options.endOffset.z, t),
     );
 
+    let hasBounds = false;
     if (options.target) {
-      options.target.getWorldPosition(this.look);
+      if (options.fitTarget) {
+        this.bounds.setFromObject(options.target);
+        if (!this.bounds.isEmpty()) {
+          this.bounds.getCenter(this.look);
+          this.bounds.getSize(this.boundsSize);
+          hasBounds = true;
+        }
+      }
+      if (!hasBounds) options.target.getWorldPosition(this.look);
     } else {
       this.look.copy(this.lookPoint);
     }
     out.target.copy(this.look).add(this.framing);
 
     out.fov = lerp(options.startFov, options.endFov, t);
+    this.enforceReadableDistance(out, hasBounds);
 
     if (options.shake && options.shake > 0) {
       const decay = options.shakeDecays ? 1 - t : 1;
@@ -76,5 +101,32 @@ export class CameraDirector implements CameraShot {
       out.position.y += Math.sin(time * 41.7 + 1.3) * amp;
       out.target.x += Math.sin(time * 33.3 + 0.7) * amp * 0.5;
     }
+  }
+
+  private enforceReadableDistance(out: CameraState, hasBounds: boolean): void {
+    const { options } = this;
+    let required = Math.max(0, options.minDistance ?? 0);
+
+    if (hasBounds && options.fitTarget) {
+      const aspect = Math.max(0.2, options.camera?.aspect ?? 9 / 16);
+      const verticalFov = THREE.MathUtils.degToRad(Math.max(1, out.fov));
+      const horizontalFov = 2 * Math.atan(Math.tan(verticalFov / 2) * aspect);
+      const halfHeight = this.boundsSize.y * 0.5;
+      const halfWidth = this.boundsSize.x * 0.5;
+      const halfDepth = this.boundsSize.z * 0.5;
+      const verticalFit = halfHeight / Math.max(0.001, Math.tan(verticalFov / 2));
+      const horizontalFit = halfWidth / Math.max(0.001, Math.tan(horizontalFov / 2));
+      const padding = Math.max(1, options.fitPadding ?? 1.15);
+      required = Math.max(required, (Math.max(verticalFit, horizontalFit) + halfDepth * 0.35) * padding);
+    }
+
+    if (required <= 0) return;
+
+    this.away.copy(out.position).sub(out.target);
+    const current = this.away.length();
+    if (current >= required) return;
+    if (current < 1e-5) this.away.set(0, 0, 1);
+    else this.away.multiplyScalar(1 / current);
+    out.position.copy(out.target).addScaledVector(this.away, required);
   }
 }

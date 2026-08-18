@@ -10,7 +10,7 @@
   "environment": "environment.kitchenLab",
   "metadata": {
     "logline": "Thermal energy moves from hot soup into the metal spoon and along the spoon toward the cooler handle by conduction.",
-    "beats": "hot soup -> spoon enters -> energy transfer -> metal carries energy along -> handle warms -> conduction answer",
+    "beats": "hot soup -> energy enters spoon -> conduction line races to handle -> hand tests handle/recoils -> object-only conduction answer",
     "productionStatus": "content-sprint-wave1",
     "narrationStatus": "caption-led-until-production-voice",
     "sharedAssets": [
@@ -22,21 +22,6 @@
   },
   "entities": [
     {
-      "id": "observer",
-      "type": "character",
-      "factory": "character.observer",
-      "position": [
-        0,
-        0,
-        0
-      ],
-      "rotation": [
-        0,
-        -0.12,
-        0
-      ]
-    },
-    {
       "id": "meal",
       "type": "prefab",
       "factory": "prefab.bowlSpoon",
@@ -45,6 +30,22 @@
         1.78,
         -2.7
       ]
+    },
+    {
+      "id": "testHand",
+      "type": "prefab",
+      "factory": "prefab.externalHand",
+      "position": [
+        2.8,
+        3.8,
+        0.6
+      ],
+      "rotation": [
+        0,
+        -1.5708,
+        0
+      ],
+      "visible": false
     }
   ],
   "timeline": [
@@ -58,52 +59,19 @@
       "volume": 0.43
     },
     {
-      "id": "idle",
-      "type": "motion",
-      "at": 0,
-      "duration": 27,
-      "target": "observer",
-      "motion": "motion.humanoid.idle"
-    },
-    {
-      "id": "breathe",
-      "type": "motion",
-      "at": 0,
-      "duration": 27,
-      "target": "observer",
-      "motion": "motion.humanoid.breathe"
-    },
-    {
       "id": "cam-open",
       "type": "camera",
       "at": 0,
       "duration": 4.2,
-      "preset": "camera.pullBack",
-      "target": "observer",
-      "from": [
-        2.7,
-        2.25,
-        5.7
-      ],
-      "to": [
-        3.7,
-        3.0,
-        8.3
-      ],
-      "fov": 46,
-      "framingOffset": [
-        0,
-        1.4,
-        -0.4
-      ],
-      "easing": "easeInOut"
-    },
-    {
-      "id": "face-question",
-      "type": "face",
-      "at": 0.4,
-      "target": "observer",
-      "state": "confused"
+      "preset": "camera.reveal",
+      "target": "meal",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 5.1,
+        "height": 3.0,
+        "startAngle": 0.4,
+        "endAngle": 0.08
+      }
     },
     {
       "id": "hook",
@@ -118,7 +86,7 @@
       "at": 4.2,
       "duration": 4.8,
       "preset": "camera.pushIn",
-      "target": "meal",
+      "target": "meal.soupSurface",
       "easing": "easeInOut"
     },
     {
@@ -162,10 +130,10 @@
       "target": "meal.spoon",
       "easing": "easeInOut",
       "parameters": {
-        "radius": 4.3,
+        "radius": 4.1,
         "height": 2.8,
-        "startAngle": 0.45,
-        "endAngle": -0.15
+        "startAngle": 0.42,
+        "endAngle": -0.18
       }
     },
     {
@@ -223,12 +191,32 @@
       "easing": "easeInOut"
     },
     {
-      "id": "reach",
-      "type": "motion",
+      "id": "hand-show",
+      "type": "visibility",
       "at": 16.15,
-      "duration": 4.8,
-      "target": "observer",
-      "motion": "motion.humanoid.reach"
+      "target": "testHand",
+      "visible": true
+    },
+    {
+      "id": "hand-whoosh",
+      "type": "audio",
+      "at": 16.2,
+      "cue": "audio.sfx.handWhoosh",
+      "volume": 0.68
+    },
+    {
+      "id": "hand-approach",
+      "type": "property",
+      "at": 16.2,
+      "duration": 1.1,
+      "target": "testHand",
+      "property": "position",
+      "to": [
+        1.65,
+        4.65,
+        -2.45
+      ],
+      "easing": "easeInOut"
     },
     {
       "id": "handle-flow",
@@ -247,9 +235,52 @@
     {
       "id": "touch-sfx",
       "type": "audio",
-      "at": 18.0,
+      "at": 17.35,
       "cue": "audio.sfx.touch",
-      "volume": 0.55
+      "volume": 0.62
+    },
+    {
+      "id": "touch-burst",
+      "type": "effect",
+      "at": 17.38,
+      "duration": 1.05,
+      "effect": "effect.reaction.burst",
+      "target": "meal.handleTip",
+      "tone": "reaction",
+      "intensity": 0.55,
+      "parameters": {
+        "count": 22,
+        "radius": 0.7,
+        "size": 0.045
+      }
+    },
+    {
+      "id": "reaction-sfx",
+      "type": "audio",
+      "at": 17.42,
+      "cue": "audio.sfx.reaction",
+      "volume": 0.56
+    },
+    {
+      "id": "hand-retract",
+      "type": "property",
+      "at": 17.5,
+      "duration": 0.9,
+      "target": "testHand",
+      "property": "position",
+      "to": [
+        2.8,
+        3.8,
+        0.6
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "hand-hide",
+      "type": "visibility",
+      "at": 18.55,
+      "target": "testHand",
+      "visible": false
     },
     {
       "id": "handle-text",
@@ -264,22 +295,22 @@
       "at": 22,
       "duration": 5,
       "preset": "camera.pullBack",
-      "target": "observer",
+      "target": "meal",
       "from": [
-        2.8,
-        2.4,
-        5.7
+        2.5,
+        2.25,
+        5.0
       ],
       "to": [
-        3.8,
+        3.4,
         3.0,
-        8.2
+        7.5
       ],
-      "fov": 45,
+      "fov": 43,
       "framingOffset": [
         0,
-        1.4,
-        -0.4
+        1.1,
+        -0.2
       ],
       "easing": "easeInOut"
     },
@@ -296,18 +327,25 @@
       }
     },
     {
+      "id": "answer-path",
+      "type": "effect",
+      "at": 22.15,
+      "duration": 4.0,
+      "effect": "effect.signal.path",
+      "from": "meal.soupSurface",
+      "to": "meal.handleTip",
+      "tone": "insight",
+      "intensity": 0.55,
+      "parameters": {
+        "thickness": 0.08
+      }
+    },
+    {
       "id": "answer-sfx",
       "type": "audio",
       "at": 22.15,
       "cue": "audio.sfx.insight",
       "volume": 0.58
-    },
-    {
-      "id": "face-answer",
-      "type": "face",
-      "at": 22.25,
-      "target": "observer",
-      "state": "focused"
     },
     {
       "id": "answer",

@@ -15,6 +15,7 @@ import type {
 } from './EngineTypes';
 import { PlaybackController } from './PlaybackController';
 import { SceneRuntime, type SceneLayer } from './SceneRuntime';
+import { isExternalModelAsset } from './RuntimeAssets';
 
 /** MindForge renders natively in 9:16. */
 export const ASPECT_WIDTH = 9;
@@ -183,7 +184,7 @@ export class MindForgeEngine {
   /** Validate + build an episode from raw JSON, replacing any current one. */
   loadEpisode(raw: unknown): void {
     try {
-      const episodeId = this.runtime.load(raw, this.config.registries);
+      const episodeId = this.runtime.load(raw, this.config.registries, this.config.assetRuntime);
       this.playback = new PlaybackController(this.runtime.duration);
       this.config.audioRuntime?.load(
         this.runtime.getAudioEvents(),
@@ -201,6 +202,25 @@ export class MindForgeEngine {
       this.config.onError?.(error as Error);
       throw error;
     }
+  }
+
+  /**
+   * Preload every authored model descriptor in the active registry. This is an
+   * explicit async boundary so deterministic scene construction itself remains
+   * synchronous and seek-safe. Procedural-only themes resolve immediately.
+   */
+  async prepareAssets(): Promise<void> {
+    const descriptors = this.config.registries.assets
+      .list()
+      .map((id) => this.config.registries.assets.get(id));
+    const externalModels = descriptors.filter(isExternalModelAsset);
+    if (externalModels.length === 0) return;
+    if (!this.config.assetRuntime) {
+      throw new Error(
+        `This MindForge configuration references ${externalModels.length} external model asset(s) but has no assetRuntime.`,
+      );
+    }
+    await this.config.assetRuntime.preload(externalModels);
   }
 
   play(): void {

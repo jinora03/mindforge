@@ -1,5 +1,5 @@
 import { BrowserAudioRuntime } from '@mindforge/audio';
-import { MindForgeEngine, type EngineFrameInfo } from '@mindforge/engine';
+import { BrowserAssetRuntime, MindForgeEngine, type EngineFrameInfo } from '@mindforge/engine';
 import { createLibraryForTheme } from '@mindforge/library';
 import { DEFAULT_THEME_ID, getTheme, listThemes, type MindForgeTheme } from '@mindforge/themes';
 import { getEpisode } from '@content/catalog';
@@ -17,6 +17,7 @@ interface PlaybackSnapshot {
  */
 export class PlayerController {
   private readonly engine: MindForgeEngine;
+  private readonly assetRuntime = new BrowserAssetRuntime();
   private theme: MindForgeTheme;
   private currentEpisodeId?: string;
   private readonly frame: HTMLDivElement;
@@ -57,6 +58,7 @@ export class PlayerController {
     this.theme = getTheme(initialThemeId);
     this.engine = new MindForgeEngine({
       registries: createLibraryForTheme(this.theme.id),
+      assetRuntime: this.assetRuntime,
       postProcessing: this.theme.presentation.postProcessing,
       audioRuntime: new BrowserAudioRuntime(),
       onFrame: (info) => this.renderCaptions(info),
@@ -83,7 +85,7 @@ export class PlayerController {
     this.updateThemeButton();
     this.themeButton.addEventListener('click', (event: MouseEvent) => {
       event.stopPropagation();
-      this.cycleTheme();
+      void this.cycleTheme();
     });
     this.frame.appendChild(this.themeButton);
 
@@ -117,10 +119,10 @@ export class PlayerController {
   }
 
   /** Cycle to the next available visual theme while preserving playback state. */
-  cycleTheme(): void {
+  async cycleTheme(): Promise<void> {
     const themes = listThemes();
     const next = themes[(themes.indexOf(this.theme.id) + 1) % themes.length];
-    this.setTheme(next);
+    await this.setTheme(next);
   }
 
   /**
@@ -128,7 +130,7 @@ export class PlayerController {
    * timestamp, speed, or play/pause state. Renderer presentation is swapped in
    * the same transaction as capability registries.
    */
-  setTheme(themeId: string): void {
+  async setTheme(themeId: string): Promise<void> {
     if (themeId === this.theme.id) return;
 
     const previousTheme = this.theme;
@@ -141,6 +143,7 @@ export class PlayerController {
       const nextLibrary = createLibraryForTheme(nextTheme.id);
       this.theme = nextTheme;
       this.engine.reconfigure(nextLibrary, nextTheme.presentation.postProcessing);
+      await this.engine.prepareAssets();
 
       if (entry) {
         this.engine.loadEpisode(entry.input);
@@ -165,7 +168,7 @@ export class PlayerController {
     }
   }
 
-  load(episodeId: string): void {
+  async load(episodeId: string): Promise<void> {
     const entry = getEpisode(episodeId);
     if (!entry) {
       this.showStatus(`Episode "${episodeId}" not found.`);
@@ -174,6 +177,7 @@ export class PlayerController {
     this.currentEpisodeId = episodeId;
     this.showStatus('Loading…');
     try {
+      await this.engine.prepareAssets();
       this.engine.loadEpisode(entry.input);
       this.hideStatus();
       this.engine.play();
@@ -185,6 +189,7 @@ export class PlayerController {
   dispose(): void {
     window.removeEventListener('keydown', this.onKeyDown);
     this.engine.dispose();
+    this.assetRuntime.dispose();
   }
 
   private readonly onKeyDown = (event: KeyboardEvent): void => {
@@ -195,7 +200,7 @@ export class PlayerController {
     }
     if (event.code === 'KeyT') {
       event.preventDefault();
-      this.cycleTheme();
+      void this.cycleTheme();
     }
     if (event.code === 'KeyM') {
       event.preventDefault();

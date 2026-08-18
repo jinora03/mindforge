@@ -1,6 +1,7 @@
 import type * as THREE from 'three';
-import type { Entity, SceneServices } from './EngineTypes';
+import type { Entity, RuntimeAssetAccess, SceneServices } from './EngineTypes';
 import type { EntityManager } from './EntityManager';
+import { unavailableRuntimeAssets } from './RuntimeAssets';
 
 /**
  * The concrete {@link SceneServices} implementation handed to every factory.
@@ -14,6 +15,7 @@ export class SceneContext implements SceneServices {
     readonly duration: number,
     private readonly entities: EntityManager,
     private readonly episodeId: string,
+    readonly assets: RuntimeAssetAccess = unavailableRuntimeAssets,
   ) {}
 
   getEntity(id: string): Entity {

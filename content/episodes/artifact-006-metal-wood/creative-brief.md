@@ -9,7 +9,7 @@ Metal and wood sitting in the same room can be at the same temperature, yet meta
 
 ## 2. The unforgettable visual
 
-The same hand reaches toward two samples. A dense, fast stream of heat packets races from the hand into metal and lights the metal sample quickly. The wood comparison uses a visibly sparse, slow stream. The side-by-side difference is the explanation even with captions hidden.
+The Observer performs the comparison instead of standing beside it: touch metal → immediate cold flinch, then touch wood with the opposite hand → calm response. After those actions, the character leaves frame and the two samples alone carry the fast-versus-slow heat-flow answer.
 
 ## 3. Composition
 
@@ -20,7 +20,7 @@ The same hand reaches toward two samples. A dense, fast stream of heat packets r
 
 ## 4. Performance / transformation
 
-The Observer starts puzzled, reaches toward the samples, and settles into a focused expression as the heat-flow comparison becomes obvious. The performance should support the science rather than turn into a comedic reaction.
+The Observer has only two jobs: physically test metal and wood, and react differently. The metal touch gets a small immediate flinch; the wood touch stays controlled. The Observer is hidden during premise/answer shots so they never become a decorative mascot.
 
 ## 5. Text strategy
 
@@ -34,6 +34,7 @@ This episode establishes `environment.materialLab`, `prefab.materialSamples`, `a
 
 - The viewer understands that the samples may be the same temperature.
 - The faster metal heat stream is unmistakably faster/denser than the wood stream.
+- The character is never visible in a shot unless they are actively testing or reacting to a material.
 - The answer remains understandable with captions disabled.
 - Voxel and Toybox both preserve the same semantic sample anchors and heat-transfer timing.
 - The episode exports cleanly at 26 seconds in full and shot-range modes.

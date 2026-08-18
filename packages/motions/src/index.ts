@@ -14,6 +14,7 @@ export { createIdleMotion } from './humanoid/idle';
 export { createBreatheMotion } from './humanoid/breathe';
 export { createWalkMotion } from './humanoid/walk';
 export { createReachMotion } from './humanoid/reach';
+export { createRubMotion } from './humanoid/rub';
 export { createSelfTickleMotion } from './humanoid/self-tickle';
 export { createSurprisedSquirmMotion } from './humanoid/surprised-squirm';
 
@@ -28,6 +29,7 @@ import { createIdleMotion } from './humanoid/idle';
 import { createBreatheMotion } from './humanoid/breathe';
 import { createWalkMotion } from './humanoid/walk';
 import { createReachMotion } from './humanoid/reach';
+import { createRubMotion } from './humanoid/rub';
 import { createSelfTickleMotion } from './humanoid/self-tickle';
 import { createSurprisedSquirmMotion } from './humanoid/surprised-squirm';
 import { createSpinMotion } from './objects/spin';
@@ -43,6 +45,7 @@ export const MOTION_FACTORIES: Record<string, MotionFactory> = {
   'motion.humanoid.breathe': createBreatheMotion,
   'motion.humanoid.walk': createWalkMotion,
   'motion.humanoid.reach': createReachMotion,
+  'motion.humanoid.rub': createRubMotion,
   'motion.humanoid.selfTickle': createSelfTickleMotion,
   'motion.humanoid.surprisedSquirm': createSurprisedSquirmMotion,
   'motion.object.spin': createSpinMotion,

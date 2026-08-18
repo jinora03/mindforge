@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { DEFAULT_AUDIO_CUES } from '@mindforge/audio';
 import { EPISODES } from '@content/catalog';
 import { getTheme } from '@mindforge/themes';
+import { MOTION_FACTORIES } from '@mindforge/motions';
+import { loadEpisodeInput } from './helpers/content';
 
 const WAVE1_EPISODES = [
   'artifact-006-metal-wood',
@@ -49,6 +51,28 @@ describe('production content sprint wave 1', () => {
     const theme = getTheme(themeId);
     for (const id of WAVE1_ENVIRONMENTS) expect(theme.environments[id], id).toBeDefined();
     for (const id of WAVE1_PREFABS) expect(theme.prefabs[id], id).toBeDefined();
+  });
+
+
+  it('uses characters only when they perform a causal job in the Wave 1 directing pass', () => {
+    const balloon = loadEpisodeInput('artifact-007-balloon-static');
+    const ice = loadEpisodeInput('artifact-008-ice-floats');
+    const spoon = loadEpisodeInput('artifact-009-hot-spoon');
+
+    const balloonTimeline = balloon.timeline as Array<Record<string, unknown>>;
+    expect(balloonTimeline.some((event) => event.motion === 'motion.humanoid.rub')).toBe(true);
+    expect(balloonTimeline.some((event) => event.type === 'visibility' && event.target === 'observer' && event.visible === false)).toBe(true);
+
+    const iceEntities = ice.entities as Array<Record<string, unknown>>;
+    expect(iceEntities.some((entity) => entity.type === 'character')).toBe(false);
+
+    const spoonEntities = spoon.entities as Array<Record<string, unknown>>;
+    expect(spoonEntities.some((entity) => entity.type === 'character')).toBe(false);
+    expect(spoonEntities.some((entity) => entity.factory === 'prefab.externalHand' && entity.visible === false)).toBe(true);
+  });
+
+  it('registers the reusable rubbing performance used by friction/static demonstrations', () => {
+    expect(MOTION_FACTORIES['motion.humanoid.rub']).toBeDefined();
   });
 
   it('registers reusable semantic ambience and SFX cues for the Wave 1 environments and props', () => {

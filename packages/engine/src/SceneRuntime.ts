@@ -7,10 +7,12 @@ import type {
   EnvironmentInstance,
   FrameContext,
   ResolvedText,
+  RuntimeAssetAccess,
 } from './EngineTypes';
 import { SceneManager, type BuiltScene } from './SceneManager';
 import { loadEpisode } from './EpisodeLoader';
 import { captureSnapshot, type SceneSnapshot } from './snapshot';
+import { unavailableRuntimeAssets } from './RuntimeAssets';
 
 const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);
 
@@ -63,10 +65,14 @@ export class SceneRuntime {
   }
 
   /** Validate + build an episode, replacing any current one, and settle at t=0. */
-  load(raw: unknown, registries: CapabilityRegistries): string {
+  load(
+    raw: unknown,
+    registries: CapabilityRegistries,
+    assets: RuntimeAssetAccess = unavailableRuntimeAssets,
+  ): string {
     const loaded = loadEpisode(raw, registries);
     this.dispose();
-    this.built = this.sceneManager.build(loaded, registries, this.scene, this.camera);
+    this.built = this.sceneManager.build(loaded, registries, this.scene, this.camera, assets);
     this.environment = this.built.environment;
     this.episodeId = loaded.script.id;
     this.durationSeconds = loaded.script.duration;

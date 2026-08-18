@@ -289,6 +289,228 @@ function heatTransfer(sampleRate: number): AudioPcmData {
   });
 }
 
+
+
+function roadAmbience(sampleRate: number): AudioPcmData {
+  const duration = 5;
+  const noiseL = deterministicNoise(0x726f6131);
+  const noiseR = deterministicNoise(0x726f6132);
+  let rumbleL = 0;
+  let rumbleR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    rumbleL += (noiseL() - rumbleL) * 0.025;
+    rumbleR += (noiseR() - rumbleR) * 0.023;
+    const engine = Math.sin(TAU * 68 * time) * 0.026 + Math.sin(TAU * 136 * time) * 0.008;
+    const tires = Math.sin(TAU * (92 + 3 * Math.sin(TAU * 0.33 * time)) * time) * 0.008;
+    return [engine + tires + rumbleL * 0.036, engine * 0.94 + tires * 0.82 + rumbleR * 0.036];
+  });
+}
+
+function beltLatch(sampleRate: number): AudioPcmData {
+  const duration = 0.38;
+  const noise = deterministicNoise(0x62656c74);
+  return stereo(sampleRate, duration, (time) => {
+    const click = noise() * expDecay(time, 58) * 0.13;
+    const metal = Math.sin(TAU * 1210 * time) * expDecay(time, 20) * 0.08;
+    const body = Math.sin(TAU * 310 * time) * expDecay(time, 12) * 0.08;
+    const env = envelope(time, duration, 0.002, 0.12);
+    return [(click + metal + body) * env, (click * 0.68 + metal * 0.85 + body) * env];
+  });
+}
+
+function brakeImpact(sampleRate: number): AudioPcmData {
+  const duration = 0.78;
+  const noiseL = deterministicNoise(0x62726131);
+  const noiseR = deterministicNoise(0x62726132);
+  let skidL = 0;
+  let skidR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    skidL += (noiseL() - skidL) * 0.14;
+    skidR += (noiseR() - skidR) * 0.14;
+    const thump = Math.sin(TAU * (105 - 42 * time) * time) * expDecay(time, 6.0) * 0.25;
+    const skidEnv = envelope(time, duration, 0.008, 0.24) * expDecay(time, 2.0);
+    return [thump + skidL * skidEnv * 0.12, thump * 0.94 + skidR * skidEnv * 0.12];
+  });
+}
+
+function dropRelease(sampleRate: number): AudioPcmData {
+  const duration = 0.28;
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.002, 0.09);
+    const click = Math.sin(TAU * 540 * time) * expDecay(time, 20) * 0.08;
+    const tick = Math.sin(TAU * 980 * time) * expDecay(time, 28) * 0.045;
+    return [(click + tick * 0.6) * env, (click * 0.86 + tick) * env];
+  });
+}
+
+function dropImpact(sampleRate: number): AudioPcmData {
+  const duration = 0.52;
+  const noise = deterministicNoise(0x64726f70);
+  return stereo(sampleRate, duration, (time) => {
+    const body = Math.sin(TAU * (125 - 48 * time) * time) * expDecay(time, 7.2) * 0.2;
+    const grit = noise() * expDecay(time, 24) * 0.07;
+    const env = envelope(time, duration, 0.002, 0.16);
+    return [(body + grit) * env, (body * 0.95 + grit * 0.7) * env];
+  });
+}
+
+function paperLaunch(sampleRate: number): AudioPcmData {
+  const duration = 0.72;
+  const noiseL = deterministicNoise(0x70617031);
+  const noiseR = deterministicNoise(0x70617032);
+  let airL = 0;
+  let airR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    airL += (noiseL() - airL) * 0.11;
+    airR += (noiseR() - airR) * 0.11;
+    const env = envelope(time, duration, 0.025, 0.18) * expDecay(time, 1.25);
+    const swish = Math.sin(TAU * (150 + 260 * time) * time) * 0.025;
+    return [(airL * 0.12 + swish) * env, (airR * 0.12 + swish * 0.72) * env];
+  });
+}
+
+function airflow(sampleRate: number): AudioPcmData {
+  const duration = 1.6;
+  const noiseL = deterministicNoise(0x61697231);
+  const noiseR = deterministicNoise(0x61697232);
+  let bandL = 0;
+  let bandR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    bandL += (noiseL() - bandL) * 0.08;
+    bandR += (noiseR() - bandR) * 0.08;
+    const env = envelope(time, duration, 0.08, 0.28);
+    const whistle = Math.sin(TAU * (320 + 42 * Math.sin(TAU * 0.45 * time)) * time) * 0.014;
+    return [(bandL * 0.085 + whistle) * env, (bandR * 0.085 + whistle * 0.8) * env];
+  });
+}
+
+function magnetSnap(sampleRate: number): AudioPcmData {
+  const duration = 0.48;
+  const noise = deterministicNoise(0x6d616731);
+  return stereo(sampleRate, duration, (time) => {
+    const snap = noise() * expDecay(time, 48) * 0.12;
+    const ring = Math.sin(TAU * 720 * time) * expDecay(time, 14) * 0.10;
+    const low = Math.sin(TAU * 180 * time) * expDecay(time, 9) * 0.08;
+    const env = envelope(time, duration, 0.002, 0.14);
+    return [(snap + ring + low) * env, (snap * 0.7 + ring * 0.88 + low) * env];
+  });
+}
+
+
+function canyonAmbience(sampleRate: number): AudioPcmData {
+  const duration = 6;
+  const noiseL = deterministicNoise(0x63616e31);
+  const noiseR = deterministicNoise(0x63616e32);
+  let windL = 0;
+  let windR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    windL += (noiseL() - windL) * 0.025;
+    windR += (noiseR() - windR) * 0.023;
+    const gust = 0.025 + 0.018 * (0.5 + 0.5 * Math.sin(TAU * 0.14 * time));
+    const tone = Math.sin(TAU * 72 * time) * 0.004;
+    return [windL * gust + tone, windR * gust + tone * 0.8];
+  });
+}
+
+function echoImpulse(sampleRate: number): AudioPcmData {
+  const duration = 0.42;
+  const noise = deterministicNoise(0x65636831);
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.002, 0.11);
+    const snap = noise() * expDecay(time, 52) * 0.13;
+    const body = Math.sin(TAU * 340 * time) * expDecay(time, 12) * 0.12;
+    return [(snap + body) * env, (snap * 0.72 + body) * env];
+  });
+}
+
+function echoReturn(sampleRate: number): AudioPcmData {
+  const duration = 0.62;
+  const noise = deterministicNoise(0x65636832);
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.004, 0.2) * expDecay(time, 3.0);
+    const body = Math.sin(TAU * 300 * time) * 0.08;
+    const air = noise() * 0.025;
+    return [(body + air) * env * 0.72, (body * 0.9 + air) * env];
+  });
+}
+
+function rainAmbience(sampleRate: number): AudioPcmData {
+  const duration = 5;
+  const noiseL = deterministicNoise(0x72616931);
+  const noiseR = deterministicNoise(0x72616932);
+  let bedL = 0;
+  let bedR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    bedL += (noiseL() - bedL) * 0.18;
+    bedR += (noiseR() - bedR) * 0.18;
+    const hush = 0.045 + 0.008 * Math.sin(TAU * 0.21 * time);
+    const dropPhase = time % 0.71;
+    const drop = dropPhase < 0.025 ? Math.sin(TAU * 1180 * dropPhase) * expDecay(dropPhase, 58) * 0.018 : 0;
+    return [bedL * hush + drop, bedR * hush + drop * 0.6];
+  });
+}
+
+function prismSplit(sampleRate: number): AudioPcmData {
+  const duration = 0.92;
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.004, 0.28) * expDecay(time, 2.4);
+    const sweep = Math.sin(TAU * (430 + time * 620) * time) * 0.08;
+    const shimmer = Math.sin(TAU * 1280 * time) * 0.035 + Math.sin(TAU * 1660 * time) * 0.02;
+    return [(sweep + shimmer * 0.65) * env, (sweep * 0.82 + shimmer) * env];
+  });
+}
+
+function nightAmbience(sampleRate: number): AudioPcmData {
+  const duration = 6;
+  const noiseL = deterministicNoise(0x6e696731);
+  const noiseR = deterministicNoise(0x6e696732);
+  let airL = 0;
+  let airR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    airL += (noiseL() - airL) * 0.009;
+    airR += (noiseR() - airR) * 0.009;
+    const breeze = 0.022 + 0.006 * Math.sin(TAU * 0.1 * time);
+    const insectPhase = time % 2.6;
+    const insect = insectPhase < 0.12 ? Math.sin(TAU * 2400 * insectPhase) * expDecay(insectPhase, 14) * 0.006 : 0;
+    return [airL * breeze + insect, airR * breeze + insect * 0.75];
+  });
+}
+
+function compareTick(sampleRate: number): AudioPcmData {
+  const duration = 0.36;
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.002, 0.1);
+    const a = Math.sin(TAU * 660 * time) * expDecay(time, 14) * 0.07;
+    const b = Math.sin(TAU * 990 * time) * expDecay(time, 20) * 0.035;
+    return [(a + b * 0.6) * env, (a * 0.82 + b) * env];
+  });
+}
+
+function observatoryAmbience(sampleRate: number): AudioPcmData {
+  const duration = 6;
+  const noiseL = deterministicNoise(0x6f627331);
+  const noiseR = deterministicNoise(0x6f627332);
+  let airL = 0;
+  let airR = 0;
+  return stereo(sampleRate, duration, (time) => {
+    airL += (noiseL() - airL) * 0.01;
+    airR += (noiseR() - airR) * 0.01;
+    const motor = Math.sin(TAU * 43 * time) * 0.012 + Math.sin(TAU * 86 * time) * 0.004;
+    const wind = 0.018 + 0.004 * Math.sin(TAU * 0.12 * time + 0.8);
+    return [motor + airL * wind, motor * 0.93 + airR * wind];
+  });
+}
+
+function twinkle(sampleRate: number): AudioPcmData {
+  const duration = 0.52;
+  return stereo(sampleRate, duration, (time) => {
+    const env = envelope(time, duration, 0.003, 0.15) * expDecay(time, 3.3);
+    const high = Math.sin(TAU * 1320 * time) * 0.05;
+    const upper = Math.sin(TAU * 1760 * time) * 0.028;
+    return [(high + upper * 0.55) * env, (high * 0.8 + upper) * env];
+  });
+}
+
 const PRODUCTION_CUE_IDS = new Set<string>(productionAssets.productionCueIds);
 
 function productionCue(
@@ -345,6 +567,11 @@ export const DEFAULT_AUDIO_CUES: readonly AudioCueDefinition[] = [
     fadeIn: 0.25,
     fadeOut: 0.35,
   }),
+  productionCue('audio.ambience.road', 'road', roadAmbience, 0.44, 'Vehicle cabin road and tire ambience.', { loop: true, fadeIn: 0.2, fadeOut: 0.3 }),
+  productionCue('audio.ambience.canyon', 'canyon', canyonAmbience, 0.42, 'Open canyon wind and distant room tone.', { loop: true, fadeIn: 0.2, fadeOut: 0.3 }),
+  productionCue('audio.ambience.rain', 'rain', rainAmbience, 0.44, 'Reusable steady rain bed.', { loop: true, fadeIn: 0.2, fadeOut: 0.3 }),
+  productionCue('audio.ambience.night', 'night', nightAmbience, 0.36, 'Quiet night overlook ambience.', { loop: true, fadeIn: 0.25, fadeOut: 0.35 }),
+  productionCue('audio.ambience.observatory', 'observatory', observatoryAmbience, 0.38, 'Night air plus subtle observatory mechanism hum.', { loop: true, fadeIn: 0.25, fadeOut: 0.35 }),
   productionCue('audio.sfx.information', 'information', informationPing, 0.7, 'Glassy information/data accent.', { fadeIn: 0.004, fadeOut: 0.08 }),
   productionCue('audio.sfx.handWhoosh', 'hand-whoosh', handWhoosh, 0.78, 'Directional external-hand approach whoosh.', { fadeIn: 0.012, fadeOut: 0.1 }),
   productionCue('audio.sfx.touch', 'touch', touchTick, 0.75, 'Soft tactile contact transient.', { fadeIn: 0.002, fadeOut: 0.055 }),
@@ -357,5 +584,17 @@ export const DEFAULT_AUDIO_CUES: readonly AudioCueDefinition[] = [
   productionCue('audio.sfx.staticCrackle', 'static-crackle', staticCrackle, 0.72, 'Short static-electric crackle.', { fadeIn: 0.002, fadeOut: 0.14 }),
   productionCue('audio.sfx.waterSplash', 'water-splash', waterSplash, 0.76, 'Compact water drop/splash accent.', { fadeIn: 0.002, fadeOut: 0.2 }),
   productionCue('audio.sfx.heatTransfer', 'heat-transfer', heatTransfer, 0.64, 'Rising thermal/conduction accent.', { fadeIn: 0.02, fadeOut: 0.28 }),
+  productionCue('audio.sfx.beltLatch', 'belt-latch', beltLatch, 0.72, 'Seatbelt latch click.', { fadeIn: 0.002, fadeOut: 0.1 }),
+  productionCue('audio.sfx.brakeImpact', 'brake-impact', brakeImpact, 0.82, 'Sudden braking and restraint impact accent.', { fadeIn: 0.002, fadeOut: 0.2 }),
+  productionCue('audio.sfx.dropRelease', 'drop-release', dropRelease, 0.62, 'Drop rig release click.', { fadeIn: 0.002, fadeOut: 0.08 }),
+  productionCue('audio.sfx.dropImpact', 'drop-impact', dropImpact, 0.72, 'Compact object landing impact.', { fadeIn: 0.002, fadeOut: 0.16 }),
+  productionCue('audio.sfx.paperLaunch', 'paper-launch', paperLaunch, 0.68, 'Paper glider launch swish.', { fadeIn: 0.01, fadeOut: 0.16 }),
+  productionCue('audio.sfx.airflow', 'airflow', airflow, 0.50, 'Airflow/wing movement texture.', { fadeIn: 0.04, fadeOut: 0.25 }),
+  productionCue('audio.sfx.magnetSnap', 'magnet-snap', magnetSnap, 0.72, 'Magnetic attraction snap.', { fadeIn: 0.002, fadeOut: 0.14 }),
+  productionCue('audio.sfx.echoImpulse', 'echo-impulse', echoImpulse, 0.72, 'Dry sound impulse sent into a reflective space.', { fadeIn: 0.002, fadeOut: 0.1 }),
+  productionCue('audio.sfx.echoReturn', 'echo-return', echoReturn, 0.60, 'Softer delayed echo return.', { fadeIn: 0.004, fadeOut: 0.18 }),
+  productionCue('audio.sfx.prismSplit', 'prism-split', prismSplit, 0.66, 'Optical split/reveal shimmer.', { fadeIn: 0.003, fadeOut: 0.22 }),
+  productionCue('audio.sfx.compareTick', 'compare-tick', compareTick, 0.58, 'Short comparison marker tick.', { fadeIn: 0.002, fadeOut: 0.1 }),
+  productionCue('audio.sfx.twinkle', 'twinkle', twinkle, 0.54, 'Short high-frequency twinkle accent.', { fadeIn: 0.002, fadeOut: 0.14 }),
   productionCue('audio.sfx.insight', 'insight', insightChime, 0.68, 'Warm answer/reveal chime.', { fadeIn: 0.003, fadeOut: 0.34 }),
 ];

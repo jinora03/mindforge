@@ -153,10 +153,204 @@ export const createToyboxBowlSpoon: PrefabFactory = (): PrefabInstance => {
   return { object3d: root, anchors: { soup, spoon, handle, soupSurface, handleTip } };
 };
 
+
+
+export const createToyboxSeatRig: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.seatRig';
+  const seat = plastic('#526D7C', { roughness: 0.42 });
+  root.add(part(moulded(2.25, 0.42, 2.2), seat, [0, 0.52, 0]));
+  root.add(part(moulded(2.25, 2.6, 0.42), seat, [0, 1.95, -0.88]));
+  const passenger = new THREE.Group(); passenger.name = 'passenger';
+  passenger.add(part(moulded(1.25, 1.25, 0.65), plastic(TOYBOX_PALETTE.mint, { roughness: 0.3 }), [0, 1.75, -0.05]));
+  passenger.add(part(ballGeometry(0.44, 18), plastic('#C98F70', { roughness: 0.48 }), [0, 2.72, -0.02]));
+  for (const x of [-0.36, 0.36]) { const leg = part(moulded(0.46, 1.28, 0.46), plastic(TOYBOX_PALETTE.cobalt), [x, 0.72, 0.62]); leg.rotation.x = -0.82; passenger.add(leg); }
+  root.add(passenger);
+  const belt = new THREE.Group(); belt.name = 'belt';
+  const beltMat = plastic('#F0C24F', { roughness: 0.38 });
+  const strap = part(moulded(0.16, 1.85, 0.12), beltMat, [0, 1.8, 0.38]); strap.rotation.z = -0.58; belt.add(strap);
+  belt.add(part(moulded(1.35, 0.13, 0.12), beltMat, [0, 1.26, 0.42])); root.add(belt);
+  const chest = new THREE.Object3D(); chest.position.set(0, 1.85, 0.36); passenger.add(chest);
+  const latch = new THREE.Object3D(); latch.position.set(0.48, 1.26, 0.48); root.add(latch);
+  return { object3d: root, anchors: { passenger, chest, belt, latch } };
+};
+
+export const createToyboxFeatherRock: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group(); root.name = 'toybox.featherRock';
+  const frame = toyMetal('#9AA9B0');
+  for (const x of [-2.4, 2.4]) for (const z of [-0.75, 0.75]) root.add(part(moulded(0.12, 6.4, 0.12), frame, [x, 3.2, z]));
+  root.add(part(moulded(5.0, 0.15, 1.65), frame, [0, 6.35, 0]));
+  root.add(part(moulded(5.0, 0.18, 1.65), frame, [0, 0.1, 0]));
+  const rockMat = plastic('#858D91', { roughness: 0.72 });
+  const featherMat = plastic('#F2EAD4', { roughness: 0.58 });
+  const makeRock = (name: string, x: number): THREE.Group => { const g = new THREE.Group(); g.name=name; g.position.set(x,5.55,0); const m=part(ballGeometry(0.42,12),rockMat); m.scale.set(1.05,0.82,0.98); g.add(m); return g; };
+  const makeFeather = (name: string, x: number): THREE.Group => { const g = new THREE.Group(); g.name=name; g.position.set(x,5.55,0); const stem=part(tubeGeometry(0.035,0.95,8),featherMat); stem.rotation.z=-0.15; g.add(stem); const vane=part(moulded(0.44,0.72,0.06),featherMat,[0.15,0.06,0]); vane.rotation.z=-0.38; g.add(vane); return g; };
+  const airRock=makeRock('airRock',-1.15), airFeather=makeFeather('airFeather',1.15), vacuumRock=makeRock('vacuumRock',-1.15), vacuumFeather=makeFeather('vacuumFeather',1.15);
+  vacuumRock.visible=false; vacuumFeather.visible=false; root.add(airRock,airFeather,vacuumRock,vacuumFeather);
+  const chamberMaterial = plastic('#C9F0FB', { transparent: true, opacity: 0.1, roughness: 0.05 });
+  chamberMaterial.depthWrite = false;
+  const chamber = part(moulded(5.25, 6.15, 1.8), chamberMaterial, [0, 3.2, 0]);
+  chamber.castShadow = false;
+  chamber.receiveShadow = false;
+  chamber.name = 'chamber';
+  root.add(chamber);
+  const floor=new THREE.Object3D(); floor.position.set(0,0.3,0); root.add(floor);
+  return { object3d: root, anchors: { airRock, airFeather, vacuumRock, vacuumFeather, chamber, floor } };
+};
+
+export const createToyboxPaperPlane: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group(); root.name='toybox.paperPlane';
+  const paper=plastic('#F7F4E9',{roughness:0.34});
+  root.add(part(moulded(0.16,0.12,3.0),paper));
+  const left=part(moulded(1.55,0.08,2.15),paper,[-0.72,0,-0.12]); left.rotation.y=-0.36; root.add(left);
+  const right=part(moulded(1.55,0.08,2.15),paper,[0.72,0,-0.12]); right.rotation.y=0.36; root.add(right);
+  const tailMesh=part(moulded(0.12,0.72,0.9),paper,[0,0.34,-1.05]); root.add(tailMesh);
+  const nose=new THREE.Object3D(); nose.position.set(0,0,1.58); root.add(nose);
+  const wingLeft=new THREE.Object3D(); wingLeft.position.set(-1.25,0,0); root.add(wingLeft);
+  const wingRight=new THREE.Object3D(); wingRight.position.set(1.25,0,0); root.add(wingRight);
+  const tail=new THREE.Object3D(); tail.position.set(0,0.18,-1.42); root.add(tail);
+  return { object3d: root, anchors: { nose, wingLeft, wingRight, tail } };
+};
+
+export const createToyboxMagnetKit: PrefabFactory = (): PrefabInstance => {
+  const root=new THREE.Group(); root.name='toybox.magnetKit';
+  root.add(part(moulded(6.2,0.24,2.6),plastic(TOYBOX_PALETTE.stone),[0,0.12,0]));
+  const magnet=new THREE.Group(); magnet.name='magnet'; magnet.position.set(-2.0,0.72,0.9);
+  magnet.add(part(moulded(0.42,1.4,0.42),plastic('#E65B58'),[-0.45,0,0]));
+  magnet.add(part(moulded(0.42,1.4,0.42),plastic('#527FD8'),[0.45,0,0]));
+  magnet.add(part(moulded(1.32,0.42,0.42),toyMetal('#C9D2D7'),[0,0.49,0])); root.add(magnet);
+  const target=(name:string,x:number,material:THREE.MeshStandardMaterial):THREE.Mesh=>{const m=part(moulded(0.82,0.7,0.82),material,[x,0.59,-0.68]);m.name=name;root.add(m);return m;};
+  const steelMat=toyMetal('#AEBBC2'); steelMat.emissive=new THREE.Color('#5ED9FF'); steelMat.emissiveIntensity=0;
+  const aluminiumMat=toyMetal('#D4DCE0'); aluminiumMat.emissive=new THREE.Color('#5ED9FF'); aluminiumMat.emissiveIntensity=0;
+  const woodMat=plastic('#C88A4F',{roughness:0.6,emissive:'#5ED9FF',emissiveIntensity:0});
+  const steel=target('steel',-1.8,steelMat), aluminium=target('aluminium',0,aluminiumMat), wood=target('wood',1.8,woodMat);
+  const tip=new THREE.Object3D(); tip.position.set(0,-0.62,-0.3); magnet.add(tip);
+  return { object3d: root, anchors: { magnet, magnetTip: tip, steel, aluminium, wood } };
+};
+
+
+/** Toy sound emitter/listener rig with a far semantic reflector anchor. */
+export const createToyboxSoundRig: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.soundRig';
+  root.add(part(moulded(4.2, 0.28, 1.6), plastic(TOYBOX_PALETTE.stone), [0, 0.14, 0]));
+  studs(root, TOYBOX_PALETTE.stone, 10, 0, 0.31);
+
+  const source = new THREE.Group();
+  source.name = 'source';
+  source.position.set(-1.3, 0.85, 0);
+  source.add(part(moulded(0.9, 1.25, 0.7), plastic('#31424B', { roughness: 0.48 })));
+  source.add(part(ballGeometry(0.25, 12), plastic('#77E2F8', { emissive: '#53CBEA', emissiveIntensity: 0.62 }), [0, 0, 0.38]));
+  root.add(source);
+
+  const listener = new THREE.Group();
+  listener.name = 'listener';
+  listener.position.set(1.3, 0.7, 0);
+  listener.add(part(moulded(0.55, 1.0, 0.55), plastic('#DDE7E9', { roughness: 0.38 })));
+  listener.add(part(ballGeometry(0.11, 10), plastic('#FFE083', { emissive: '#FFD15A', emissiveIntensity: 0.7 }), [0, 0.42, 0.3]));
+  root.add(listener);
+
+  const reflector = part(ballGeometry(0.34, 12), plastic('#83E6FA', { emissive: '#5FD4F0', emissiveIntensity: 0.7 }), [0, 3.0, -21.5]);
+  reflector.name = 'reflector';
+  root.add(reflector);
+  return { object3d: root, anchors: { source, listener, reflector } };
+};
+
+/** Moulded optical splitter with six spectrum-beam anchors. */
+export const createToyboxPrismDrop: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.prismDrop';
+  const glass = plastic('#D6F7FF', { transparent: true, opacity: 0.5, roughness: 0.08, emissive: '#83DFF6', emissiveIntensity: 0.14 });
+  const core = part(new THREE.OctahedronGeometry(0.9, 1), glass);
+  core.name = 'core';
+  core.scale.set(0.9, 1.25, 0.9);
+  root.add(core);
+
+  const input = new THREE.Object3D(); input.position.set(-2.3, 0.1, 0); root.add(input);
+  const center = new THREE.Object3D(); center.position.set(0, 0.05, 0); root.add(center);
+  const colors = [
+    ['red', '#F45B5B', 0.72], ['orange', '#F08A45', 0.45], ['yellow', '#F5D85A', 0.18],
+    ['green', '#63D27A', -0.1], ['blue', '#5A8FE8', -0.38], ['violet', '#9B70E8', -0.66],
+  ] as const;
+  const anchors: Record<string, THREE.Object3D> = { input, center };
+  colors.forEach(([name, color, y], index) => {
+    const beam = part(moulded(3.2, 0.075, 0.075), plastic(color, { emissive: color, emissiveIntensity: 0.72, roughness: 0.16 }), [2.1, y, 0]);
+    beam.name = name;
+    beam.rotation.z = (y * 0.08) - index * 0.004;
+    beam.scale.x = 0.015;
+    root.add(beam);
+    anchors[name] = beam;
+  });
+  return { object3d: root, anchors };
+};
+
+/** Two equal toy moon discs placed in different sky contexts. */
+export const createToyboxMoonPair: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.moonPair';
+  const moonMaterial = plastic('#F6EAC6', { emissive: '#EBD99E', emissiveIntensity: 0.58, roughness: 0.34 });
+  const makeMoon = (name: string, position: [number, number, number]): THREE.Mesh => {
+    const moon = part(new THREE.CylinderGeometry(0.8, 0.8, 0.28, 24), moonMaterial.clone(), position);
+    moon.rotation.x = Math.PI / 2;
+    moon.name = name;
+    return moon;
+  };
+  const horizonMoon = makeMoon('horizonMoon', [-2.6, 1.9, 0]);
+  const highMoon = makeMoon('highMoon', [2.4, 5.8, 0]);
+  root.add(horizonMoon, highMoon);
+
+  const frameMaterial = plastic('#8FE8FF', { emissive: '#5ED4F2', emissiveIntensity: 0.72, transparent: true, opacity: 0.78, roughness: 0.18 });
+  const makeFrame = (name: string, position: THREE.Vector3): THREE.Group => {
+    const frame = new THREE.Group(); frame.name = name; frame.position.copy(position);
+    frame.add(part(moulded(2.15, 0.06, 0.08), frameMaterial, [0, 1.08, 0.18]));
+    frame.add(part(moulded(2.15, 0.06, 0.08), frameMaterial, [0, -1.08, 0.18]));
+    return frame;
+  };
+  const horizonFrame = makeFrame('horizonFrame', horizonMoon.position);
+  const highFrame = makeFrame('highFrame', highMoon.position);
+  horizonFrame.scale.setScalar(0.001);
+  highFrame.scale.setScalar(0.001);
+  root.add(horizonFrame, highFrame);
+  return { object3d: root, anchors: { horizonMoon, highMoon, horizonFrame, highFrame } };
+};
+
+/** Toy star/planet comparison rig with semantic atmosphere checkpoints. */
+export const createToyboxStarPlanetPair: PrefabFactory = (): PrefabInstance => {
+  const root = new THREE.Group();
+  root.name = 'toybox.starPlanetPair';
+  const star = part(ballGeometry(0.2, 12), plastic('#F8FBFF', { emissive: '#F0FAFF', emissiveIntensity: 1.05, roughness: 0.12 }), [-2.4, 5.3, 0]);
+  star.name = 'star';
+  const planet = part(ballGeometry(0.44, 18), plastic('#B9DCF5', { emissive: '#7FC0EA', emissiveIntensity: 0.55, roughness: 0.2 }), [2.4, 5.3, 0]);
+  planet.name = 'planet';
+  root.add(star, planet);
+
+  const atmosphere = plastic('#73CFF3', { transparent: true, opacity: 0.11, emissive: '#4ABCE8', emissiveIntensity: 0.12, roughness: 0.08 });
+  atmosphere.depthWrite = false;
+  for (const y of [3.9, 3.0, 2.1]) {
+    const layer = part(moulded(7.5, 0.07, 0.08), atmosphere, [0, y, 0]);
+    layer.castShadow = false;
+    root.add(layer);
+  }
+  const starMidA = new THREE.Object3D(); starMidA.position.set(-1.65, 3.9, 0); root.add(starMidA);
+  const starMidB = new THREE.Object3D(); starMidB.position.set(-1.0, 2.7, 0); root.add(starMidB);
+  const planetMidA = new THREE.Object3D(); planetMidA.position.set(1.65, 3.9, 0); root.add(planetMidA);
+  const planetMidB = new THREE.Object3D(); planetMidB.position.set(1.0, 2.7, 0); root.add(planetMidB);
+  const viewer = new THREE.Object3D(); viewer.position.set(0, 0.8, 0); root.add(viewer);
+  return { object3d: root, anchors: { star, planet, starMidA, starMidB, planetMidA, planetMidB, viewer } };
+};
+
 export const TOYBOX_PRODUCTION_PREFAB_FACTORIES: Record<string, PrefabFactory> = {
   'prefab.materialSamples': createToyboxMaterialSamples,
   'prefab.balloon': createToyboxBalloon,
   'prefab.demoPanel': createToyboxDemoPanel,
   'prefab.floatTank': createToyboxFloatTank,
   'prefab.bowlSpoon': createToyboxBowlSpoon,
+  'prefab.seatRig': createToyboxSeatRig,
+  'prefab.featherRock': createToyboxFeatherRock,
+  'prefab.paperPlane': createToyboxPaperPlane,
+  'prefab.magnetKit': createToyboxMagnetKit,
+  'prefab.soundRig': createToyboxSoundRig,
+  'prefab.prismDrop': createToyboxPrismDrop,
+  'prefab.moonPair': createToyboxMoonPair,
+  'prefab.starPlanetPair': createToyboxStarPlanetPair,
 };

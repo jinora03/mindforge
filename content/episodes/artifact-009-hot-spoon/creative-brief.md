@@ -9,7 +9,7 @@ A metal spoon heats because thermal energy transfers from the hotter soup into t
 
 ## 2. The unforgettable visual
 
-A warm stream begins at the soup surface, enters the spoon bowl, and visibly races along the metal toward the handle while the spoon itself gains a hot glow. The viewer should be able to trace the path of energy from source to destination in one continuous line.
+A warm stream begins at the soup surface, enters the spoon bowl, and visibly races along the metal toward the handle. Only after the handle has warmed does a semantic hand enter, touch it, recoil, and leave. The spoon remains the protagonist from first frame to answer.
 
 ## 3. Composition
 
@@ -20,7 +20,7 @@ A warm stream begins at the soup surface, enters the spoon bowl, and visibly rac
 
 ## 4. Performance / transformation
 
-The Observer is curious at first, then reaches toward the handle only after the heat has visibly travelled there. The motion should reinforce timing: the handle becomes hot because energy has already moved through the spoon.
+No full-body Observer is used. A reusable external hand appears only for the handle test, touches after conduction has already happened, recoils immediately, then exits. The human element proves the consequence without occupying unrelated shots.
 
 ## 5. Text strategy
 
@@ -35,5 +35,6 @@ This episode establishes `prefab.bowlSpoon` and reuses `environment.kitchenLab`,
 - The energy path is visually continuous from soup to handle.
 - The viewer does not confuse conduction with convection or "heat rising."
 - The spoon's semantic anchors behave identically in Voxel and Toybox.
-- The Observer's reach happens after the handle has visibly warmed.
+- The test hand appears only after the handle has visibly warmed and is gone before the answer shot.
+- No idle full-body character appears in the kitchen composition.
 - The 27-second pacing leaves enough time for source, transfer, result and definition.

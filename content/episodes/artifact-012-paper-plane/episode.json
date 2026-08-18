@@ -1,0 +1,389 @@
+{
+  "schemaVersion": "0.1",
+  "id": "artifact-012-paper-plane",
+  "title": "Why does a paper airplane stay in the air?",
+  "artifactName": "The Glide",
+  "artifactNumber": 12,
+  "artifactType": "loom",
+  "domain": "signal-ocean",
+  "duration": 28,
+  "environment": "environment.classroomLab",
+  "metadata": {
+    "logline": "A paper plane launches, rides airflow across its wings, then descends as drag removes speed.",
+    "beats": "plane -> launch -> airflow -> balance -> descending glide",
+    "productionStatus": "content-sprint-wave2",
+    "narrationStatus": "caption-led-until-production-voice",
+    "sharedAssets": [
+      "environment.classroomLab",
+      "prefab.paperPlane",
+      "audio.ambience.classroom",
+      "audio.sfx.paperLaunch",
+      "audio.sfx.airflow"
+    ]
+  },
+  "entities": [
+    {
+      "id": "plane",
+      "type": "prefab",
+      "factory": "prefab.paperPlane",
+      "position": [
+        -3.6,
+        2.3,
+        -1.2
+      ],
+      "rotation": [
+        0,
+        0.06,
+        0.08
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "ambience",
+      "type": "audio",
+      "at": 0,
+      "duration": 28,
+      "cue": "audio.ambience.classroom",
+      "loop": true,
+      "volume": 0.34
+    },
+    {
+      "id": "plane-float",
+      "type": "objectMotion",
+      "at": 0,
+      "duration": 3.8,
+      "target": "plane",
+      "motion": "motion.object.float",
+      "intensity": 0.12
+    },
+    {
+      "id": "cam-open",
+      "type": "camera",
+      "at": 0,
+      "duration": 4,
+      "preset": "camera.pushIn",
+      "target": "plane",
+      "from": [
+        1.4,
+        2.7,
+        5.2
+      ],
+      "to": [
+        1.0,
+        2.5,
+        4.2
+      ],
+      "fov": 40,
+      "easing": "easeInOut"
+    },
+    {
+      "id": "hook",
+      "type": "text",
+      "at": 0.35,
+      "duration": 3.2,
+      "textId": "hook"
+    },
+    {
+      "id": "launch",
+      "type": "property",
+      "at": 4.1,
+      "duration": 5.6,
+      "target": "plane",
+      "property": "position",
+      "from": [
+        -3.6,
+        2.3,
+        -1.2
+      ],
+      "to": [
+        1.2,
+        3.15,
+        -5.4
+      ],
+      "easing": "easeOut"
+    },
+    {
+      "id": "launch-tilt",
+      "type": "property",
+      "at": 4.1,
+      "duration": 5.6,
+      "target": "plane",
+      "property": "rotation",
+      "from": [
+        0,
+        0.06,
+        0.08
+      ],
+      "to": [
+        0.02,
+        -0.2,
+        -0.03
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "launch-sfx",
+      "type": "audio",
+      "at": 4.1,
+      "cue": "audio.sfx.paperLaunch",
+      "volume": 0.84
+    },
+    {
+      "id": "launch-trail",
+      "type": "effect",
+      "at": 4.15,
+      "duration": 5.2,
+      "effect": "effect.signal.path",
+      "from": "plane.tail",
+      "to": "plane.nose",
+      "tone": "information",
+      "intensity": 0.55,
+      "parameters": {
+        "speed": 0.82,
+        "size": 0.05,
+        "bow": 0
+      }
+    },
+    {
+      "id": "cam-launch",
+      "type": "camera",
+      "at": 4,
+      "duration": 6,
+      "preset": "camera.reveal",
+      "target": "plane",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 4.0,
+        "height": 2.4,
+        "startAngle": 0.2,
+        "endAngle": -0.16
+      }
+    },
+    {
+      "id": "speed-text",
+      "type": "text",
+      "at": 4.4,
+      "duration": 5.0,
+      "textId": "speed"
+    },
+    {
+      "id": "glide-position",
+      "type": "property",
+      "at": 10,
+      "duration": 8,
+      "target": "plane",
+      "property": "position",
+      "from": [
+        1.2,
+        3.15,
+        -5.4
+      ],
+      "to": [
+        4.8,
+        2.85,
+        -8.3
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "air-left",
+      "type": "effect",
+      "at": 10.1,
+      "duration": 7.3,
+      "effect": "effect.informationStream",
+      "through": [
+        "plane.nose",
+        "plane.wingLeft",
+        "plane.tail"
+      ],
+      "tone": "information",
+      "intensity": 0.72,
+      "parameters": {
+        "density": 22,
+        "speed": 0.8,
+        "size": 0.045,
+        "bow": 0.05
+      }
+    },
+    {
+      "id": "air-right",
+      "type": "effect",
+      "at": 10.1,
+      "duration": 7.3,
+      "effect": "effect.informationStream",
+      "through": [
+        "plane.nose",
+        "plane.wingRight",
+        "plane.tail"
+      ],
+      "tone": "information",
+      "intensity": 0.72,
+      "parameters": {
+        "density": 22,
+        "speed": 0.8,
+        "size": 0.045,
+        "bow": -0.05
+      }
+    },
+    {
+      "id": "air-sfx",
+      "type": "audio",
+      "at": 10.2,
+      "duration": 7.0,
+      "cue": "audio.sfx.airflow",
+      "loop": true,
+      "volume": 0.54
+    },
+    {
+      "id": "cam-air",
+      "type": "camera",
+      "at": 10,
+      "duration": 8,
+      "preset": "camera.pushIn",
+      "target": "plane",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "lift-text",
+      "type": "text",
+      "at": 10.3,
+      "duration": 7.1,
+      "textId": "lift"
+    },
+    {
+      "id": "descent",
+      "type": "property",
+      "at": 18,
+      "duration": 6,
+      "target": "plane",
+      "property": "position",
+      "from": [
+        4.8,
+        2.85,
+        -8.3
+      ],
+      "to": [
+        6.6,
+        1.7,
+        -10.0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "descent-tilt",
+      "type": "property",
+      "at": 18,
+      "duration": 6,
+      "target": "plane",
+      "property": "rotation",
+      "from": [
+        0.02,
+        -0.2,
+        -0.03
+      ],
+      "to": [
+        0.18,
+        -0.34,
+        -0.08
+      ],
+      "easing": "easeInOut"
+    },
+    {
+      "id": "wing-pressure-left",
+      "type": "effect",
+      "at": 18.2,
+      "duration": 5.2,
+      "effect": "effect.contour.pressure",
+      "target": "plane.wingLeft",
+      "tone": "information",
+      "intensity": 0.62,
+      "parameters": {
+        "radius": 0.72,
+        "segments": 16
+      }
+    },
+    {
+      "id": "wing-pressure-right",
+      "type": "effect",
+      "at": 18.2,
+      "duration": 5.2,
+      "effect": "effect.contour.pressure",
+      "target": "plane.wingRight",
+      "tone": "information",
+      "intensity": 0.62,
+      "parameters": {
+        "radius": 0.72,
+        "segments": 16
+      }
+    },
+    {
+      "id": "cam-balance",
+      "type": "camera",
+      "at": 18,
+      "duration": 6,
+      "preset": "camera.pullBack",
+      "target": "plane",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "balance-text",
+      "type": "text",
+      "at": 18.25,
+      "duration": 5.3,
+      "textId": "balance"
+    },
+    {
+      "id": "final-glide",
+      "type": "property",
+      "at": 24,
+      "duration": 4,
+      "target": "plane",
+      "property": "position",
+      "from": [
+        6.6,
+        1.7,
+        -10.0
+      ],
+      "to": [
+        7.2,
+        1.05,
+        -11.0
+      ],
+      "easing": "easeIn"
+    },
+    {
+      "id": "cam-answer",
+      "type": "camera",
+      "at": 24,
+      "duration": 4,
+      "preset": "camera.reveal",
+      "target": "plane",
+      "easing": "easeInOut"
+    },
+    {
+      "id": "answer-flash",
+      "type": "effect",
+      "at": 24.15,
+      "duration": 0.9,
+      "effect": "effect.insight.flash",
+      "target": "plane",
+      "tone": "insight",
+      "intensity": 0.72
+    },
+    {
+      "id": "insight-sfx",
+      "type": "audio",
+      "at": 24.2,
+      "cue": "audio.sfx.insight",
+      "volume": 0.68
+    },
+    {
+      "id": "answer-text",
+      "type": "text",
+      "at": 24.25,
+      "duration": 3.5,
+      "textId": "answer"
+    }
+  ]
+}
