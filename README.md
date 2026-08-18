@@ -6,7 +6,7 @@ a small runtime engine, a library of reusable systems, and validated JSON conten
 episodes are mostly *composed* rather than re-coded.
 
 > This is the **v0.1 scaffold**: a small but fully working vertical slice that proves the
-> architecture. All visuals are procedural (no downloaded models yet).
+> architecture. Current bundled theme visuals are still procedural fallbacks, but authored GLB/GLTF loading, validation, semantic anchors/clips, and asset-pack metadata are production-ready.
 
 ## Platform hierarchy
 
@@ -55,6 +55,8 @@ pnpm dev
 | `pnpm lint` | ESLint |
 | `pnpm test` | Vitest |
 | `pnpm validate:episodes` | Validate all content against schema + registry |
+| `pnpm validate:assets` | Validate model descriptors, packs and authored GLB/GLTF files |
+| `pnpm inspect:model <file>` | Inspect GLB/GLTF nodes, clips and budgets before registration |
 | `pnpm generate:catalog` | Regenerate `docs/library-catalog/` from the code |
 
 ## Studio
@@ -112,10 +114,7 @@ is reconstructed from Engine time after pause, seek, restart, and speed changes.
 
 ## Assets
 
-`public/assets/` reserves folders for future `.glb` models, baked animation clips, audio,
-textures, and fonts. v0.1 registers asset **ids** (see the catalog) but content is
-procedural; the motion and asset systems are designed so an episode does not care whether a
-motion is procedural TypeScript or a future baked clip.
+`public/assets/` is the local production-asset root. Theme descriptors may replace procedural fallbacks with inspected `.glb`/`.gltf` models while episodes continue to target stable semantic prefab/environment/layer ids. PF2 adds model coordinate/material/budget/provenance rules, semantic anchor and animation-clip mappings, asset packs, `pnpm inspect:model`, and `pnpm validate:assets`. See [`docs/production-assets.md`](docs/production-assets.md) and [`docs/model-authoring-standard.md`](docs/model-authoring-standard.md).
 
 ## Production workflow
 
@@ -133,7 +132,7 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 ## Current limitations (v0.1)
 
-- Geometry, characters, effects, and demo SFX are procedural; reference narration clips are bundled through the URL-backed audio cue contract and can be replaced with production voice assets.
+- Bundled Voxel/Toybox model descriptors still resolve to procedural fallbacks; PF2 now provides the authored GLB/GLTF contract and validation pipeline, but the first curated production model pack is not bundled yet. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - One character (`character.observer`); the walk cycle is stationary (in-place).

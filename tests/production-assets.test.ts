@@ -117,20 +117,18 @@ describe('production asset runtime', () => {
     assets.dispose();
   });
 
-  it('fails clearly when a declared semantic anchor is missing from the GLB', async () => {
+  it('fails clearly during preload when a declared semantic anchor is missing from the GLB', async () => {
     const loader = new FakeModelLoader(sourceModel());
     const assets = new BrowserAssetRuntime({ loader });
-    await assets.preload([
-      {
-        ...MODEL,
-        id: 'model.test.badAnchor',
-        anchors: { hand: 'DoesNotExist' },
-      },
-    ]);
-
-    expect(() => assets.instantiateModel('model.test.badAnchor')).toThrow(
-      'missing authored anchor node "DoesNotExist"',
-    );
+    await expect(
+      assets.preload([
+        {
+          ...MODEL,
+          id: 'model.test.badAnchor',
+          anchors: { hand: 'DoesNotExist' },
+        },
+      ]),
+    ).rejects.toThrow('missing authored anchor node "DoesNotExist"');
     assets.dispose();
   });
 });

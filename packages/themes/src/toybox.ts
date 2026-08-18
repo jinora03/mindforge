@@ -1,4 +1,4 @@
-import type { AssetDescriptor } from '@mindforge/engine';
+import type { AssetDescriptor, AssetPackDescriptor } from '@mindforge/engine';
 import type { MindForgeTheme } from './ThemeTypes';
 import { TOYBOX_CHARACTER_FACTORIES } from './toybox/ToyboxCharacter';
 import { TOYBOX_EFFECT_FACTORIES } from './toybox/toybox-effects';
@@ -57,6 +57,70 @@ const TOYBOX_ASSETS: AssetDescriptor[] = [
   { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];
 
+export const TOYBOX_ASSET_PACKS: AssetPackDescriptor[] = [
+  {
+    id: 'pack.toybox.core-fallback',
+    label: 'Toybox Core Fallback',
+    maturity: 'fallback',
+    description:
+      'Current procedural core assets kept as deterministic fallbacks while authored production replacements are onboarded.',
+    assetIds: [
+      'model.character.observer',
+      'model.character.externalHand',
+      'model.machine.heatEngine',
+      'model.prop.cube',
+      'model.prop.lever',
+      'model.prop.door',
+      'model.environment.laboratory',
+    ],
+    tags: ['core', 'fallback'],
+  },
+  {
+    id: 'pack.toybox.experiments-fallback',
+    label: 'Toybox Experiment Fallbacks',
+    maturity: 'fallback',
+    description:
+      'Reusable experiment props and rooms awaiting authored production-model replacements.',
+    assetIds: [
+      'model.prop.materialSamples',
+      'model.prop.balloon',
+      'model.prop.demoPanel',
+      'model.prop.floatTank',
+      'model.prop.bowlSpoon',
+      'model.environment.materialLab',
+      'model.environment.classroomLab',
+      'model.environment.kitchenLab',
+      'model.environment.vehicleCabin',
+      'model.environment.dropLab',
+      'model.prop.seatRig',
+      'model.prop.featherRock',
+      'model.prop.paperPlane',
+      'model.prop.magnetKit',
+    ],
+    tags: ['science', 'props', 'fallback'],
+  },
+  {
+    id: 'pack.toybox.worlds-fallback',
+    label: 'Toybox World Fallbacks',
+    maturity: 'fallback',
+    description:
+      'Current procedural world and hero assets to replace pack-by-pack with inspected authored models.',
+    assetIds: [
+      'model.environment.canyon',
+      'model.environment.rainMeadow',
+      'model.environment.nightOverlook',
+      'model.environment.observatory',
+      'model.prop.soundRig',
+      'model.prop.prismDrop',
+      'model.prop.rainDropletField',
+      'model.prop.rainbowArc',
+      'model.prop.moonPair',
+      'model.prop.starPlanetPair',
+    ],
+    tags: ['world', 'hero', 'fallback'],
+  },
+];
+
 /**
  * Alternative MindForge visual system: an original modular toy language of
  * glossy moulded parts, studded plates, and built places.
@@ -79,5 +143,6 @@ export const TOYBOX_THEME: MindForgeTheme = {
   // weather/atmosphere implementations without changing episode semantics.
   sceneLayers: {},
   assets: TOYBOX_ASSETS,
+  assetPacks: TOYBOX_ASSET_PACKS,
   presentation: TOYBOX_PRESENTATION,
 };

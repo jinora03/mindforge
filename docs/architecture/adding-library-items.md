@@ -9,7 +9,7 @@ Then content references only the stable id.
 After adding anything, run:
 
 ```bash
-pnpm typecheck && pnpm test && pnpm generate:catalog && pnpm validate:episodes
+pnpm typecheck && pnpm test && pnpm validate:assets && pnpm generate:catalog && pnpm validate:episodes
 ```
 
 ## Add a motion (humanoid or object)
@@ -58,11 +58,9 @@ pnpm typecheck && pnpm test && pnpm generate:catalog && pnpm validate:episodes
 
 ## Add an asset
 
-Add theme-neutral animation descriptors and source-asset reservations to `SHARED_ASSETS` in
-`packages/library/src/register-defaults.ts`. Add visual model/texture descriptors to the
-relevant theme definition in `packages/themes/`. v0.1 descriptors are mostly `procedural`; a
-future `.glb`/audio pipeline will resolve real files. Episodes reference asset **ids**, never
-file paths.
+Add theme-neutral animation descriptors to `SHARED_ASSETS` in `packages/library/src/register-defaults.ts`. Add visual model/texture descriptors to the relevant theme definition in `packages/themes/`.
+
+For an authored model, follow [`../model-authoring-standard.md`](../model-authoring-standard.md): declare its model profile, provenance, semantic anchors/clips, assign it to an asset pack, then run `pnpm inspect:model <file>` and `pnpm validate:assets`. Episodes reference semantic prefab/environment/layer ids, never model file paths or pack ids.
 
 ## Add an episode
 

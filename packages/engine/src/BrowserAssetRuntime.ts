@@ -8,6 +8,11 @@ import type {
 } from './EngineTypes';
 import { disposeObject3D } from './DisposalManager';
 import { isExternalModelAsset } from './RuntimeAssets';
+import {
+  applyModelAssetProfile,
+  resolveSemanticModelClips,
+  validateRuntimeModelContract,
+} from './ModelAssetContract';
 
 /** Loader seam kept public so asset-runtime tests do not require network I/O. */
 export interface ModelSourceLoader {
@@ -51,7 +56,10 @@ export class BrowserAssetRuntime implements RuntimeAssetManager {
   private readonly loader: ModelSourceLoader;
   private readonly baseUrl?: string;
   private readonly loaded = new Map<string, LoadedModel>();
-  private readonly pending = new Map<string, Promise<void>>();
+  private readonly pending = new Map<
+    string,
+    { readonly url: string; readonly promise: Promise<void> }
+  >();
 
   constructor(options: BrowserAssetRuntimeOptions = {}) {
     this.loader = options.loader ?? new GltfSourceLoader();
@@ -80,9 +88,11 @@ export class BrowserAssetRuntime implements RuntimeAssetManager {
     }
 
     const object3d = cloneOwnedObject3D(loaded.source.scene);
+    applyModelAssetProfile(object3d, loaded.descriptor.model);
     const anchors = resolveAnchors(object3d, loaded.descriptor);
     const animations = loaded.source.animations.map((clip) => clip.clone());
-    return { object3d, anchors, animations };
+    const clips = resolveSemanticModelClips(loaded.descriptor, animations);
+    return { object3d, anchors, animations, clips };
   }
 
   dispose(): void {
@@ -108,17 +118,32 @@ export class BrowserAssetRuntime implements RuntimeAssetManager {
     }
 
     const inflight = this.pending.get(descriptor.id);
-    if (inflight) return inflight;
+    if (inflight) {
+      if (inflight.url !== descriptor.url) {
+        throw new Error(
+          `Asset "${descriptor.id}" is already preloading from "${inflight.url}" and cannot be rebound to "${descriptor.url}".`,
+        );
+      }
+      return inflight.promise;
+    }
 
     const job = this.loader
       .load(resolveUrl(descriptor.url, this.baseUrl))
       .then((source) => {
+        const problems = validateRuntimeModelContract(descriptor, source.scene, source.animations);
+        if (problems.length > 0) {
+          disposeObject3D(source.scene);
+          source.scene.removeFromParent();
+          throw new Error(
+            `Model asset "${descriptor.id}" failed runtime contract validation:\n${problems.map((problem) => `- ${problem}`).join('\n')}`,
+          );
+        }
         this.loaded.set(descriptor.id, { descriptor, source });
       })
       .finally(() => {
         this.pending.delete(descriptor.id);
       });
-    this.pending.set(descriptor.id, job);
+    this.pending.set(descriptor.id, { url: descriptor.url, promise: job });
     return job;
   }
 }

@@ -259,6 +259,62 @@ export type PrefabFactory = (ctx: PrefabBuildContext) => PrefabInstance;
  * production models may point to GLB/GLTF files preloaded by a runtime asset
  * manager without exposing file paths to episode content.
  */
+export type ModelAssetCategory =
+  | 'environment'
+  | 'terrain'
+  | 'vegetation'
+  | 'rock'
+  | 'prop'
+  | 'character'
+  | 'fx';
+
+export type ModelQualityTier = 'background' | 'standard' | 'hero';
+
+/**
+ * One-time normalization applied when an authored model is instantiated. This
+ * exists for DCC/vendor import differences only; episode staging still belongs
+ * to entities/timeline data. Rotation values are radians in XYZ order.
+ */
+export interface ModelImportTransform {
+  readonly scale?: number;
+  readonly rotation?: readonly [number, number, number];
+  readonly offset?: readonly [number, number, number];
+}
+
+/** Guardrails used by asset validation before a model enters production. */
+export interface ModelAssetBudget {
+  readonly maxTriangles: number;
+  readonly maxMaterials: number;
+  readonly maxTextures: number;
+}
+
+/**
+ * Production contract for an authored GLB/GLTF. Semantic clip ids are mapped to
+ * authored animation names exactly like semantic anchors are mapped to nodes.
+ */
+export interface ModelAssetProfile {
+  readonly category: ModelAssetCategory;
+  readonly quality: ModelQualityTier;
+  readonly units: 'meters';
+  readonly upAxis: 'Y';
+  readonly forwardAxis?: '-Z' | '+Z';
+  readonly origin: 'ground-center' | 'center' | 'authored';
+  readonly materialPolicy: 'embedded-pbr' | 'theme-remap';
+  readonly importTransform?: ModelImportTransform;
+  readonly clips?: Readonly<Record<string, string>>;
+  readonly budget: ModelAssetBudget;
+  readonly castShadow?: boolean;
+  readonly receiveShadow?: boolean;
+}
+
+/** Source/licensing metadata kept with authored production assets. */
+export interface AssetProvenance {
+  readonly source: 'original' | 'licensed' | 'public-domain' | 'generated';
+  readonly license?: string;
+  readonly attribution?: string;
+  readonly sourceUrl?: string;
+}
+
 export interface AssetDescriptor {
   readonly id: string;
   readonly kind: 'model' | 'animation' | 'texture' | 'audio' | 'font';
@@ -271,6 +327,20 @@ export interface AssetDescriptor {
    * Episode content targets the semantic key and never depends on GLB node names.
    */
   readonly anchors?: Readonly<Record<string, string>>;
+  /** Authored-model production rules. Required by PF2 validation for URL-backed models. */
+  readonly model?: ModelAssetProfile;
+  /** Provenance is required by PF2 validation for URL-backed production assets. */
+  readonly provenance?: AssetProvenance;
+}
+
+/** A named reusable grouping of theme assets for production planning/browsing. */
+export interface AssetPackDescriptor {
+  readonly id: string;
+  readonly label: string;
+  readonly description?: string;
+  readonly maturity: 'fallback' | 'production';
+  readonly assetIds: readonly string[];
+  readonly tags?: readonly string[];
 }
 
 /** A detached, scene-owned clone of one preloaded model asset. */
@@ -278,6 +348,8 @@ export interface RuntimeModelAsset {
   readonly object3d: THREE.Object3D;
   readonly anchors: Readonly<Record<string, THREE.Object3D>>;
   readonly animations: readonly THREE.AnimationClip[];
+  /** Semantic clip id -> detached AnimationClip for PF3's deterministic animation runtime. */
+  readonly clips: Readonly<Record<string, THREE.AnimationClip>>;
 }
 
 /** Synchronous model access handed to factories while a scene is being built. */

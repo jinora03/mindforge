@@ -1,5 +1,6 @@
 import type {
   AssetDescriptor,
+  AssetPackDescriptor,
   CharacterFactory,
   EffectFactory,
   EnvironmentFactory,
@@ -49,5 +50,7 @@ export interface MindForgeTheme {
   /** Reusable theme-owned world composition systems (weather, atmosphere, etc.). */
   readonly sceneLayers: Readonly<Record<string, SceneCompositionLayerFactory>>;
   readonly assets: readonly AssetDescriptor[];
+  /** Build-time/runtime-browsing groups used to evolve procedural fallbacks into authored packs. */
+  readonly assetPacks: readonly AssetPackDescriptor[];
   readonly presentation: ThemePresentation;
 }

@@ -2,17 +2,17 @@
 
 # Assets
 
-Registered asset descriptors. v0.1 content is procedural; these ids reserve stable names for the future Renderer / GLB path.
+Registered asset descriptors. Procedural entries are deterministic fallbacks; URL-backed entries must satisfy the PF2 authored-model contract.
 
-- `animation.humanoid.walk` — animation (procedural)
-- `animation.humanoid.run` — animation (procedural)
-- `animation.humanoid.laugh` — animation (procedural)
+- `animation.humanoid.walk` — animation (procedural fallback)
+- `animation.humanoid.run` — animation (procedural fallback)
+- `animation.humanoid.laugh` — animation (procedural fallback)
 - `audio.impact.soft` — audio
 - `audio.transition.rise` — audio
-- `model.character.observer` — model (procedural) — Original MindForge block-built Observer character
-- `model.character.externalHand` — model (procedural) — Original MindForge block-built external hand
-- `model.machine.heatEngine` — model (procedural) — Original MindForge block-built Heat Engine
-- `model.prop.cube` — model (procedural)
-- `model.prop.lever` — model (procedural)
-- `model.prop.door` — model (procedural)
-- `model.environment.laboratory` — model (procedural)
+- `model.character.observer` — model (procedural fallback) — Original MindForge block-built Observer character
+- `model.character.externalHand` — model (procedural fallback) — Original MindForge block-built external hand
+- `model.machine.heatEngine` — model (procedural fallback) — Original MindForge block-built Heat Engine
+- `model.prop.cube` — model (procedural fallback)
+- `model.prop.lever` — model (procedural fallback)
+- `model.prop.door` — model (procedural fallback)
+- `model.environment.laboratory` — model (procedural fallback)

@@ -1,4 +1,4 @@
-import type { AssetDescriptor } from '@mindforge/engine';
+import type { AssetDescriptor, AssetPackDescriptor } from '@mindforge/engine';
 import type { MindForgeTheme } from './ThemeTypes';
 import { VOXEL_CHARACTER_FACTORIES } from './voxel/VoxelCharacter';
 import { VOXEL_EFFECT_FACTORIES } from './voxel/voxel-effects';
@@ -55,6 +55,70 @@ const VOXEL_ASSETS: AssetDescriptor[] = [
   { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];
 
+export const VOXEL_ASSET_PACKS: AssetPackDescriptor[] = [
+  {
+    id: 'pack.voxel.core-fallback',
+    label: 'Voxel Core Fallback',
+    maturity: 'fallback',
+    description:
+      'Current procedural core assets kept as deterministic fallbacks while authored production replacements are onboarded.',
+    assetIds: [
+      'model.character.observer',
+      'model.character.externalHand',
+      'model.machine.heatEngine',
+      'model.prop.cube',
+      'model.prop.lever',
+      'model.prop.door',
+      'model.environment.laboratory',
+    ],
+    tags: ['core', 'fallback'],
+  },
+  {
+    id: 'pack.voxel.experiments-fallback',
+    label: 'Voxel Experiment Fallbacks',
+    maturity: 'fallback',
+    description:
+      'Reusable experiment props and rooms awaiting authored production-model replacements.',
+    assetIds: [
+      'model.prop.materialSamples',
+      'model.prop.balloon',
+      'model.prop.demoPanel',
+      'model.prop.floatTank',
+      'model.prop.bowlSpoon',
+      'model.environment.materialLab',
+      'model.environment.classroomLab',
+      'model.environment.kitchenLab',
+      'model.environment.vehicleCabin',
+      'model.environment.dropLab',
+      'model.prop.seatRig',
+      'model.prop.featherRock',
+      'model.prop.paperPlane',
+      'model.prop.magnetKit',
+    ],
+    tags: ['science', 'props', 'fallback'],
+  },
+  {
+    id: 'pack.voxel.worlds-fallback',
+    label: 'Voxel World Fallbacks',
+    maturity: 'fallback',
+    description:
+      'Current procedural world and hero assets to replace pack-by-pack with inspected authored models.',
+    assetIds: [
+      'model.environment.canyon',
+      'model.environment.rainMeadow',
+      'model.environment.nightOverlook',
+      'model.environment.observatory',
+      'model.prop.soundRig',
+      'model.prop.prismDrop',
+      'model.prop.rainDropletField',
+      'model.prop.rainbowArc',
+      'model.prop.moonPair',
+      'model.prop.starPlanetPair',
+    ],
+    tags: ['world', 'hero', 'fallback'],
+  },
+];
+
 /**
  * Primary MindForge visual system: an original, block-built gameplay language.
  * It maps the same semantic capability ids as every other theme without changing episode
@@ -72,6 +136,7 @@ export const VOXEL_THEME: MindForgeTheme = {
   // weather/atmosphere implementations without changing episode semantics.
   sceneLayers: {},
   assets: VOXEL_ASSETS,
+  assetPacks: VOXEL_ASSET_PACKS,
   presentation: VOXEL_PRESENTATION,
 };
 

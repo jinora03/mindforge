@@ -14,7 +14,7 @@ Examples:
 - `motion.humanoid.selfTickle`
 - `camera.reactionCloseup`
 
-A visual theme supplies the character, prefab, effect, environment, scene-layer, asset, typography, safe-zone,
+A visual theme supplies the character, prefab, effect, environment, scene-layer, asset, asset-pack metadata, typography, safe-zone,
 and post-processing implementations for those semantic ids. Motions and cameras remain shared by
 default so changing a theme does not silently change episode meaning or timing.
 
@@ -45,7 +45,7 @@ Studio / Player
 
 The Engine does **not** know which theme is active. `createLibraryForTheme(themeId)` builds a
 normal `CapabilityRegistries` object containing the implementations selected by the theme (including the ordered scene-composition layer registry), and
-the Engine executes those registries exactly as before.
+the Engine executes those registries exactly as before. Asset packs remain theme/build metadata; they organize authored/procedural assets but never become episode-facing Engine capabilities.
 
 ## Runtime switching
 
