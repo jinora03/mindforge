@@ -540,6 +540,46 @@ export function createBlockMaterial(
   return createVoxelMaterial(options.tint ?? '#FFFFFF', { ...options, texture });
 }
 
+export interface VoxelWaterMaterialOptions {
+  /** Water-face dimensions used to retain the same texel density as blocks. */
+  size?: readonly [number, number, number];
+  tint?: string;
+  opacity?: number;
+  roughness?: number;
+  clearcoat?: number;
+  clearcoatRoughness?: number;
+}
+
+/**
+ * Production wet-surface material for puddles and shallow water. It keeps the
+ * original voxel water texture, but uses a physical clearcoat response so rain
+ * scenes can carry small moving highlights instead of reading as blue glass.
+ */
+export function createVoxelWaterMaterial(
+  options: VoxelWaterMaterialOptions = {},
+): THREE.MeshPhysicalMaterial {
+  const size = options.size ?? [1, 1, 1];
+  const opacity = options.opacity ?? 0.74;
+  const material = new THREE.MeshPhysicalMaterial({
+    color: options.tint ?? '#D6F1F5',
+    map: tiledTexture(
+      'water',
+      Math.max(size[0], size[2]) / BLOCK,
+      Math.max(0.25, size[1] / BLOCK),
+    ),
+    roughness: options.roughness ?? 0.16,
+    metalness: 0,
+    clearcoat: options.clearcoat ?? 0.9,
+    clearcoatRoughness: options.clearcoatRoughness ?? 0.12,
+    transparent: opacity < 1,
+    opacity,
+    depthWrite: opacity >= 0.98,
+    dithering: true,
+  });
+  material.name = 'voxel-water-physical';
+  return material;
+}
+
 export function createVoxelGlow(color: THREE.Color | string, opacity = 1): THREE.MeshBasicMaterial {
   return new THREE.MeshBasicMaterial({
     color,
@@ -643,6 +683,12 @@ export interface VoxelLightingOptions {
   warm?: boolean;
   /** Half-extent of the shadow frustum in world units. */
   shadowExtent?: number;
+  /**
+   * Local scene-light multiplier. Keep the default at 1 so existing scenes do
+   * not drift; weather/night environments can deliberately darken the shared
+   * rig without replacing it with one-off lights.
+   */
+  intensityScale?: number;
 }
 
 /**
@@ -655,17 +701,20 @@ export function createVoxelLighting(options: VoxelLightingOptions = {}): THREE.G
   group.name = 'voxel-lighting';
   const warm = options.warm === true;
   const extent = options.shadowExtent ?? 14;
+  const intensityScale = Number.isFinite(options.intensityScale)
+    ? THREE.MathUtils.clamp(options.intensityScale ?? 1, 0, 2)
+    : 1;
 
   const hemisphere = new THREE.HemisphereLight(
     new THREE.Color(warm ? '#C29A72' : '#BBDDFF'),
     new THREE.Color(warm ? '#5C4238' : '#5F7A45'),
-    warm ? 0.88 : 0.72,
+    (warm ? 0.88 : 0.72) * intensityScale,
   );
   group.add(hemisphere);
 
   const key = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#FFCE93' : '#FFF6E0'),
-    warm ? 2.7 : 3.4,
+    (warm ? 2.7 : 3.4) * intensityScale,
   );
   key.position.set(-9, 15, 8);
   key.castShadow = true;
@@ -683,7 +732,7 @@ export function createVoxelLighting(options: VoxelLightingOptions = {}): THREE.G
   // Single cool bounce so shadowed faces keep their material identity.
   const fill = new THREE.DirectionalLight(
     new THREE.Color(warm ? '#7E93A0' : '#9EC9E8'),
-    warm ? 0.28 : 0.22,
+    (warm ? 0.28 : 0.22) * intensityScale,
   );
   fill.position.set(7, 5, -9);
   group.add(fill);

@@ -10,6 +10,7 @@ import {
   createVoxelGlow,
   createVoxelLighting,
   createVoxelMaterial,
+  createVoxelWaterMaterial,
   createSkyDome,
 } from './voxel-style';
 
@@ -134,16 +135,11 @@ function buildTerrain(parent: THREE.Group): void {
   }
 }
 
-function buildWetPath(parent: THREE.Group): void {
+function buildWetPath(parent: THREE.Group): (time: number) => void {
   const stone = createBlockMaterial('gravelPath', { size: [1.55, 0.14, 1.15] });
-  const wetStone = createBlockMaterial('stone', { size: [1.55, 0.12, 1.15], roughness: 0.5 });
-  const puddle = createBlockMaterial('water', {
-    size: [2.6, 0.045, 1.1],
-    transparent: true,
-    opacity: 0.72,
-    roughness: 0.16,
-    depthWrite: false,
-  });
+  const wetStone = createBlockMaterial('stone', { size: [1.55, 0.12, 1.15], roughness: 0.46 });
+  const wetRim = createVoxelMaterial('#4D6949', { pixelVariation: 0, roughness: 0.58 });
+  const puddleMaterials: THREE.MeshPhysicalMaterial[] = [];
 
   for (let i = 0; i < 11; i++) {
     const z = 6.2 - i * 2.1;
@@ -154,20 +150,54 @@ function buildWetPath(parent: THREE.Group): void {
     parent.add(tile);
   }
 
-  for (const [x, z, sx, sz] of [
+  for (const [index, [x, z, sx, sz]] of ([
     [-10.2, 3.5, 3.8, 1.25],
     [7.8, 2.1, 4.4, 1.45],
     [8.4, -8.8, 3.4, 1.25],
     [-7.8, -14.5, 4.2, 1.5],
-  ] as const) {
-    const y = terrainHeight(x, z) + 0.035;
-    const water = block([sx, 0.045, sz], puddle, [x, y, z], false);
+  ] as const).entries()) {
+    const y = terrainHeight(x, z);
+    const rim = block([sx + 0.42, 0.035, sz + 0.34], wetRim, [x, y + 0.021, z], false);
+    rim.name = 'voxel-meadow-wet-rim';
+    parent.add(rim);
+
+    const waterMaterial = createVoxelWaterMaterial({
+      size: [sx, 0.045, sz],
+      tint: index % 2 === 0 ? '#C9E6EA' : '#D5EEF0',
+      opacity: 0.68,
+      roughness: 0.13 + index * 0.012,
+      clearcoat: 0.94,
+      clearcoatRoughness: 0.1,
+    });
+    puddleMaterials.push(waterMaterial);
+    const water = block([sx, 0.045, sz], waterMaterial, [x, y + 0.048, z], false);
     water.name = 'voxel-meadow-puddle';
+    water.renderOrder = 2;
     parent.add(water);
   }
+
+  return (time: number): void => {
+    for (let i = 0; i < puddleMaterials.length; i++) {
+      const material = puddleMaterials[i];
+      material.roughness = 0.125 + i * 0.01 + Math.sin(time * 0.72 + i * 0.8) * 0.012;
+      if (material.map) {
+        material.map.offset.set(
+          (time * 0.018 + i * 0.19) % 1,
+          (-time * 0.011 + i * 0.13) % 1,
+        );
+      }
+    }
+  };
 }
 
-function buildGrassScatter(parent: THREE.Group): THREE.InstancedMesh[] {
+interface GrassBladeState {
+  readonly position: THREE.Vector3;
+  readonly yaw: number;
+  readonly scale: THREE.Vector3;
+  readonly phase: number;
+}
+
+function buildGrassScatter(parent: THREE.Group): (time: number) => void {
   const geometry = new THREE.BoxGeometry(0.09, 0.62, 0.09);
   const materials = [
     createBlockMaterial('grassTop', { tint: '#E3F2D8', size: [0.09, 0.62, 0.09] }),
@@ -181,32 +211,51 @@ function buildGrassScatter(parent: THREE.Group): THREE.InstancedMesh[] {
     mesh.count = 0;
     return mesh;
   });
+  const states: GrassBladeState[][] = meshes.map(() => []);
 
-  const matrix = new THREE.Matrix4();
-  const quaternion = new THREE.Quaternion();
-  const position = new THREE.Vector3();
-  const scale = new THREE.Vector3();
   for (let i = 0; i < 360; i++) {
     const x = -17 + hash01(i, 101) * 34;
     const z = -27 + hash01(i, 103) * 34;
     const stageDistance = Math.hypot(x * 0.9, z + 5.5);
     if (stageDistance < 4.4 || Math.abs(x + 4.8 + Math.sin(((6.2 - z) / 2.1) * 0.72) * 2.1) < 1.2) continue;
     const height = 0.48 + hash01(i, 107) * 0.78;
-    position.set(x, terrainHeight(x, z) + height * 0.5 + 0.05, z);
-    quaternion.setFromAxisAngle(new THREE.Vector3(0, 1, 0), hash01(i, 109) * Math.PI);
-    scale.set(0.72 + hash01(i, 113) * 0.65, height / 0.62, 0.72 + hash01(i, 127) * 0.65);
-    matrix.compose(position, quaternion, scale);
-    const mesh = meshes[i % meshes.length];
-    if (mesh.count >= mesh.instanceMatrix.count) continue;
-    mesh.setMatrixAt(mesh.count, matrix);
-    mesh.count += 1;
+    const meshIndex = i % meshes.length;
+    if (states[meshIndex].length >= meshes[meshIndex].instanceMatrix.count) continue;
+    states[meshIndex].push({
+      position: new THREE.Vector3(x, terrainHeight(x, z) + height * 0.5 + 0.05, z),
+      yaw: hash01(i, 109) * Math.PI,
+      scale: new THREE.Vector3(
+        0.72 + hash01(i, 113) * 0.65,
+        height / 0.62,
+        0.72 + hash01(i, 127) * 0.65,
+      ),
+      phase: hash01(i, 131) * Math.PI * 2,
+    });
   }
 
-  for (const mesh of meshes) {
-    mesh.instanceMatrix.needsUpdate = true;
-    parent.add(mesh);
-  }
-  return meshes;
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  const euler = new THREE.Euler();
+  const update = (time: number): void => {
+    for (let meshIndex = 0; meshIndex < meshes.length; meshIndex++) {
+      const mesh = meshes[meshIndex];
+      const meshStates = states[meshIndex];
+      mesh.count = meshStates.length;
+      for (let i = 0; i < meshStates.length; i++) {
+        const state = meshStates[i];
+        const sway = Math.sin(time * 1.15 + state.phase) * 0.045;
+        euler.set(sway * 0.35, state.yaw, sway, 'YXZ');
+        quaternion.setFromEuler(euler);
+        matrix.compose(state.position, quaternion, state.scale);
+        mesh.setMatrixAt(i, matrix);
+      }
+      mesh.instanceMatrix.needsUpdate = true;
+    }
+  };
+
+  update(0);
+  for (const mesh of meshes) parent.add(mesh);
+  return update;
 }
 
 function buildFern(parent: THREE.Group, x: number, z: number, scale = 1): void {
@@ -254,8 +303,8 @@ function buildRockCluster(parent: THREE.Group, x: number, z: number, scale: numb
   parent.add(block([0.58 * scale, 0.12 * scale, 0.5 * scale], moss, [x + 0.26 * scale, y + 1.1 * scale, z - 0.08 * scale], false));
 }
 
-function buildVegetation(parent: THREE.Group): THREE.InstancedMesh[] {
-  const grass = buildGrassScatter(parent);
+function buildVegetation(parent: THREE.Group): (time: number) => void {
+  const updateGrass = buildGrassScatter(parent);
   for (const [x, z, scale, variant] of [
     [-13.5, 1.0, 1.22, 0],
     [12.5, -1.5, 1.05, 1],
@@ -290,7 +339,7 @@ function buildVegetation(parent: THREE.Group): THREE.InstancedMesh[] {
     [10.2, -16.5, 1.05],
     [-5.0, -22.5, 0.72],
   ] as const) buildRockCluster(parent, x, z, scale);
-  return grass;
+  return updateGrass;
 }
 
 function buildFence(parent: THREE.Group): void {
@@ -333,7 +382,17 @@ function buildHorizon(parent: THREE.Group): void {
   }
 }
 
-function buildCloudBank(parent: THREE.Group, x: number, y: number, z: number, scale: number, tint: string): void {
+function buildCloudBank(
+  parent: THREE.Group,
+  name: string,
+  x: number,
+  y: number,
+  z: number,
+  scale: number,
+  tint: string,
+): THREE.Group {
+  const cloud = layer(name);
+  cloud.position.set(x, y, z);
   const material = createBlockMaterial('cloud', { tint });
   const pieces: ReadonlyArray<readonly [number, number, number, number, number, number]> = [
     [0, 0, 0, 4.8, 1.35, 2.2],
@@ -343,27 +402,37 @@ function buildCloudBank(parent: THREE.Group, x: number, y: number, z: number, sc
     [1.0, 1.15, 0.08, 2.6, 1.35, 1.7],
   ];
   for (const [ox, oy, oz, sx, sy, sz] of pieces) {
-    parent.add(block([sx * scale, sy * scale, sz * scale], material, [x + ox * scale, y + oy * scale, z + oz * scale], false));
+    cloud.add(block([sx * scale, sy * scale, sz * scale], material, [ox * scale, oy * scale, oz * scale], false));
   }
+  parent.add(cloud);
+  return cloud;
 }
 
-function buildSky(parent: THREE.Group): void {
-  parent.add(createSkyDome({ top: '#4F6F82', horizon: '#8BAAB8', ground: '#60786F', radius: 150 }));
+function buildSky(parent: THREE.Group): (time: number) => void {
+  parent.add(createSkyDome({ top: '#405866', horizon: '#718C98', ground: '#4E625B', radius: 150 }));
 
-  // Dense upper framing + a deliberate sun gap keeps portrait shots from reading as empty blue sky.
-  buildCloudBank(parent, -14.5, 12.2, -27, 1.35, '#AEBFC7');
-  buildCloudBank(parent, -4.0, 13.6, -31, 1.6, '#C0CED4');
-  buildCloudBank(parent, 8.8, 12.8, -29, 1.45, '#B4C5CD');
-  buildCloudBank(parent, 17.0, 14.0, -34, 1.25, '#C6D3D8');
-  buildCloudBank(parent, 2.5, 9.9, -37, 0.85, '#D5DFE3');
+  // Dense upper framing + a deliberate sun gap keeps portrait shots from reading as empty sky.
+  const clouds = [
+    buildCloudBank(parent, 'voxel-meadow-cloud-0', -14.5, 12.2, -27, 1.35, '#8EA0A8'),
+    buildCloudBank(parent, 'voxel-meadow-cloud-1', -4.0, 13.6, -31, 1.6, '#9DAEB5'),
+    buildCloudBank(parent, 'voxel-meadow-cloud-2', 8.8, 12.8, -29, 1.45, '#93A6AE'),
+    buildCloudBank(parent, 'voxel-meadow-cloud-3', 17.0, 14.0, -34, 1.25, '#A8B6BC'),
+    buildCloudBank(parent, 'voxel-meadow-cloud-4', 2.5, 9.9, -37, 0.85, '#BAC5CA'),
+  ];
+  const cloudBases = clouds.map((cloud, index) => ({
+    x: cloud.position.x,
+    y: cloud.position.y,
+    phase: index * 1.37,
+    drift: 0.38 + index * 0.08,
+  }));
 
   const sun = block(
     [2.1, 2.1, 0.28],
-    createVoxelMaterial('#FFF5B8', {
+    createVoxelMaterial('#F7E9AE', {
       pixelVariation: 0,
-      emissive: '#FFE483',
-      emissiveIntensity: 1.5,
-      roughness: 0.18,
+      emissive: '#EED477',
+      emissiveIntensity: 1.02,
+      roughness: 0.24,
     }),
     [-10.2, 9.6, -32.5],
     false,
@@ -371,45 +440,206 @@ function buildSky(parent: THREE.Group): void {
   sun.name = 'voxel-meadow-sun';
   parent.add(sun);
 
-  const halo = block([4.4, 4.4, 0.08], createVoxelGlow('#FFF0A8', 0.13), [-10.2, 9.6, -33.0], false);
+  const halo = block([4.4, 4.4, 0.08], createVoxelGlow('#F4E4A0', 0.075), [-10.2, 9.6, -33.0], false);
   halo.name = 'voxel-meadow-sun-halo';
   parent.add(halo);
+
+  return (time: number): void => {
+    for (let i = 0; i < clouds.length; i++) {
+      const cloud = clouds[i];
+      const base = cloudBases[i];
+      cloud.position.x = base.x + Math.sin(time * 0.055 + base.phase) * base.drift;
+      cloud.position.y = base.y + Math.sin(time * 0.032 + base.phase * 0.7) * 0.08;
+    }
+  };
 }
 
-function buildRain(parent: THREE.Group): { mesh: THREE.InstancedMesh; update: (time: number) => void } {
-  const material = createVoxelMaterial('#C4EBFA', {
+interface RainLayerOptions {
+  readonly name: string;
+  readonly count: number;
+  readonly xMin: number;
+  readonly xMax: number;
+  readonly zMin: number;
+  readonly zMax: number;
+  readonly opacity: number;
+  readonly thickness: number;
+  readonly lengthMin: number;
+  readonly lengthMax: number;
+  readonly speedMin: number;
+  readonly speedMax: number;
+  readonly slant: number;
+  readonly drift: number;
+  readonly seed: number;
+}
+
+function buildRainLayer(parent: THREE.Group, options: RainLayerOptions): (time: number) => void {
+  const material = createVoxelMaterial('#C5E6F0', {
     pixelVariation: 0,
     transparent: true,
-    opacity: 0.55,
-    roughness: 0.08,
+    opacity: options.opacity,
+    roughness: 0.12,
     depthWrite: false,
   });
-  const count = 144;
-  const mesh = new THREE.InstancedMesh(new THREE.BoxGeometry(0.028, 0.78, 0.028), material, count);
-  mesh.name = 'voxel-rain';
+  const geometry = new THREE.BoxGeometry(options.thickness, 1, options.thickness);
+  const mesh = new THREE.InstancedMesh(geometry, material, options.count);
+  mesh.name = options.name;
   mesh.castShadow = false;
   mesh.receiveShadow = false;
   mesh.frustumCulled = false;
 
-  const bases = Array.from({ length: count }, (_, i) => ({
-    x: -17 + hash01(i, 251) * 34,
-    y: 2 + hash01(i, 257) * 16,
-    z: 7 - hash01(i, 263) * 39,
-    speed: 7.4 + hash01(i, 269) * 3.1,
+  const bases = Array.from({ length: options.count }, (_, i) => ({
+    x: options.xMin + hash01(i, options.seed) * (options.xMax - options.xMin),
+    y: 1 + hash01(i, options.seed + 2) * 18,
+    z: options.zMin + hash01(i, options.seed + 4) * (options.zMax - options.zMin),
+    speed: options.speedMin + hash01(i, options.seed + 6) * (options.speedMax - options.speedMin),
+    length: options.lengthMin + hash01(i, options.seed + 8) * (options.lengthMax - options.lengthMin),
+    phase: hash01(i, options.seed + 10) * Math.PI * 2,
   }));
   const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  quaternion.setFromEuler(new THREE.Euler(0.018, 0, options.slant));
+  const position = new THREE.Vector3();
+  const scale = new THREE.Vector3();
+
   const update = (time: number): void => {
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < options.count; i++) {
       const base = bases[i];
-      const y = ((base.y - time * base.speed + 32) % 18) + 0.4;
-      matrix.makeTranslation(base.x, y, base.z);
+      position.set(
+        base.x + Math.sin(time * 0.62 + base.phase) * options.drift,
+        ((base.y - time * base.speed + 38) % 19) + 0.35,
+        base.z,
+      );
+      scale.set(1, base.length, 1);
+      matrix.compose(position, quaternion, scale);
       mesh.setMatrixAt(i, matrix);
     }
     mesh.instanceMatrix.needsUpdate = true;
   };
   update(0);
   parent.add(mesh);
-  return { mesh, update };
+  return update;
+}
+
+function buildGroundSplashes(parent: THREE.Group): (time: number) => void {
+  const count = 56;
+  const material = new THREE.MeshBasicMaterial({
+    color: '#D5EDF3',
+    transparent: true,
+    opacity: 0.34,
+    depthWrite: false,
+    toneMapped: false,
+  });
+  const geometry = new THREE.BoxGeometry(0.24, 0.018, 0.034);
+  const splashX = new THREE.InstancedMesh(geometry, material, count);
+  const splashZ = new THREE.InstancedMesh(geometry, material.clone(), count);
+  splashX.name = 'voxel-rain-splash-x';
+  splashZ.name = 'voxel-rain-splash-z';
+  splashX.frustumCulled = false;
+  splashZ.frustumCulled = false;
+
+  const bases = Array.from({ length: count }, (_, i) => {
+    const x = -14 + hash01(i, 347) * 28;
+    const z = 6 - hash01(i, 349) * 27;
+    return {
+      x,
+      z,
+      y: terrainHeight(x, z) + 0.065,
+      yaw: hash01(i, 353) * Math.PI,
+      phase: hash01(i, 359),
+      rate: 0.68 + hash01(i, 367) * 0.46,
+    };
+  });
+  const matrix = new THREE.Matrix4();
+  const qx = new THREE.Quaternion();
+  const qz = new THREE.Quaternion();
+  const upAxis = new THREE.Vector3(0, 1, 0);
+  const position = new THREE.Vector3();
+  const scale = new THREE.Vector3();
+
+  const update = (time: number): void => {
+    for (let i = 0; i < count; i++) {
+      const base = bases[i];
+      const cycle = (time * base.rate + base.phase) % 1;
+      const active = cycle < 0.16;
+      const pulse = active ? Math.sin((cycle / 0.16) * Math.PI) : 0;
+      const size = active ? 0.45 + pulse * 0.9 : 0.001;
+      position.set(base.x, base.y, base.z);
+      scale.set(size, active ? 1 : 0.001, size);
+
+      qx.setFromAxisAngle(upAxis, base.yaw);
+      matrix.compose(position, qx, scale);
+      splashX.setMatrixAt(i, matrix);
+
+      qz.setFromAxisAngle(upAxis, base.yaw + Math.PI / 2);
+      matrix.compose(position, qz, scale);
+      splashZ.setMatrixAt(i, matrix);
+    }
+    splashX.instanceMatrix.needsUpdate = true;
+    splashZ.instanceMatrix.needsUpdate = true;
+  };
+  update(0);
+  parent.add(splashX, splashZ);
+  return update;
+}
+
+function buildMist(parent: THREE.Group): (time: number) => void {
+  const specs = [
+    { name: 'voxel-meadow-mist-0', width: 44, height: 5.5, x: -2, y: 2.2, z: -18, opacity: 0.045, phase: 0.3 },
+    { name: 'voxel-meadow-mist-1', width: 52, height: 7.2, x: 1.5, y: 3.5, z: -27, opacity: 0.065, phase: 1.7 },
+    { name: 'voxel-meadow-mist-2', width: 62, height: 9.0, x: -1, y: 5.0, z: -38, opacity: 0.085, phase: 3.0 },
+  ] as const;
+  const planes = specs.map((spec) => {
+    const material = new THREE.MeshBasicMaterial({
+      color: '#9EB2B9',
+      transparent: true,
+      opacity: spec.opacity,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      fog: false,
+    });
+    const plane = new THREE.Mesh(new THREE.PlaneGeometry(spec.width, spec.height), material);
+    plane.name = spec.name;
+    plane.position.set(spec.x, spec.y, spec.z);
+    plane.renderOrder = 1;
+    parent.add(plane);
+    return plane;
+  });
+
+  return (time: number): void => {
+    for (let i = 0; i < planes.length; i++) {
+      const spec = specs[i];
+      planes[i].position.x = spec.x + Math.sin(time * 0.07 + spec.phase) * (0.7 + i * 0.45);
+    }
+  };
+}
+
+function buildWeather(parent: THREE.Group): (time: number) => void {
+  const updates = [
+    buildRainLayer(parent, {
+      name: 'voxel-rain-far', count: 96,
+      xMin: -20, xMax: 20, zMin: -38, zMax: -15,
+      opacity: 0.2, thickness: 0.016, lengthMin: 0.38, lengthMax: 0.62,
+      speedMin: 6.1, speedMax: 8.0, slant: -0.07, drift: 0.08, seed: 271,
+    }),
+    buildRainLayer(parent, {
+      name: 'voxel-rain', count: 136,
+      xMin: -18, xMax: 18, zMin: -23, zMax: 5,
+      opacity: 0.34, thickness: 0.024, lengthMin: 0.62, lengthMax: 0.96,
+      speedMin: 7.8, speedMax: 10.2, slant: -0.09, drift: 0.13, seed: 293,
+    }),
+    buildRainLayer(parent, {
+      name: 'voxel-rain-near', count: 92,
+      xMin: -14, xMax: 14, zMin: -7, zMax: 13,
+      opacity: 0.44, thickness: 0.033, lengthMin: 0.92, lengthMax: 1.38,
+      speedMin: 9.5, speedMax: 12.5, slant: -0.115, drift: 0.2, seed: 317,
+    }),
+    buildGroundSplashes(parent),
+    buildMist(parent),
+  ];
+
+  return (time: number): void => {
+    for (const update of updates) update(time);
+  };
 }
 
 /**
@@ -423,9 +653,10 @@ export const createVoxelRainMeadow: EnvironmentFactory = ({ services }): Environ
   root.name = 'voxel.environment.rainMeadow';
   root.userData.productionQuality = 'hero';
   root.userData.composition = 'foreground-midground-background';
+  root.userData.weatherQuality = 'production';
 
-  scene.background = new THREE.Color('#7698AA');
-  scene.fog = new THREE.Fog('#7698AA', 52, 128);
+  scene.background = new THREE.Color('#647B87');
+  scene.fog = new THREE.FogExp2('#718994', 0.0125);
 
   const terrain = layer('mf.rainMeadow.terrain');
   const wetGround = layer('mf.rainMeadow.wetGround');
@@ -437,11 +668,11 @@ export const createVoxelRainMeadow: EnvironmentFactory = ({ services }): Environ
   const heroClearing = layer('mf.rainMeadow.heroClearing');
 
   buildTerrain(terrain);
-  buildWetPath(wetGround);
-  buildVegetation(vegetation);
+  const updateWater = buildWetPath(wetGround);
+  const updateVegetation = buildVegetation(vegetation);
   buildFence(vegetation);
   buildHorizon(horizon);
-  buildSky(sky);
+  const updateSky = buildSky(sky);
 
   // Foreground framing exists mostly outside the central action lane so it adds
   // depth on 9:16 without hiding the prism or its spectrum beams.
@@ -454,22 +685,27 @@ export const createVoxelRainMeadow: EnvironmentFactory = ({ services }): Environ
   // also gives tests and tools a stable composition hook without exposing mesh names.
   heroClearing.position.set(0, 0, -5.5);
 
-  const rain = buildRain(weather);
+  const updateWeather = buildWeather(weather);
 
   root.add(terrain, wetGround, vegetation, foreground, horizon, sky, weather, heroClearing);
 
-  const sunBreak = new THREE.DirectionalLight('#FFF1C0', 0.68);
+  const sunBreak = new THREE.DirectionalLight('#F8E7B7', 0.34);
   sunBreak.name = 'voxel-meadow-sun-break';
   sunBreak.position.set(-9, 14, 7);
   sunBreak.target.position.set(1.5, 0, -9);
   sunBreak.castShadow = false;
   root.add(sunBreak, sunBreak.target);
-  root.add(createVoxelLighting({ shadowExtent: 28 }));
+  root.add(createVoxelLighting({ shadowExtent: 28, intensityScale: 0.72 }));
 
   return finish(
     scene,
     root,
     cameraState([6.2, 4.8, 15.5], [0, 2.2, -8.5], 48),
-    (time) => rain.update(time),
+    (time) => {
+      updateWater(time);
+      updateVegetation(time);
+      updateSky(time);
+      updateWeather(time);
+    },
   );
 };

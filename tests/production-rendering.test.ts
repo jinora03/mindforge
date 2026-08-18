@@ -5,7 +5,9 @@ import { resolveRendererPresentation } from '@mindforge/engine';
 import {
   blockTexture,
   createBlockMaterial,
+  createVoxelLighting,
   createVoxelMaterial,
+  createVoxelWaterMaterial,
   getTheme,
   plastic,
   toyMetal,
@@ -53,10 +55,17 @@ describe('PQ2 production renderer and materials', () => {
     expect(metal.metalness).toBeGreaterThan(0.5);
   });
 
-  it('uses production-safe transparency and richer Toybox surfaces', () => {
+  it('uses production-safe transparency and richer wet/Toybox surfaces', () => {
     const glassyVoxel = createVoxelMaterial('#ffffff', { transparent: true, opacity: 0.5 });
     expect(glassyVoxel.depthWrite).toBe(false);
     expect(glassyVoxel.dithering).toBe(true);
+
+    const water = createVoxelWaterMaterial({ size: [4, 0.05, 2] });
+    expect(water).toBeInstanceOf(THREE.MeshPhysicalMaterial);
+    expect(water.clearcoat).toBeGreaterThan(0.8);
+    expect(water.roughness).toBeLessThan(0.25);
+    expect(water.depthWrite).toBe(false);
+    expect(water.map?.wrapS).toBe(THREE.RepeatWrapping);
 
     const clearPlastic = plastic('#ff8844', { transparent: true, opacity: 0.5 });
     expect(clearPlastic).toBeInstanceOf(THREE.MeshPhysicalMaterial);
@@ -66,6 +75,20 @@ describe('PQ2 production renderer and materials', () => {
     const metal = toyMetal();
     expect(metal).toBeInstanceOf(THREE.MeshPhysicalMaterial);
     expect(metal.metalness).toBeGreaterThan(0.6);
+  });
+
+
+  it('allows weather scenes to darken the shared voxel light rig without changing its defaults', () => {
+    const normal = createVoxelLighting();
+    const rainy = createVoxelLighting({ intensityScale: 0.72 });
+    const normalLights = normal.children.filter((child: THREE.Object3D): child is THREE.Light => child instanceof THREE.Light);
+    const rainyLights = rainy.children.filter((child: THREE.Object3D): child is THREE.Light => child instanceof THREE.Light);
+
+    expect(normalLights).toHaveLength(3);
+    expect(rainyLights).toHaveLength(3);
+    for (let i = 0; i < normalLights.length; i++) {
+      expect(rainyLights[i].intensity).toBeCloseTo(normalLights[i].intensity * 0.72);
+    }
   });
 
   it('wires the same renderer presentation through Studio, Player and export', () => {

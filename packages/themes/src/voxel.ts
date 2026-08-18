@@ -44,7 +44,7 @@ const VOXEL_ASSETS: AssetDescriptor[] = [
   { id: 'model.prop.paperPlane', kind: 'model', procedural: true, description: 'Reusable paper glider with aerodynamic anchors' },
   { id: 'model.prop.magnetKit', kind: 'model', procedural: true, description: 'Reusable magnet and material-target kit' },
   { id: 'model.environment.canyon', kind: 'model', procedural: true, description: 'Reusable canyon corridor for echoes and wave travel' },
-  { id: 'model.environment.rainMeadow', kind: 'model', procedural: true, description: 'Hero-production rainy meadow with layered terrain, vegetation, horizon and weather staging' },
+  { id: 'model.environment.rainMeadow', kind: 'model', procedural: true, description: 'Hero-production rainy meadow with layered terrain, physical wet surfaces, depth rain and atmosphere' },
   { id: 'model.environment.nightOverlook', kind: 'model', procedural: true, description: 'Reusable night overlook for horizon and perception scenes' },
   { id: 'model.environment.observatory', kind: 'model', procedural: true, description: 'Reusable observatory for astronomy and atmosphere scenes' },
   { id: 'model.prop.soundRig', kind: 'model', procedural: true, description: 'Reusable sound source/listener/reflector rig' },
@@ -82,5 +82,7 @@ export {
   voxelToneColor,
   blockTexture,
   createBlockMaterial,
+  createVoxelLighting,
   createVoxelMaterial,
+  createVoxelWaterMaterial,
 } from './voxel/voxel-style';
