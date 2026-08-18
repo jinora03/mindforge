@@ -56,6 +56,11 @@ const files: Record<string, string> = {
     'Registered domains / stages. Reference from an episode `environment`.',
     library.environments.list(),
   ),
+  'scene-layers.md': page(
+    'Scene Layers',
+    'Registered reusable world-composition systems. Reference from `layers[].factory`.',
+    library.sceneLayers.list(),
+  ),
   'audio.md': page(
     'Audio',
     'Registered semantic audio cues. Reference from `audio` timeline events via `cue`.',

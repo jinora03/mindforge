@@ -9,6 +9,7 @@ import type {
   ObjectMotionEvent,
   TextPlacement,
   TextStyle,
+  SceneLayerRole,
 } from '@mindforge/schema';
 import type { PoseableRig } from './humanoid';
 
@@ -181,6 +182,44 @@ export interface EnvironmentInstance extends Disposable {
 
 export type EnvironmentFactory = (ctx: EnvironmentBuildContext) => EnvironmentInstance;
 
+/* ------------------------------------------------------ scene composition -- */
+
+/**
+ * Build context for one semantic scene-composition layer. Layers are theme
+ * capabilities like environments/prefabs: content names what is needed while
+ * the active theme decides how it looks.
+ */
+export interface SceneCompositionLayerBuildContext {
+  readonly id: string;
+  readonly role: SceneLayerRole;
+  readonly parameters: Readonly<Record<string, unknown>>;
+  readonly services: SceneServices;
+  /** Deterministic per-layer seed derived from episode id + local layer id. */
+  readonly seed: number;
+}
+
+/**
+ * Runtime instance for weather, atmosphere, lighting, set dressing, surfaces,
+ * and other reusable scene systems. `update` must derive state from the supplied
+ * absolute FrameContext rather than accumulate its own clock.
+ */
+export interface SceneCompositionLayerInstance extends Disposable {
+  readonly object3d: THREE.Object3D;
+  update(ctx: FrameContext): void;
+}
+
+export type SceneCompositionLayerFactory = (
+  ctx: SceneCompositionLayerBuildContext,
+) => SceneCompositionLayerInstance;
+
+/** Read-only runtime metadata exposed for Studio/debug tooling. */
+export interface SceneCompositionLayerInfo {
+  readonly id: string;
+  readonly factory: string;
+  readonly role: SceneLayerRole;
+  readonly enabled: boolean;
+}
+
 /* ------------------------------------------------------------- characters -- */
 
 export interface CharacterBuildContext {
@@ -337,6 +376,7 @@ export interface CapabilityRegistries {
   readonly effects: ReadonlyRegistry<EffectFactory>;
   readonly cameras: ReadonlyRegistry<CameraFactory>;
   readonly environments: ReadonlyRegistry<EnvironmentFactory>;
+  readonly sceneLayers: ReadonlyRegistry<SceneCompositionLayerFactory>;
   readonly assets: ReadonlyRegistry<AssetDescriptor>;
   readonly audio: ReadonlyRegistry<AudioCueDefinition>;
 }

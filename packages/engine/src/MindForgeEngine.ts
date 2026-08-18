@@ -14,6 +14,7 @@ import type {
   LayerName,
   PostProcessingConfig,
   RendererPresentationConfig,
+  SceneCompositionLayerInfo,
 } from './EngineTypes';
 import { PlaybackController } from './PlaybackController';
 import { SceneRuntime, type SceneLayer } from './SceneRuntime';
@@ -301,6 +302,11 @@ export class MindForgeEngine {
   }
   isLayerEnabled(layer: LayerName): boolean {
     return layer === 'anchors' ? this.anchorsEnabled : this.runtime.isLayerEnabled(layer as SceneLayer);
+  }
+
+  /** Ordered semantic scene-composition layers for Studio/debug inspection. */
+  getCompositionLayers(): readonly SceneCompositionLayerInfo[] {
+    return this.runtime.getCompositionLayers();
   }
 
   getFrameInfo(): EngineFrameInfo {

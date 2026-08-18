@@ -41,6 +41,7 @@ describe('MindForge visual themes', () => {
       expect(Object.keys(theme.prefabs).sort()).toEqual(Object.keys(voxel.prefabs).sort());
       expect(Object.keys(theme.effects).sort()).toEqual(Object.keys(voxel.effects).sort());
       expect(Object.keys(theme.environments).sort()).toEqual(Object.keys(voxel.environments).sort());
+      expect(Object.keys(theme.sceneLayers).sort()).toEqual(Object.keys(voxel.sceneLayers).sort());
     }
   });
 

@@ -11,6 +11,7 @@ export * from './errors';
 export * from './text-schema';
 export * from './entity-schema';
 export * from './timeline-schema';
+export * from './scene-layer-schema';
 export * from './scene-schema';
 export * from './episode-schema';
 

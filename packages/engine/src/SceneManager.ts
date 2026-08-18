@@ -16,6 +16,7 @@ import type {
 } from './EngineTypes';
 import { EntityManager } from './EntityManager';
 import { SceneContext } from './SceneContext';
+import { SceneCompositionLayerStack } from './SceneCompositionLayerStack';
 import {
   DEFAULT_DURATIONS,
   MotionAction,
@@ -47,6 +48,7 @@ import { unavailableRuntimeAssets } from './RuntimeAssets';
 export interface BuiltScene {
   readonly entities: EntityManager;
   readonly environment: EnvironmentInstance;
+  readonly compositionLayers: SceneCompositionLayerStack;
   readonly timeline: Timeline;
   readonly context: SceneContext;
 }
@@ -72,11 +74,15 @@ export class SceneManager {
     const environment = this.buildEnvironment(script, registries, context);
     scene.add(environment.object3d);
 
+    // Entities are built before composition layers so a future layer may resolve
+    // semantic scene targets during construction without depending on raw Three.js
+    // scene traversal. Existing episodes have no layers, so this is additive.
     this.buildEntities(script.entities, registries, scene, entities, context);
 
+    const compositionLayers = this.buildCompositionLayers(script, registries, scene, context);
     const timeline = this.buildTimeline(loaded, registries, scene, context, entities);
 
-    return { entities, environment, timeline, context };
+    return { entities, environment, compositionLayers, timeline, context };
   }
 
   private buildEnvironment(
@@ -91,6 +97,47 @@ export class SceneManager {
       throw new InstanceCreationError(`environment "${script.environment}"`, cause, {
         episodeId: script.id,
       });
+    }
+  }
+
+  private buildCompositionLayers(
+    script: EpisodeScript,
+    registries: CapabilityRegistries,
+    scene: THREE.Scene,
+    context: SceneContext,
+  ): SceneCompositionLayerStack {
+    const stack = new SceneCompositionLayerStack(scene);
+    try {
+      for (const definition of script.layers) {
+        // Disabled layers remain visible to validation/Studio metadata but are
+        // not constructed, guaranteeing that a disabled layer cannot mutate
+        // scene state through factory-side setup.
+        if (!definition.enabled) {
+          stack.add(definition);
+          continue;
+        }
+        const factory = registries.sceneLayers.get(definition.factory);
+        const seed = hashSeed(script.id, `scene-layer:${definition.id}`);
+        const instance = this.tryCreate(
+          () =>
+            factory({
+              id: definition.id,
+              role: definition.role,
+              parameters: definition.parameters ?? {},
+              services: context,
+              seed,
+            }),
+          `scene layer "${definition.factory}"`,
+          script.id,
+          undefined,
+          definition.id,
+        );
+        stack.add(definition, instance);
+      }
+      return stack;
+    } catch (error) {
+      stack.dispose();
+      throw error;
     }
   }
 
@@ -351,11 +398,17 @@ export class SceneManager {
     };
   }
 
-  private tryCreate<T>(create: () => T, what: string, episodeId: string, eventId: string): T {
+  private tryCreate<T>(
+    create: () => T,
+    what: string,
+    episodeId: string,
+    eventId?: string,
+    layerId?: string,
+  ): T {
     try {
       return create();
     } catch (cause) {
-      throw new InstanceCreationError(what, cause, { episodeId, eventId });
+      throw new InstanceCreationError(what, cause, { episodeId, eventId, layerId });
     }
   }
 }

@@ -50,6 +50,7 @@ export function evaluateOracleAt(o: Oracle, time: number): void {
   o.built.timeline.evaluatePose(frame);
   o.scene.updateMatrixWorld(true);
   o.built.environment.update(frame);
+  o.built.compositionLayers.update(frame);
   o.built.timeline.evaluateEffects(frame, { text: true, camera: true, effects: true });
   o.built.entities.endFrame(frame);
   o.built.timeline.evaluateCameraState(frame, true, o.built.environment.defaultCamera, scratch);

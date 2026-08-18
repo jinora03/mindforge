@@ -8,6 +8,7 @@ import type {
   FrameContext,
   ResolvedText,
   RuntimeAssetAccess,
+  SceneCompositionLayerInfo,
 } from './EngineTypes';
 import { SceneManager, type BuiltScene } from './SceneManager';
 import { loadEpisode } from './EpisodeLoader';
@@ -91,6 +92,9 @@ export class SceneRuntime {
   getEntities(): Entity[] {
     return this.built ? this.built.entities.all() : [];
   }
+  getCompositionLayers(): readonly SceneCompositionLayerInfo[] {
+    return this.built ? this.built.compositionLayers.info() : [];
+  }
   getActiveTexts(): readonly ResolvedText[] {
     return this.built ? this.built.timeline.getActiveTexts() : [];
   }
@@ -111,6 +115,7 @@ export class SceneRuntime {
     this.built.timeline.evaluatePose(frame);
     this.scene.updateMatrixWorld(true);
     this.environment.update(frame);
+    this.built.compositionLayers.update(frame);
     this.built.timeline.evaluateEffects(frame, this.layers);
     this.built.entities.endFrame(frame);
     this.built.timeline.evaluateCameraState(
@@ -147,6 +152,7 @@ export class SceneRuntime {
   dispose(): void {
     if (this.built) {
       this.built.timeline.dispose();
+      this.built.compositionLayers.dispose();
       this.built.entities.dispose();
       this.built.environment.object3d.removeFromParent();
       this.built.environment.dispose();

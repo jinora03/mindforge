@@ -38,7 +38,7 @@ Schema → Three.js               Style → episode content
   *existence* is checked by the Engine/CLI against the Library, not by the schema.
 
 - **Themes are composition, not Engine-owned runtime state.** A theme chooses character, prefab, effect,
-  environment, and presentation implementations for stable semantic ids. Studio / Player may
+  environment, scene-layer, and presentation implementations for stable semantic ids. Studio / Player may
   replace those generic registries and presentation values at runtime, then rebuild the same
   episode. The Engine never branches on a theme name. See [`themes.md`](themes.md).
 - **Audio is injected, not Engine-owned implementation.** `packages/audio` implements the Engine's generic `AudioRuntime` contract. The Engine mirrors authoritative transport state into it but never imports Web Audio code or semantic cue implementations.

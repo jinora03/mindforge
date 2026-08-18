@@ -75,6 +75,9 @@ export const TOYBOX_THEME: MindForgeTheme = {
   prefabs: TOYBOX_PREFAB_FACTORIES,
   effects: TOYBOX_EFFECT_FACTORIES,
   environments: TOYBOX_ENVIRONMENT_FACTORIES,
+  // PF1 establishes the composition surface; PF5 will populate production
+  // weather/atmosphere implementations without changing episode semantics.
+  sceneLayers: {},
   assets: TOYBOX_ASSETS,
   presentation: TOYBOX_PRESENTATION,
 };

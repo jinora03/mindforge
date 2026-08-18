@@ -50,6 +50,9 @@ function registerThemeCapabilities(library: MindForgeLibrary, theme: MindForgeTh
   for (const [id, factory] of Object.entries(theme.environments)) {
     library.environments.register(id, factory);
   }
+  for (const [id, factory] of Object.entries(theme.sceneLayers)) {
+    library.sceneLayers.register(id, factory);
+  }
   for (const descriptor of theme.assets) {
     library.assets.describe(descriptor);
   }

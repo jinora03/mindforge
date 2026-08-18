@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseEpisode, safeParseEpisode } from '@mindforge/schema';
+import { parseEpisode, parseScene, safeParseEpisode } from '@mindforge/schema';
 
 const validEpisode = {
   schemaVersion: '0.1',
@@ -19,6 +19,57 @@ describe('MindForge Script schema', () => {
     expect(() => parseEpisode(validEpisode)).not.toThrow();
   });
 
+
+  it('accepts ordered semantic scene-composition layers', () => {
+    const layered = {
+      ...validEpisode,
+      layers: [
+        {
+          id: 'rain',
+          factory: 'layer.weather.rain',
+          role: 'weather',
+          parameters: { intensity: 0.8 },
+        },
+        {
+          id: 'mist',
+          factory: 'layer.atmosphere.mist',
+          role: 'atmosphere',
+          enabled: false,
+        },
+      ],
+    };
+    const parsed = parseEpisode(layered);
+    expect(parsed.layers.map((layer) => layer.id)).toEqual(['rain', 'mist']);
+    expect(parsed.layers[0].enabled).toBe(true);
+    expect(parsed.layers[1].enabled).toBe(false);
+  });
+
+  it('supports the same layer stack in reusable scene presets', () => {
+    const scene = parseScene({
+      schemaVersion: '0.1',
+      id: 'scene.storm-test',
+      environment: 'environment.dreamGarden',
+      layers: [
+        { id: 'storm', factory: 'layer.weather.storm', role: 'weather' },
+      ],
+      entities: [],
+    });
+    expect(scene.layers).toHaveLength(1);
+    expect(scene.layers[0].factory).toBe('layer.weather.storm');
+    expect(scene.layers[0].enabled).toBe(true);
+  });
+
+  it('rejects duplicate local scene-layer ids', () => {
+    const result = safeParseEpisode({
+      ...validEpisode,
+      layers: [
+        { id: 'weather', factory: 'layer.weather.rain', role: 'weather' },
+        { id: 'weather', factory: 'layer.weather.snow', role: 'weather' },
+      ],
+    });
+    expect(result.success).toBe(false);
+    if (!result.success) expect(result.error.message).toContain('duplicate scene layer id');
+  });
 
   it('accepts semantic prefab entities and effect tones', () => {
     const themed = {

@@ -4,7 +4,7 @@
  * The Engine owns time, rendering, the scene lifecycle, entity management, and
  * deterministic timeline evaluation. Library packages implement the exported
  * contracts (MotionFactory, EffectFactory, CameraFactory, EnvironmentFactory,
- * CharacterFactory, AudioRuntime, PoseableRig). The Engine imports no content and no Bible.
+ * CharacterFactory, SceneCompositionLayerFactory, AudioRuntime, PoseableRig). The Engine imports no content and no Bible.
  */
 export * from './EngineTypes';
 export * from './humanoid';
@@ -35,6 +35,8 @@ export type {
   PrefabEntity,
   VisualTone,
   EpisodeScript,
+  SceneLayerDefinition,
+  SceneLayerRole,
 } from '@mindforge/schema';
 export * from './errors';
 export * from './easing';
@@ -58,6 +60,7 @@ export {
   type PropValue,
   type PropertyChannel,
 } from './Timeline';
+export { SceneCompositionLayerStack } from './SceneCompositionLayerStack';
 export { SceneManager, type BuiltScene } from './SceneManager';
 export { loadEpisode, type LoadedEpisode } from './EpisodeLoader';
 export {

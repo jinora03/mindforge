@@ -6,6 +6,7 @@ import { CharacterRegistry } from './CharacterRegistry';
 import { EffectRegistry } from './EffectRegistry';
 import { EnvironmentRegistry } from './EnvironmentRegistry';
 import { MotionRegistry } from './MotionRegistry';
+import { SceneLayerRegistry } from './SceneLayerRegistry';
 import { PrefabRegistry } from './PrefabRegistry';
 
 /**
@@ -27,6 +28,7 @@ export class MindForgeLibrary implements CapabilityRegistries {
   readonly effects = new EffectRegistry();
   readonly cameras = new CameraRegistry();
   readonly environments = new EnvironmentRegistry();
+  readonly sceneLayers = new SceneLayerRegistry();
 
   constructor(readonly themeId: string = 'voxel') {}
 
@@ -39,6 +41,7 @@ export class MindForgeLibrary implements CapabilityRegistries {
       effects: this.effects.list(),
       cameras: this.cameras.list(),
       environments: this.environments.list(),
+      sceneLayers: this.sceneLayers.list(),
       assets: this.assets.list(),
       audio: this.audio.list(),
     };

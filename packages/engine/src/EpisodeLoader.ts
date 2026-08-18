@@ -29,6 +29,15 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
     throw new UnknownRegistryIdError('environment', script.environment, { episodeId });
   }
 
+  for (const layer of script.layers) {
+    if (!registries.sceneLayers.has(layer.factory)) {
+      throw new UnknownRegistryIdError('scene layer', layer.factory, {
+        episodeId,
+        layerId: layer.id,
+      });
+    }
+  }
+
   const entityIds = new Set(collectEntityIds(script.entities));
   validateEntities(script.entities, registries, episodeId);
 

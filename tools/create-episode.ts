@@ -35,6 +35,7 @@ writeJson(join(dir, 'episode.json'), {
   ...(Number.isFinite(artifactNumber) ? { artifactNumber } : {}),
   duration,
   environment,
+  layers: [],
   entities: [],
   timeline: [
     { id: 'hook', type: 'text', at: 0.4, duration: 2.6, textId: 'hook' },

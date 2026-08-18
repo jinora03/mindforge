@@ -79,6 +79,13 @@ for (const file of existsSync(scenesDir) ? readdirSync(scenesDir) : []) {
       if (!library.environments.has(scene.environment)) {
         throw new Error(`unknown environment "${scene.environment}"`);
       }
+      for (const layer of scene.layers) {
+        if (!library.sceneLayers.has(layer.factory)) {
+          throw new Error(
+            `unknown scene layer "${layer.factory}" (layer="${layer.id}")`,
+          );
+        }
+      }
       console.log(`  ✓ scene ${scene.id} [${themeId}]`);
     } catch (error) {
       failures++;

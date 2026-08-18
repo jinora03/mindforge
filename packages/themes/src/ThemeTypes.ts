@@ -6,6 +6,7 @@ import type {
   PrefabFactory,
   PostProcessingConfig,
   RendererPresentationConfig,
+  SceneCompositionLayerFactory,
 } from '@mindforge/engine';
 import type { TextPlacement, TextStyle } from '@mindforge/schema';
 
@@ -45,6 +46,8 @@ export interface MindForgeTheme {
   readonly prefabs: Readonly<Record<string, PrefabFactory>>;
   readonly effects: Readonly<Record<string, EffectFactory>>;
   readonly environments: Readonly<Record<string, EnvironmentFactory>>;
+  /** Reusable theme-owned world composition systems (weather, atmosphere, etc.). */
+  readonly sceneLayers: Readonly<Record<string, SceneCompositionLayerFactory>>;
   readonly assets: readonly AssetDescriptor[];
   readonly presentation: ThemePresentation;
 }

@@ -68,6 +68,9 @@ export const VOXEL_THEME: MindForgeTheme = {
   prefabs: VOXEL_PREFAB_FACTORIES,
   effects: VOXEL_EFFECT_FACTORIES,
   environments: VOXEL_ENVIRONMENT_FACTORIES,
+  // PF1 establishes the composition surface; PF5 will populate production
+  // weather/atmosphere implementations without changing episode semantics.
+  sceneLayers: {},
   assets: VOXEL_ASSETS,
   presentation: VOXEL_PRESENTATION,
 };

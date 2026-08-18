@@ -42,6 +42,17 @@ describe('loadEpisode', () => {
     expect(() => loadEpisode(themed, library)).not.toThrow();
   });
 
+  it('reports an unknown semantic scene-layer id with the local layer id', () => {
+    const bad = {
+      ...baseEpisode,
+      layers: [
+        { id: 'storm', factory: 'layer.weather.missing', role: 'weather' },
+      ],
+    };
+    expect(() => loadEpisode(bad, library)).toThrow(/scene layer.*missing/);
+    expect(() => loadEpisode(bad, library)).toThrow(/layer="storm"/);
+  });
+
   it('reports an unknown prefab id', () => {
     const bad = {
       ...baseEpisode,
