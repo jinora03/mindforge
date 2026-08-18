@@ -167,3 +167,7 @@ With PF1–PF8 established, production work now focuses on visible quality rathe
 ### PB4 production meadow
 
 The first reusable production environment baseline composes authored PB1 nature, ground cover, puddles and clouds with PB2 wet materials, PF5 atmosphere/weather and PF6 scene layers. Use the `productionMeadow` PF8 world preset or inspect `pb4-production-meadow-preview` before assembling hero episodes. See `docs/pb4-production-meadow.md`.
+
+### PB5 Rainbow 2.0 assembly
+
+Artifact 015 now assembles the PB1–PB4 production vocabulary into the first flagship video: authored Voxel droplet assets, the production meadow, wet/physical materials, layered optics, atmospheric reveal and the continuous rainbow payoff. The old monolithic Rain Meadow and property-driven optical beam path are no longer used by the visible episode. See `docs/pb5-rainbow-assembly.md`.

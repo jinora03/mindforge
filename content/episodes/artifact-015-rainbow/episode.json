@@ -6,66 +6,170 @@
   "artifactNumber": 15,
   "artifactType": "loom",
   "domain": "signal-ocean",
-  "duration": 18.2,
-  "environment": "environment.rainMeadow",
+  "duration": 17.6,
+  "environment": "environment.compositionStage",
   "metadata": {
-    "logline": "White sunlight refracts into a raindrop, reflects inside, exits at wavelength-dependent angles, scales to many droplets, and resolves as a rainbow.",
-    "beats": "question -> refraction -> internal reflection -> dispersion -> many droplets -> rainbow payoff",
-    "productionStatus": "content-sprint-wave3",
+    "logline": "A production-authored raindrop reveals refraction, internal reflection and dispersion before the explanation expands into a rain-filled meadow and atmospheric rainbow.",
+    "beats": "question -> sunlight entry -> refraction/reflection -> dispersion -> many droplets -> sun break -> rainbow payoff",
+    "productionStatus": "pb5-rainbow-2.0-assembly",
     "narrationStatus": "caption-led-until-production-voice",
-    "pacingPolicy": "18.2s-production-cut-no-dead-air",
+    "pacingPolicy": "17.6s-production-cut-no-dead-air",
     "sharedAssets": [
-      "environment.rainMeadow",
-      "prefab.prismDrop",
-      "prefab.rainDropletField",
-      "prefab.rainbowArc",
+      "pack.voxel.nature-production",
+      "pack.voxel.optics-production",
+      "layer.utility.productionMaterials",
+      "layer.weather.heavyRain",
+      "effect.light.beam",
+      "effect.light.refraction",
+      "effect.light.spectrum",
+      "effect.reveal.atmospheric",
+      "effect.optics.rainbowArc",
       "audio.ambience.rain",
       "audio.sfx.prismSplit",
       "audio.sfx.insight"
     ]
   },
+  "layers": [
+    {
+      "id": "clouds",
+      "factory": "layer.world.clouds",
+      "role": "world",
+      "parameters": {
+        "count": 7,
+        "halfWidth": 18,
+        "nearZ": -16,
+        "farZ": -34,
+        "y": 10.5
+      }
+    },
+    {
+      "id": "ground",
+      "factory": "layer.surface.ground",
+      "role": "surface",
+      "parameters": {
+        "width": 40,
+        "depth": 48,
+        "centerZ": -9
+      }
+    },
+    {
+      "id": "puddles",
+      "factory": "layer.surface.puddles",
+      "role": "surface",
+      "parameters": {
+        "count": 5,
+        "halfWidth": 12.5,
+        "nearZ": -2,
+        "farZ": -20,
+        "centerZ": -6
+      }
+    },
+    {
+      "id": "nature",
+      "factory": "layer.setDressing.nature",
+      "role": "setDressing",
+      "parameters": {
+        "count": 22,
+        "halfWidth": 17,
+        "nearZ": -4,
+        "farZ": -29,
+        "centerZ": -7,
+        "clearRadius": 6.2
+      }
+    },
+    {
+      "id": "groundCover",
+      "factory": "layer.setDressing.groundCover",
+      "role": "setDressing",
+      "parameters": {
+        "count": 42,
+        "halfWidth": 16,
+        "nearZ": -1.5,
+        "farZ": -27,
+        "centerZ": -7,
+        "clearRadius": 3.2
+      }
+    },
+    {
+      "id": "mist",
+      "factory": "layer.atmosphere.mist",
+      "role": "atmosphere",
+      "parameters": {
+        "density": 0.31,
+        "drift": 0.34,
+        "wind": 0.12
+      }
+    },
+    {
+      "id": "fog",
+      "factory": "layer.atmosphere.fog",
+      "role": "atmosphere",
+      "parameters": {
+        "density": 0.2
+      }
+    },
+    {
+      "id": "rain",
+      "factory": "layer.weather.heavyRain",
+      "role": "weather",
+      "parameters": {
+        "intensity": 0.74,
+        "wind": 0.16,
+        "centerZ": -8
+      }
+    },
+    {
+      "id": "daylight",
+      "factory": "layer.lighting.daylight",
+      "role": "lighting"
+    },
+    {
+      "id": "foreground",
+      "factory": "layer.foreground.nature",
+      "role": "foreground",
+      "parameters": {
+        "count": 5,
+        "halfWidth": 11,
+        "nearZ": 1.2,
+        "farZ": 5.8,
+        "sideInnerX": 6.6
+      }
+    },
+    {
+      "id": "materials",
+      "factory": "layer.utility.productionMaterials",
+      "role": "utility",
+      "parameters": {
+        "wetness": 0.88
+      }
+    }
+  ],
   "entities": [
     {
       "id": "prism",
       "type": "prefab",
       "factory": "prefab.prismDrop",
-      "position": [
-        0,
-        3.1,
-        -5.2
-      ]
+      "position": [0, 2.9, -5.2],
+      "scale": 1.22
     },
     {
       "id": "sunSource",
       "type": "group",
       "children": [],
-      "position": [
-        -7.5,
-        7.5,
-        -8.0
-      ]
+      "position": [-8.2, 7.6, -7.6]
     },
     {
       "id": "droplets",
       "type": "prefab",
       "factory": "prefab.rainDropletField",
-      "position": [
-        0,
-        3.1,
-        -5.2
-      ],
+      "position": [0, 3.25, -6.4],
       "visible": false
     },
     {
-      "id": "rainbow",
-      "type": "prefab",
-      "factory": "prefab.rainbowArc",
-      "position": [
-        0,
-        1.0,
-        -20.5
-      ],
-      "visible": false
+      "id": "rainbowStage",
+      "type": "group",
+      "children": [],
+      "position": [0, 0.75, -23.5]
     }
   ],
   "timeline": [
@@ -73,7 +177,7 @@
       "id": "ambience",
       "type": "audio",
       "at": 0,
-      "duration": 18.2,
+      "duration": 17.6,
       "cue": "audio.ambience.rain",
       "loop": true,
       "volume": 0.3
@@ -82,9 +186,10 @@
       "id": "cam-hook",
       "type": "camera",
       "at": 0,
-      "duration": 1.8,
+      "duration": 1.45,
       "preset": "camera.establish",
       "target": "prism.center",
+      "fov": 46,
       "easing": "easeInOut",
       "parameters": {
         "blendDuration": 0.22
@@ -93,481 +198,268 @@
     {
       "id": "hook",
       "type": "text",
-      "at": 0.1,
-      "duration": 1.55,
+      "at": 0.05,
+      "duration": 1.28,
       "textId": "hook"
     },
     {
-      "id": "sun-path",
+      "id": "sun-beam",
       "type": "effect",
-      "at": 1.55,
+      "at": 1.18,
       "duration": 1.75,
-      "effect": "effect.signal.path",
+      "effect": "effect.light.beam",
       "from": "sunSource",
       "to": "prism.input",
-      "tone": "information",
       "intensity": 0.92,
       "parameters": {
-        "speed": 0.85,
-        "size": 0.07,
-        "bow": 0
+        "thickness": 0.042,
+        "scatter": 0.08,
+        "particleSpeed": 0.62
       }
     },
     {
-      "id": "cam-input",
+      "id": "cam-macro",
       "type": "camera",
-      "at": 1.6,
+      "at": 1.28,
       "duration": 2.35,
       "preset": "camera.pushIn",
       "target": "prism.center",
+      "fov": 42,
       "easing": "easeInOut",
       "parameters": {
-        "blendDuration": 0.24
+        "blendDuration": 0.2
       }
     },
     {
       "id": "prism-hero-turn",
       "type": "property",
-      "at": 1.6,
-      "duration": 7.5,
+      "at": 1.35,
+      "duration": 6.1,
       "target": "prism",
       "property": "rotation",
-      "from": [
-        0,
-        0,
-        0
-      ],
-      "to": [
-        0,
-        0.12,
-        0
-      ],
-      "easing": "easeInOutSine"
+      "from": [0, 0, 0],
+      "to": [0, 0.12, 0],
+      "easing": "easeInOut"
     },
     {
-      "id": "entry-ray",
-      "type": "property",
-      "at": 1.68,
-      "duration": 0.42,
-      "target": "prism.entryBeam",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
+      "id": "refraction-path",
+      "type": "effect",
+      "at": 1.55,
+      "duration": 2.05,
+      "effect": "effect.light.refraction",
+      "through": [
+        "prism.input",
+        "prism.bend",
+        "prism.reflect",
+        "prism.exit"
       ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
+      "intensity": 0.96,
+      "parameters": {
+        "thickness": 0.032
+      }
     },
     {
       "id": "input-text",
       "type": "text",
-      "at": 1.85,
-      "duration": 2.05,
+      "at": 1.52,
+      "duration": 1.95,
       "textId": "input"
-    },
-    {
-      "id": "refract-ray",
-      "type": "property",
-      "at": 2.05,
-      "duration": 0.48,
-      "target": "prism.refractBeam",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "reflection-ray",
-      "type": "property",
-      "at": 2.45,
-      "duration": 0.5,
-      "target": "prism.reflectionBeam",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "exit-ray",
-      "type": "property",
-      "at": 2.88,
-      "duration": 0.38,
-      "target": "prism.exitBeam",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "core-flash",
-      "type": "effect",
-      "at": 3.32,
-      "duration": 0.62,
-      "effect": "effect.insight.flash",
-      "target": "prism.center",
-      "tone": "insight",
-      "intensity": 0.72
     },
     {
       "id": "split-sfx",
       "type": "audio",
-      "at": 3.36,
+      "at": 3.32,
       "cue": "audio.sfx.prismSplit",
-      "volume": 0.7
+      "volume": 0.66
     },
     {
-      "id": "red-reveal",
-      "type": "property",
-      "at": 3.42,
-      "duration": 0.52,
-      "target": "prism.red",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
+      "id": "spectrum",
+      "type": "effect",
+      "at": 3.3,
+      "duration": 4.25,
+      "effect": "effect.light.spectrum",
+      "from": "prism.exit",
+      "intensity": 0.9,
+      "parameters": {
+        "length": 4.5,
+        "spread": 1.62,
+        "thickness": 0.026
+      }
     },
     {
       "id": "cam-spectrum",
       "type": "camera",
-      "at": 3.48,
-      "duration": 3.05,
+      "at": 3.35,
+      "duration": 2.7,
       "preset": "camera.reveal",
       "target": "prism",
+      "fov": 45,
       "easing": "easeInOut",
       "parameters": {
-        "radius": 6.2,
-        "height": 3.8,
-        "startAngle": 0.16,
-        "endAngle": -0.12,
+        "radius": 6.5,
+        "height": 3.5,
+        "startAngle": 0.15,
+        "endAngle": -0.14,
         "blendDuration": 0.22
       }
     },
     {
       "id": "split-text",
       "type": "text",
-      "at": 3.55,
-      "duration": 2.9,
+      "at": 3.48,
+      "duration": 2.35,
       "textId": "split"
     },
     {
-      "id": "orange-reveal",
-      "type": "property",
-      "at": 3.58,
-      "duration": 0.52,
-      "target": "prism.orange",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "yellow-reveal",
-      "type": "property",
-      "at": 3.74,
-      "duration": 0.52,
-      "target": "prism.yellow",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "green-reveal",
-      "type": "property",
-      "at": 3.9,
-      "duration": 0.52,
-      "target": "prism.green",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "blue-reveal",
-      "type": "property",
-      "at": 4.06,
-      "duration": 0.52,
-      "target": "prism.blue",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "violet-reveal",
-      "type": "property",
-      "at": 4.22,
-      "duration": 0.52,
-      "target": "prism.violet",
-      "property": "scale",
-      "from": [
-        0.015,
-        1,
-        1
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "core-pressure",
-      "type": "effect",
-      "at": 6.25,
-      "duration": 2.55,
-      "effect": "effect.contour.pressure",
-      "target": "prism.center",
-      "tone": "information",
-      "intensity": 0.65,
-      "parameters": {
-        "radius": 1.4,
-        "segments": 20
-      }
-    },
-    {
-      "id": "cam-bend",
+      "id": "cam-angle",
       "type": "camera",
-      "at": 6.3,
-      "duration": 2.85,
+      "at": 6.05,
+      "duration": 1.65,
       "preset": "camera.pushIn",
-      "target": "prism.center",
+      "target": "prism.exit",
+      "fov": 43,
       "easing": "easeInOut",
       "parameters": {
-        "blendDuration": 0.22
+        "blendDuration": 0.2
       }
     },
     {
       "id": "bend-text",
       "type": "text",
-      "at": 6.48,
-      "duration": 2.55,
+      "at": 6.1,
+      "duration": 1.45,
       "textId": "bend"
     },
     {
-      "id": "many-droplets-fall",
-      "type": "property",
-      "at": 9.2,
-      "duration": 3.2,
+      "id": "many-droplets-show",
+      "type": "visibility",
+      "at": 7.45,
       "target": "droplets",
-      "property": "position",
-      "from": [
-        0,
-        3.45,
-        -5.2
-      ],
-      "to": [
-        0,
-        2.65,
-        -5.2
-      ],
-      "easing": "linear"
+      "visible": true
+    },
+    {
+      "id": "hero-hide",
+      "type": "visibility",
+      "at": 7.7,
+      "target": "prism",
+      "visible": false
     },
     {
       "id": "many-droplets-opacity",
       "type": "property",
-      "at": 9.2,
+      "at": 7.45,
       "duration": 0.65,
       "target": "droplets",
       "property": "opacity",
-      "from": 0.0,
-      "to": 0.42,
+      "from": 0,
+      "to": 0.72,
       "easing": "easeOut"
     },
     {
       "id": "many-droplets-scale",
       "type": "property",
-      "at": 9.2,
-      "duration": 0.65,
+      "at": 7.45,
+      "duration": 0.7,
       "target": "droplets",
       "property": "scale",
-      "from": [
-        0.78,
-        0.78,
-        0.78
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
+      "from": [0.86, 0.86, 0.86],
+      "to": [1, 1, 1],
       "easing": "easeOut"
     },
     {
-      "id": "many-droplets-show",
-      "type": "visibility",
-      "at": 9.2,
+      "id": "many-droplets-fall",
+      "type": "property",
+      "at": 7.45,
+      "duration": 3.05,
       "target": "droplets",
-      "visible": true
+      "property": "position",
+      "from": [0, 3.5, -6.4],
+      "to": [0, 2.55, -6.4],
+      "easing": "linear"
     },
     {
       "id": "cam-many",
       "type": "camera",
-      "at": 9.32,
+      "at": 7.5,
       "duration": 3.25,
       "preset": "camera.pullBack",
       "target": "droplets",
+      "fov": 48,
       "easing": "easeInOut",
       "parameters": {
-        "blendDuration": 0.3
+        "blendDuration": 0.28
       }
     },
     {
       "id": "many-text",
       "type": "text",
-      "at": 9.5,
-      "duration": 2.8,
+      "at": 7.72,
+      "duration": 2.55,
       "textId": "many"
+    },
+    {
+      "id": "sun-break",
+      "type": "effect",
+      "at": 10.35,
+      "duration": 2.75,
+      "effect": "effect.reveal.atmospheric",
+      "target": "rainbowStage",
+      "intensity": 0.9,
+      "parameters": {
+        "radius": 4.4
+      }
     },
     {
       "id": "many-droplets-hide",
       "type": "visibility",
-      "at": 12.45,
+      "at": 10.72,
       "target": "droplets",
       "visible": false
     },
     {
-      "id": "rainbow-arc-opacity",
-      "type": "property",
-      "at": 12.45,
-      "duration": 0.85,
-      "target": "rainbow",
-      "property": "opacity",
-      "from": 0.0,
-      "to": 0.68,
-      "easing": "easeOut"
-    },
-    {
-      "id": "rainbow-arc-scale",
-      "type": "property",
-      "at": 12.45,
-      "duration": 0.85,
-      "target": "rainbow",
-      "property": "scale",
-      "from": [
-        0.94,
-        0.94,
-        0.94
-      ],
-      "to": [
-        1,
-        1,
-        1
-      ],
-      "easing": "easeOut"
-    },
-    {
-      "id": "rainbow-arc-show",
-      "type": "visibility",
-      "at": 12.45,
-      "target": "rainbow",
-      "visible": true
+      "id": "rainbow-payoff",
+      "type": "effect",
+      "at": 10.95,
+      "duration": 6.65,
+      "effect": "effect.optics.rainbowArc",
+      "target": "rainbowStage",
+      "intensity": 0.96,
+      "parameters": {
+        "radius": 4.75,
+        "heightScale": 0.84,
+        "thickness": 0.062,
+        "bandGap": 0.145
+      }
     },
     {
       "id": "cam-answer",
       "type": "camera",
-      "at": 12.62,
-      "duration": 5.58,
-      "preset": "camera.establish",
-      "target": "rainbow",
-      "easing": "easeInOut",
+      "at": 10.8,
+      "duration": 6.8,
+      "preset": "camera.reveal",
+      "target": "rainbowStage",
       "fov": 52,
+      "easing": "easeInOut",
       "parameters": {
-        "blendDuration": 0.42
+        "radius": 17,
+        "height": 4.2,
+        "startAngle": -0.07,
+        "endAngle": 0.055,
+        "blendDuration": 0.4
       }
-    },
-    {
-      "id": "answer-flash",
-      "type": "effect",
-      "at": 12.72,
-      "duration": 0.65,
-      "effect": "effect.insight.flash",
-      "target": "rainbow",
-      "tone": "insight",
-      "intensity": 0.34
     },
     {
       "id": "answer-sfx",
       "type": "audio",
-      "at": 12.46,
+      "at": 11.12,
       "cue": "audio.sfx.insight",
-      "volume": 0.52
+      "volume": 0.48
     },
     {
       "id": "answer",
       "type": "text",
-      "at": 12.92,
-      "duration": 3.72,
+      "at": 11.68,
+      "duration": 4.25,
       "textId": "answer"
     }
   ]

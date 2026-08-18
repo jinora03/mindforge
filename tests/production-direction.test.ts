@@ -12,10 +12,10 @@ interface TimelineEvent {
 }
 
 describe('PQ6 Rainbow production direction', () => {
-  it('ships an 18.2-second cut with a clean final visual hold', () => {
+  it('ships a 17.6-second cut with a clean final visual hold', () => {
     const input = loadEpisodeInput('artifact-015-rainbow');
     const duration = Number(input.duration);
-    expect(duration).toBe(18.2);
+    expect(duration).toBe(17.6);
     const timeline = input.timeline as TimelineEvent[];
     const answer = timeline.find((event) => event.id === 'answer');
     expect(answer).toBeDefined();
@@ -50,7 +50,7 @@ describe('PQ6 Rainbow production direction', () => {
     const input = loadEpisodeInput('artifact-015-rainbow');
     const timeline = input.timeline as TimelineEvent[];
     const byId = new Map(timeline.map((event) => [event.id, event]));
-    const beats = ['hook', 'entry-ray', 'red-reveal', 'core-pressure', 'many-droplets-show', 'rainbow-arc-show']
+    const beats = ['hook', 'sun-beam', 'spectrum', 'cam-angle', 'many-droplets-show', 'sun-break', 'rainbow-payoff']
       .map((id) => Number(byId.get(id)?.at));
     for (let i = 1; i < beats.length; i++) {
       expect(beats[i] - beats[i - 1]).toBeLessThanOrEqual(3.3);

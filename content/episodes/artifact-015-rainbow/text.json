@@ -9,13 +9,13 @@
     },
     {
       "id": "input",
-      "content": "Sunlight bends as it enters a raindrop.",
+      "content": "Sunlight bends, reflects inside, then bends again.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "split",
-      "content": "Inside, it reflects — then bends again as it leaves.",
+      "content": "White light separates into colors as it leaves.",
       "style": "explanation",
       "placement": "lower"
     },
@@ -27,13 +27,13 @@
     },
     {
       "id": "many",
-      "content": "Millions of droplets do this at once.",
+      "content": "Millions of raindrops do this at once.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "answer",
-      "content": "Together, those colors reach your eyes as a rainbow.",
+      "content": "Together, those colors reach you as a rainbow.",
       "style": "explanation",
       "placement": "center"
     }
