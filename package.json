@@ -26,10 +26,12 @@
     "audio:replace": "tsx tools/replace-audio.ts",
     "duplicate:episode": "tsx tools/duplicate-episode.ts",
     "validate:assets": "tsx tools/validate-assets.ts",
-    "inspect:model": "tsx tools/inspect-model.ts"
+    "inspect:model": "tsx tools/inspect-model.ts",
+    "compose:episode": "tsx tools/compose-episode.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@mindforge/composer": "workspace:*",
     "@mindforge/engine": "workspace:*",
     "@mindforge/library": "workspace:*",
     "@mindforge/schema": "workspace:*",

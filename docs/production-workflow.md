@@ -36,6 +36,8 @@ Storyboard
   ↓
 Review the causal visual sequence
   ↓
+Optional PF8 semantic composition
+  ↓
 Executable episode + text
   ↓
 Studio preview
@@ -50,6 +52,8 @@ Final visual review
 ```
 
 Do not skip directly from a topic to a dense timeline unless the work is explicitly an architecture prototype.
+
+PF8 adds an optional semantic authoring step between storyboard and `episode.json`. AI or a human can describe `world + actors + props + beats`, then `@mindforge/composer` deterministically compiles that plan into the ordinary executable episode format. The four-file production folder contract does not change; a composition file is an intermediate authoring artifact, not a new Engine dependency. See [`scene-composer.md`](scene-composer.md).
 
 ## Creating a new episode
 
@@ -146,6 +150,8 @@ Production tooling may know about briefs and storyboards. The Engine must not.
 ```text
 creative brief / storyboard
         ↓ review + authoring
+optional semantic composition
+        ↓ deterministic compile
 episode.json + text.json
         ↓
 Library + Theme

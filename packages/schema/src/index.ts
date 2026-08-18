@@ -13,6 +13,7 @@ export * from './entity-schema';
 export * from './timeline-schema';
 export * from './scene-layer-schema';
 export * from './scene-schema';
+export * from './composition-schema';
 export * from './episode-schema';
 
 import { z } from 'zod';

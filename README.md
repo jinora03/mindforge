@@ -153,3 +153,7 @@ PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`
 
 - **PF6 Production Environment Composition:** `environment.compositionStage` plus deterministic surface, nature dressing, foreground framing, and reactive daylight layers; PF2 authored models can replace explicit fallbacks without changing scene semantics.
 - **PF7 Character Production Pipeline:** PF2-authored humanoid models map semantic anchors/joints/clips into PF3 animation plus deterministic procedural motions; see `docs/character-production.md`.
+
+### PF8 semantic scene composition
+
+`@mindforge/composer` can now compile higher-level `world + actors + props + beats` JSON into the ordinary deterministic `EpisodeScript`. AI/human authoring stays outside the Engine; the compiled result still passes through the same schema, registry, Studio, Player, and export runtime. See [`docs/scene-composer.md`](docs/scene-composer.md).

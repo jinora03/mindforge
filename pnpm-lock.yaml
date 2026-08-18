@@ -11,6 +11,9 @@ importers:
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.39.5
+      '@mindforge/composer':
+        specifier: workspace:*
+        version: link:packages/composer
       '@mindforge/engine':
         specifier: workspace:*
         version: link:packages/engine
@@ -156,6 +159,12 @@ importers:
       '@types/three':
         specifier: ^0.169.0
         version: 0.169.0
+
+  packages/composer:
+    dependencies:
+      '@mindforge/schema':
+        specifier: workspace:*
+        version: link:../schema
 
   packages/effects:
     dependencies:
