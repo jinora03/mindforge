@@ -12,6 +12,8 @@ export * from './RuntimeAssets';
 export * from './BrowserAssetRuntime';
 export * from './ModelAssetContract';
 export * from './AssetValidation';
+export * from './AnimationRuntime';
+export * from './EffectInfluence';
 export * from './RendererPresentation';
 // Re-export the schema types the plugin contracts reference, so library
 // packages can depend on the Engine alone for the runtime surface.
@@ -24,6 +26,7 @@ export type {
   TimelineEvent,
   MotionEvent,
   ObjectMotionEvent,
+  AnimationEvent,
   EffectEvent,
   AudioBus,
   AudioEvent,

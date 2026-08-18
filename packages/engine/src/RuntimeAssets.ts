@@ -37,6 +37,7 @@ export function createModelPrefabFactory(assetId: string): PrefabFactory {
     return {
       object3d: instance.object3d,
       anchors: instance.anchors,
+      animationClips: instance.clips,
     };
   };
 }

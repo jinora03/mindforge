@@ -11,6 +11,8 @@ import type {
   ResolvedText,
 } from './EngineTypes';
 import { applyEasing } from './easing';
+import type { AnimationTrack } from './AnimationRuntime';
+import type { EffectInfluenceBus, EffectInfluenceSink } from './EffectInfluence';
 
 /** Default window lengths (seconds) when an event omits `duration`. */
 export const DEFAULT_DURATIONS = {
@@ -77,6 +79,12 @@ export class EffectAction {
     private readonly easing: Easing | undefined,
     readonly instance: EffectInstance,
   ) {}
+  contributeInfluence(frame: FrameContext, enabled: boolean, sink: EffectInfluenceSink): void {
+    if (!enabled || !this.instance.contributeInfluence) return;
+    const ctx = makeActionContext(frame, this.at, this.duration, this.easing);
+    if (!ctx.active) return;
+    this.instance.contributeInfluence(ctx, sink);
+  }
   evaluate(frame: FrameContext, enabled: boolean): void {
     if (!enabled) {
       this.instance.object3d.visible = false;
@@ -306,6 +314,7 @@ export interface TimelineLayers {
  * of `frame.time`, which is what makes seeking and restart deterministic.
  */
 export class Timeline {
+  private readonly animations: AnimationTrack[] = [];
   private readonly motions: MotionAction[] = [];
   private readonly effects: EffectAction[] = [];
   private readonly cameras: CameraWindow[] = [];
@@ -326,6 +335,9 @@ export class Timeline {
   };
   private activeTexts: ResolvedText[] = [];
 
+  addAnimationTrack(track: AnimationTrack): void {
+    this.animations.push(track);
+  }
   addMotion(action: MotionAction): void {
     this.motions.push(action);
   }
@@ -362,10 +374,29 @@ export class Timeline {
    * up-to-date anchor positions.
    */
   evaluatePose(frame: FrameContext): void {
+    // Authored clips establish the base animated pose first. Procedural face,
+    // motion, and property tracks may then intentionally layer/override it.
+    for (const track of this.animations) track.evaluate(frame.time);
     for (const track of this.faces) track.evaluate(frame.time);
     for (const action of this.motions) action.evaluate(frame);
     for (const track of this.properties) track.evaluate(frame.time);
     for (const track of this.visibility) track.evaluate(frame.time);
+  }
+
+  /**
+   * PF4 pre-pass: rebuild the frame-local production response bus from the
+   * exact same absolute timestamp that will drive environment/layer updates.
+   * This prevents one-frame lag and makes direct seeking reconstruct the same
+   * world reaction as normal playback.
+   */
+  evaluateEffectInfluences(
+    frame: FrameContext,
+    enabled: boolean,
+    bus: EffectInfluenceBus,
+  ): void {
+    bus.beginFrame();
+    if (!enabled) return;
+    for (const action of this.effects) action.contributeInfluence(frame, true, bus);
   }
 
   /**
@@ -470,6 +501,7 @@ export class Timeline {
   }
 
   reset(): void {
+    for (const track of this.animations) track.reset();
     for (const action of this.motions) action.reset();
     for (const action of this.effects) action.reset();
     for (const track of this.visibility) track.reset();
@@ -479,9 +511,11 @@ export class Timeline {
   }
 
   dispose(): void {
+    for (const track of this.animations) track.dispose();
     for (const action of this.motions) action.dispose();
     for (const action of this.effects) action.dispose();
     for (const window of this.cameras) window.shot.dispose?.();
+    this.animations.length = 0;
     this.motions.length = 0;
     this.effects.length = 0;
     this.cameras.length = 0;

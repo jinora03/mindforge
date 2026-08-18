@@ -116,6 +116,10 @@ is reconstructed from Engine time after pause, seek, restart, and speed changes.
 
 `public/assets/` is the local production-asset root. Theme descriptors may replace procedural fallbacks with inspected `.glb`/`.gltf` models while episodes continue to target stable semantic prefab/environment/layer ids. PF2 adds model coordinate/material/budget/provenance rules, semantic anchor and animation-clip mappings, asset packs, `pnpm inspect:model`, and `pnpm validate:assets`. See [`docs/production-assets.md`](docs/production-assets.md) and [`docs/model-authoring-standard.md`](docs/model-authoring-standard.md).
 
+## Animation
+
+PF3 evaluates authored GLB/GLTF clips from authoritative Engine time. Episode JSON targets semantic clip ids rather than DCC names, and seek/restart/fixed-frame export all use the same absolute-time sampler. One-shot/loop timing, speed, offsets, and deterministic blend windows are documented in [`docs/animation-runtime.md`](docs/animation-runtime.md).
+
 ## Production workflow
 
 Production episodes use a four-file package: `creative-brief.md`, `storyboard.json`, `episode.json`, and `text.json`. Studio discovers complete episode folders automatically and exposes storyboard shot navigation beside the deterministic preview.
@@ -141,3 +145,5 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 pnpm workspaces · Vite · TypeScript (strict) · Three.js + post-processing · Zod · Vitest ·
 ESLint · Prettier. React is used **only** in MindForge Studio.
+
+PF4 layered effect runtime: see `docs/effect-runtime.md`.

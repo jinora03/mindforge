@@ -31,6 +31,11 @@ import {
   type PropValue,
 } from './Timeline';
 import {
+  AnimationTrack,
+  defaultAnimationDuration,
+  type AnimationTrackEvent,
+} from './AnimationRuntime';
+import {
   GroupEntityImpl,
   LightEntityImpl,
   PrefabEntityImpl,
@@ -40,10 +45,11 @@ import {
   createPrimitiveGeometry,
   createPrimitiveMaterial,
 } from './entities';
-import { InstanceCreationError, type ErrorLocation } from './errors';
+import { InstanceCreationError, MissingAnimationClipError, type ErrorLocation } from './errors';
 import { hashSeed } from './rng';
 import type { LoadedEpisode } from './EpisodeLoader';
 import { unavailableRuntimeAssets } from './RuntimeAssets';
+import { EffectInfluenceBus } from './EffectInfluence';
 
 export interface BuiltScene {
   readonly entities: EntityManager;
@@ -51,6 +57,7 @@ export interface BuiltScene {
   readonly compositionLayers: SceneCompositionLayerStack;
   readonly timeline: Timeline;
   readonly context: SceneContext;
+  readonly effectInfluences: EffectInfluenceBus;
 }
 
 /**
@@ -69,7 +76,16 @@ export class SceneManager {
   ): BuiltScene {
     const { script } = loaded;
     const entities = new EntityManager();
-    const context = new SceneContext(scene, camera, script.duration, entities, script.id, assets);
+    const effectInfluences = new EffectInfluenceBus();
+    const context = new SceneContext(
+      scene,
+      camera,
+      script.duration,
+      entities,
+      script.id,
+      assets,
+      effectInfluences,
+    );
 
     const environment = this.buildEnvironment(script, registries, context);
     scene.add(environment.object3d);
@@ -82,7 +98,7 @@ export class SceneManager {
     const compositionLayers = this.buildCompositionLayers(script, registries, scene, context);
     const timeline = this.buildTimeline(loaded, registries, scene, context, entities);
 
-    return { entities, environment, compositionLayers, timeline, context };
+    return { entities, environment, compositionLayers, timeline, context, effectInfluences };
   }
 
   private buildEnvironment(
@@ -225,6 +241,10 @@ export class SceneManager {
     const { script } = loaded;
 
     // Grouped state tracks collected while scanning events.
+    const animationByTarget = new Map<
+      string,
+      { target: Entity; events: AnimationTrackEvent[] }
+    >();
     const visibilityByTarget = new Map<string, { at: number; visible: boolean }[]>();
     const faceByTarget = new Map<string, { at: number; state: FaceState }[]>();
     const propertyByKey = new Map<string, { target: string; channel: PropertyChannel; events: PropertyEvent[] }>();
@@ -261,6 +281,47 @@ export class SceneManager {
           timeline.addMotion(
             new MotionAction(event.id, at, event.duration ?? DEFAULT_DURATIONS.motion, event.easing, instance),
           );
+          break;
+        }
+        case 'animation': {
+          const target = entities.get(event.target, { episodeId: script.id, eventId: event.id });
+          const clips = target.animationClips ?? {};
+          const clip = clips[event.clip];
+          if (!clip) {
+            throw new MissingAnimationClipError(target.id, event.clip, Object.keys(clips).sort(), {
+              episodeId: script.id,
+              eventId: event.id,
+            });
+          }
+
+          const speed = event.speed ?? 1;
+          const loop = event.loop ?? false;
+          const startOffset = event.startOffset ?? 0;
+          const duration =
+            event.duration ??
+            defaultAnimationDuration(clip, {
+              at,
+              episodeDuration: script.duration,
+              speed,
+              loop,
+              startOffset,
+            });
+          const bucket = animationByTarget.get(target.id) ?? {
+            target,
+            events: [] as AnimationTrackEvent[],
+          };
+          bucket.events.push({
+            id: event.id,
+            at,
+            duration,
+            clip,
+            speed,
+            loop,
+            startOffset,
+            blendIn: event.blendIn ?? 0,
+            blendOut: event.blendOut ?? 0,
+          });
+          animationByTarget.set(target.id, bucket);
           break;
         }
         case 'effect': {
@@ -335,17 +396,28 @@ export class SceneManager {
       }
     }
 
-    this.buildTracks(timeline, entities, visibilityByTarget, faceByTarget, propertyByKey);
+    this.buildTracks(
+      timeline,
+      entities,
+      animationByTarget,
+      visibilityByTarget,
+      faceByTarget,
+      propertyByKey,
+    );
     return timeline;
   }
 
   private buildTracks(
     timeline: Timeline,
     entities: EntityManager,
+    animationByTarget: Map<string, { target: Entity; events: AnimationTrackEvent[] }>,
     visibilityByTarget: Map<string, { at: number; visible: boolean }[]>,
     faceByTarget: Map<string, { at: number; state: FaceState }[]>,
     propertyByKey: Map<string, { target: string; channel: PropertyChannel; events: PropertyEvent[] }>,
   ): void {
+    for (const { target, events } of animationByTarget.values()) {
+      timeline.addAnimationTrack(new AnimationTrack(target.object3d, events));
+    }
     for (const [target, events] of visibilityByTarget) {
       const object = entities.resolveAnchor(target);
       timeline.addVisibilityTrack(new VisibilityTrack(object, object.visible, events));

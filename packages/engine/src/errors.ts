@@ -55,6 +55,22 @@ export class MissingEntityError extends MindForgeError {
   }
 }
 
+/** A semantic authored animation clip was not exposed by its target entity. */
+export class MissingAnimationClipError extends MindForgeError {
+  constructor(
+    entityId: string,
+    clipId: string,
+    available: readonly string[],
+    location: ErrorLocation = {},
+  ) {
+    super(
+      `Missing animation clip "${clipId}" on entity "${entityId}"; available clips: ${available.join(', ') || '(none)'}`,
+      { ...location, entityId },
+    );
+    this.name = 'MissingAnimationClipError';
+  }
+}
+
 /** An anchor reference could not be resolved on its entity. */
 export class MissingAnchorError extends MindForgeError {
   constructor(ref: string, available: string[], location: ErrorLocation = {}) {

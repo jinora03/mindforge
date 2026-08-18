@@ -80,6 +80,7 @@ abstract class BaseEntity implements Entity {
 
 export class PrefabEntityImpl extends BaseEntity {
   readonly kind = 'prefab' as const;
+  readonly animationClips: Readonly<Record<string, THREE.AnimationClip>>;
   private readonly anchors: Readonly<Record<string, THREE.Object3D>>;
 
   constructor(
@@ -88,6 +89,7 @@ export class PrefabEntityImpl extends BaseEntity {
   ) {
     super(id, instance.object3d);
     this.anchors = instance.anchors ?? {};
+    this.animationClips = instance.animationClips ?? {};
   }
 
   override getAnchor(name: string): THREE.Object3D | undefined {

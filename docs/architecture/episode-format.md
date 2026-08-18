@@ -46,6 +46,7 @@ Every event has `id`, `type`, and `at` (seconds). Optional shared fields: `durat
 | --- | --- | --- |
 | `motion` | `target`, `motion`, `mirror?`, `speed?` | Pose a character rig. |
 | `objectMotion` | `target`, `motion`, `axis?`, `from?`, `to?` | Animate an entity or prefab anchor transform. |
+| `animation` | `target`, `clip`, `speed?`, `loop?`, `startOffset?`, `blendIn?`, `blendOut?` | Deterministically sample a semantic authored clip from Engine time. |
 | `effect` | `effect`, `target?`, `from?`, `to?`, `through?`, `tone?`, `color?` | Spawn a reusable effect. Production content should prefer semantic `tone`; explicit `color` is a low-level override. |
 | `camera` | `preset`, `target?`, `from?`, `to?`, `fov?`, `framingOffset?`, `shake?` | Frame the shot. |
 | `text` | `textId?` or `content`, `style?`, `placement?` | Caption overlay. |
@@ -56,6 +57,8 @@ Every event has `id`, `type`, and `at` (seconds). Optional shared fields: `durat
 | `audio` | `cue`, `bus?`, `volume?`, `loop?` | Play a semantic audio cue. Looping ambience should provide an event `duration`. |
 
 Anchor references use `entityId.anchorName` (e.g. `observer.handLeft`) or just `entityId`.
+`animation.target` is an entity id because semantic clips belong to the entity's authored model surface.
+See [`../animation-runtime.md`](../animation-runtime.md) for PF3 timing and duration semantics.
 `easing` is one of `linear`, `easeIn`, `easeOut`, `easeInOut`, `easeInOutCubic`,
 `easeInOutSine`, `easeOutBack`, `easeOutElastic`.
 

@@ -12,6 +12,7 @@ import type {
   SceneLayerRole,
 } from '@mindforge/schema';
 import type { PoseableRig } from './humanoid';
+import type { EffectInfluenceReader, EffectInfluenceSink } from './EffectInfluence';
 
 /**
  * The single authoritative frame snapshot. Every runtime system derives its
@@ -70,6 +71,8 @@ export interface Entity extends Disposable {
   readonly object3d: THREE.Object3D;
   /** Present on characters: the additive posing surface motions write to. */
   readonly rig?: PoseableRig;
+  /** Semantic authored animation clips exposed by PF3-capable entities. */
+  readonly animationClips?: Readonly<Record<string, THREE.AnimationClip>>;
   /** Resolve a named world-space anchor (e.g. `head`, `handRight`). */
   getAnchor(name: string): THREE.Object3D | undefined;
   /** List anchor names this entity exposes (for debug overlays). */
@@ -94,6 +97,8 @@ export interface SceneServices {
   readonly duration: number;
   /** Synchronous access to production assets that were preloaded before scene build. */
   readonly assets: RuntimeAssetAccess;
+  /** Frame-local effect influence state computed from the authoritative timeline time. */
+  readonly effectInfluences: EffectInfluenceReader;
   /** Resolve an entity by id or throw a clear error. */
   getEntity(id: string): Entity;
   tryGetEntity(id: string): Entity | undefined;
@@ -138,6 +143,11 @@ export interface EffectInstance extends Disposable {
   readonly object3d: THREE.Object3D;
   /** Update visuals from the window context (uses ctx.progress / ctx.active). */
   update(ctx: ActionContext): void;
+  /**
+   * Optional PF4 production-response recipe. The Engine calls this in a
+   * deterministic pre-pass before environment/layer updates for the same frame.
+   */
+  contributeInfluence?(ctx: ActionContext, sink: EffectInfluenceSink): void;
   /** Return to the pre-activation (hidden / empty) state for seek safety. */
   reset(): void;
 }
@@ -247,6 +257,8 @@ export interface PrefabBuildContext {
 export interface PrefabInstance {
   readonly object3d: THREE.Object3D;
   readonly anchors?: Readonly<Record<string, THREE.Object3D>>;
+  /** Semantic authored clips passed through by model-backed prefabs for PF3. */
+  readonly animationClips?: Readonly<Record<string, THREE.AnimationClip>>;
   dispose?(): void;
 }
 

@@ -79,7 +79,7 @@ cloned authored animation clips
 semantic clip map
 ```
 
-Geometry, materials, textures, skeleton hierarchy, and clips are detached so disposing one episode cannot invalidate another instance or the cached source.
+Geometry, materials, textures, skeleton hierarchy, and clips are detached so disposing one episode cannot invalidate another instance or the cached source. PF3 passes semantic clips through model-backed entities and samples them from absolute Engine time; see [`animation-runtime.md`](animation-runtime.md).
 
 ## Import normalization
 

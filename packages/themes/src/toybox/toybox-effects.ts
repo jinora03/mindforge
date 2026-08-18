@@ -6,6 +6,7 @@ import type {
   SceneServices,
   VisualTone,
 } from '@mindforge/engine';
+import { composeEffectLayers, createEffectInfluenceLayer, type EffectLayer } from '@mindforge/effects';
 import { ballGeometry, toyDebris, toyGlow, toyboxToneColor, toyTokenGeometry } from './toybox-style';
 
 /**
@@ -546,13 +547,13 @@ export const createToyboxInsightFlash: EffectFactory = ({ event }): EffectInstan
   const shell = new THREE.Mesh(ballGeometry(30, 12), material);
   shell.visible = false;
 
-  return {
+  const envelope = (progress: number): number => Math.sin(Math.PI * progress) ** 1.4;
+  const visualLayer: EffectLayer = {
     object3d: shell,
     update(ctx): void {
       shell.visible = ctx.active;
       if (!ctx.active) return;
-      // Smooth swell, unlike Voxel's quantised flash.
-      material.opacity = maxOpacity * Math.sin(Math.PI * ctx.progress) ** 1.4;
+      material.opacity = maxOpacity * envelope(ctx.progress);
     },
     reset(): void {
       shell.visible = false;
@@ -560,9 +561,19 @@ export const createToyboxInsightFlash: EffectFactory = ({ event }): EffectInstan
     },
     dispose(): void {
       material.dispose();
-      shell.removeFromParent();
     },
   };
+  const influenceScale = Math.max(0, event.intensity ?? 1);
+  const responseLayer = createEffectInfluenceLayer(
+    [
+      { channel: 'screenExposure', strength: 0.16 * influenceScale },
+      { channel: 'environmentLight', strength: 0.1 * influenceScale },
+      { channel: 'emissiveBoost', strength: 0.06 * influenceScale },
+    ],
+    (ctx) => envelope(ctx.progress),
+  );
+
+  return composeEffectLayers([visualLayer, responseLayer]);
 };
 
 export const TOYBOX_EFFECT_FACTORIES: Record<string, EffectFactory> = {

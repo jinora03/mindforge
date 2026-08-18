@@ -14,6 +14,7 @@ import { SceneManager, type BuiltScene } from './SceneManager';
 import { loadEpisode } from './EpisodeLoader';
 import { captureSnapshot, type SceneSnapshot } from './snapshot';
 import { unavailableRuntimeAssets } from './RuntimeAssets';
+import type { EffectInfluenceSnapshot } from './EffectInfluence';
 
 const clamp = (v: number, lo: number, hi: number): number => (v < lo ? lo : v > hi ? hi : v);
 
@@ -101,10 +102,15 @@ export class SceneRuntime {
   getAudioEvents(): readonly AudioEvent[] {
     return this.audioEvents;
   }
+  /** Current normalized PF4 production-response state for Studio/debug tooling. */
+  getEffectInfluences(): EffectInfluenceSnapshot | undefined {
+    return this.built?.effectInfluences.snapshot();
+  }
 
   /**
    * Resolve deterministic scene state at an absolute time. Pure with respect to
-   * `time`: calling it twice with the same `time`, or reaching `time` by any
+   * `time`: authored clips and every other scene-state system derive from this
+ * timestamp. Calling it twice with the same `time`, or reaching `time` by any
    * path (fresh, stepping, or after a later time), yields the same scene state.
    * No side effects.
    */
@@ -114,6 +120,13 @@ export class SceneRuntime {
     this.built.entities.beginFrame(frame);
     this.built.timeline.evaluatePose(frame);
     this.scene.updateMatrixWorld(true);
+    // PF4 influence recipes are evaluated first so environment/layers react on
+    // the exact same absolute frame during playback, seeking, and export.
+    this.built.timeline.evaluateEffectInfluences(
+      frame,
+      this.layers.effects,
+      this.built.effectInfluences,
+    );
     this.environment.update(frame);
     this.built.compositionLayers.update(frame);
     this.built.timeline.evaluateEffects(frame, this.layers);

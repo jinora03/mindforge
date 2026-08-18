@@ -57,6 +57,9 @@ export function loadEpisode(raw: unknown, registries: CapabilityRegistries): Loa
         requireRegistry(registries, 'motion', event.motion, loc);
         requireEntity(entityIds, splitRef(event.target)[0], loc);
         break;
+      case 'animation':
+        requireEntity(entityIds, event.target, loc);
+        break;
       case 'effect':
         requireRegistry(registries, 'effect', event.effect, loc);
         if (event.target) requireEntity(entityIds, splitRef(event.target)[0], loc);

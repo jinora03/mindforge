@@ -4,6 +4,7 @@ import { EasingSchema, HexColorSchema, RegistryIdSchema, Vec3Schema } from './co
 export const TIMELINE_EVENT_TYPES = [
   'motion',
   'objectMotion',
+  'animation',
   'effect',
   'camera',
   'text',
@@ -84,6 +85,25 @@ const ObjectMotionEventSchema = z
     axis: Vec3Schema.optional(),
     from: z.union([z.number(), Vec3Schema]).optional(),
     to: z.union([z.number(), Vec3Schema]).optional(),
+  })
+  .strict();
+
+const AnimationEventSchema = z
+  .object({
+    ...baseFields,
+    type: z.literal('animation'),
+    target: z.string().min(1),
+    /** Semantic clip id exposed by the target entity; never an authored GLTF clip name. */
+    clip: z.string().min(1),
+    /** Playback rate applied to absolute event-local time. Reverse playback is intentionally deferred. */
+    speed: z.number().positive().optional(),
+    /** Repeat the clip inside the event window. Without duration, looping continues to episode end. */
+    loop: z.boolean().optional(),
+    /** Seconds into the source clip where sampling begins. */
+    startOffset: z.number().min(0).optional(),
+    /** Deterministic weight ramps for authored clip transitions. */
+    blendIn: z.number().min(0).optional(),
+    blendOut: z.number().min(0).optional(),
   })
   .strict();
 
@@ -188,6 +208,7 @@ const AudioEventSchema = z
 export const TimelineEventSchema = z.discriminatedUnion('type', [
   MotionEventSchema,
   ObjectMotionEventSchema,
+  AnimationEventSchema,
   EffectEventSchema,
   CameraEventSchema,
   TextEventSchema,
@@ -202,6 +223,7 @@ export type VisualTone = z.infer<typeof VisualToneSchema>;
 export type TimelineEvent = z.infer<typeof TimelineEventSchema>;
 export type MotionEvent = z.infer<typeof MotionEventSchema>;
 export type ObjectMotionEvent = z.infer<typeof ObjectMotionEventSchema>;
+export type AnimationEvent = z.infer<typeof AnimationEventSchema>;
 export type EffectEvent = z.infer<typeof EffectEventSchema>;
 export type CameraEvent = z.infer<typeof CameraEventSchema>;
 export type TextEvent = z.infer<typeof TextEventSchema>;
@@ -216,6 +238,7 @@ export type FaceState = z.infer<typeof FaceStateSchema>;
 export {
   MotionEventSchema,
   ObjectMotionEventSchema,
+  AnimationEventSchema,
   EffectEventSchema,
   CameraEventSchema,
   TextEventSchema,

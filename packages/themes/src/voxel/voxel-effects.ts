@@ -6,6 +6,7 @@ import type {
   SceneServices,
   VisualTone,
 } from '@mindforge/engine';
+import { composeEffectLayers, createEffectInfluenceLayer, type EffectLayer } from '@mindforge/effects';
 import { createVoxelDebrisMaterial, createVoxelGlow, voxelToneColor } from './voxel-style';
 
 /**
@@ -703,14 +704,17 @@ export const createVoxelInsightFlash: EffectFactory = ({ event }): EffectInstanc
   const shell = new THREE.Mesh(new THREE.BoxGeometry(44, 44, 44), material);
   shell.visible = false;
 
-  return {
+  const envelope = (progress: number): number => {
+    const pulse = Math.sin(Math.PI * progress) ** 1.7;
+    return Math.round(pulse * 4) / 4;
+  };
+  const visualLayer: EffectLayer = {
     object3d: shell,
     update(ctx): void {
       shell.visible = ctx.active;
       if (!ctx.active) return;
       // Quantised into four steps: a hard flash reads better than a soft bloom.
-      const pulse = Math.sin(Math.PI * ctx.progress) ** 1.7;
-      material.opacity = maxOpacity * (Math.round(pulse * 4) / 4);
+      material.opacity = maxOpacity * envelope(ctx.progress);
     },
     reset(): void {
       shell.visible = false;
@@ -719,9 +723,19 @@ export const createVoxelInsightFlash: EffectFactory = ({ event }): EffectInstanc
     dispose(): void {
       shell.geometry.dispose();
       material.dispose();
-      shell.removeFromParent();
     },
   };
+  const influenceScale = Math.max(0, event.intensity ?? 1);
+  const responseLayer = createEffectInfluenceLayer(
+    [
+      { channel: 'screenExposure', strength: 0.24 * influenceScale },
+      { channel: 'environmentLight', strength: 0.18 * influenceScale },
+      { channel: 'emissiveBoost', strength: 0.1 * influenceScale },
+    ],
+    (ctx) => envelope(ctx.progress),
+  );
+
+  return composeEffectLayers([visualLayer, responseLayer]);
 };
 
 /* ----------------------------------------------------------------- parts -- */

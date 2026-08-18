@@ -67,7 +67,7 @@ model: {
 }
 ```
 
-`BrowserAssetRuntime` validates this mapping during preload and exposes detached semantic clips on the runtime model. PF3 will evaluate these clips deterministically from Engine time.
+`BrowserAssetRuntime` validates this mapping during preload and exposes detached semantic clips on the runtime model. PF3 evaluates these semantic clips deterministically from Engine time; see [`animation-runtime.md`](animation-runtime.md).
 
 ## Materials
 
