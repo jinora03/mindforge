@@ -130,6 +130,9 @@ export interface ScatterLayerStyle {
   readonly defaultMinScale: number;
   readonly defaultMaxScale: number;
   readonly sideFrameInnerX?: number;
+  /** Optional deterministic clustering for organic production dressing. Zero preserves uniform PF6 placement. */
+  readonly defaultClusterCount?: number;
+  readonly defaultClusterRadius?: number;
 }
 
 interface WeightedVariant {
@@ -216,6 +219,29 @@ export function createDeterministicScatterLayerFactory(
     );
     const zMin = Math.min(nearZ, farZ);
     const zMax = Math.max(nearZ, farZ);
+    const clusterCount = Math.round(
+      numberParameter(ctx.parameters, 'clusterCount', style.defaultClusterCount ?? 0, 0, 24),
+    );
+    const clusterRadius = numberParameter(
+      ctx.parameters,
+      'clusterRadius',
+      style.defaultClusterRadius ?? Math.max(1, halfWidth * 0.18),
+      0.25,
+      Math.max(0.25, halfWidth),
+    );
+    const clusterCenters: Array<{ readonly x: number; readonly z: number }> = [];
+    if (style.placement === 'field' && clusterCount > 0) {
+      for (let clusterIndex = 0; clusterIndex < clusterCount; clusterIndex++) {
+        let clusterX = centerX;
+        let clusterZ = centerZ;
+        for (let attempt = 0; attempt < 12; attempt++) {
+          clusterX = centerX + rng.range(-halfWidth, halfWidth);
+          clusterZ = centerZ + rng.range(zMin, zMax);
+          if (Math.hypot(clusterX - centerX, clusterZ - centerZ) >= clearRadius + clusterRadius * 0.35) break;
+        }
+        clusterCenters.push({ x: clusterX, z: clusterZ });
+      }
+    }
 
     for (let index = 0; index < count; index++) {
       let x = centerX;
@@ -228,8 +254,18 @@ export function createDeterministicScatterLayerFactory(
         // Fixed retry budget keeps generation deterministic while preserving a
         // clear central storytelling stage for characters/hero props.
         for (let attempt = 0; attempt < 12; attempt++) {
-          const candidateX = centerX + rng.range(-halfWidth, halfWidth);
-          const candidateZ = centerZ + rng.range(zMin, zMax);
+          let candidateX: number;
+          let candidateZ: number;
+          if (clusterCenters.length > 0) {
+            const cluster = clusterCenters[Math.floor(rng.next() * clusterCenters.length)];
+            const angle = rng.range(-Math.PI, Math.PI);
+            const radius = Math.sqrt(rng.next()) * clusterRadius;
+            candidateX = clamp(cluster.x + Math.cos(angle) * radius, centerX - halfWidth, centerX + halfWidth);
+            candidateZ = clamp(cluster.z + Math.sin(angle) * radius, centerZ + zMin, centerZ + zMax);
+          } else {
+            candidateX = centerX + rng.range(-halfWidth, halfWidth);
+            candidateZ = centerZ + rng.range(zMin, zMax);
+          }
           x = candidateX;
           z = candidateZ;
           if (Math.hypot(candidateX - centerX, candidateZ - centerZ) >= clearRadius) break;

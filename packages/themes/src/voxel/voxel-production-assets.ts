@@ -83,6 +83,14 @@ export const VOXEL_PB1_NATURE_ASSET_IDS = {
     'model.vegetation.grassClusterB.production',
     'model.vegetation.flowerClusterA.production',
   ],
+  puddles: [
+    'model.prop.puddleA.production',
+  ],
+  clouds: [
+    'model.environment.stormCloudA.production',
+    'model.environment.stormCloudB.production',
+    'model.environment.cloudBreakA.production',
+  ],
 } as const;
 
 export const VOXEL_PB1_PRODUCTION_ASSETS: AssetDescriptor[] = [

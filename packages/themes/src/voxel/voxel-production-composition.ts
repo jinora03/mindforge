@@ -54,6 +54,25 @@ function fallbackBush(): THREE.Object3D {
   return root;
 }
 
+
+function fallbackGroundCover(): THREE.Object3D {
+  const root = new THREE.Group();
+  root.name = 'pf6-fallback:voxel.groundCover';
+  root.add(block([0.08, 0.45, 0.08], '#5A9252', [-0.12, 0.22, 0]));
+  root.add(block([0.07, 0.58, 0.07], '#467D45', [0.08, 0.29, 0.03]));
+  root.add(block([0.06, 0.36, 0.06], '#6EA45D', [0.2, 0.18, -0.08]));
+  return root;
+}
+
+function fallbackCloud(): THREE.Object3D {
+  const root = new THREE.Group();
+  root.name = 'pf6-fallback:voxel.cloud';
+  root.add(block([2.2, 0.72, 0.95], '#667985', [0, 0, 0]));
+  root.add(block([1.35, 0.68, 0.86], '#7D909A', [-0.85, 0.35, 0.02]));
+  root.add(block([1.5, 0.76, 0.9], '#71838D', [0.8, 0.28, -0.04]));
+  return root;
+}
+
 const createVoxelCompositionStage = createCompositionStageEnvironmentFactory({
   name: 'voxel',
   background: '#8FB8C9',
@@ -175,6 +194,139 @@ const createVoxelNature = createDeterministicScatterLayerFactory({
   defaultClearRadius: 5.5,
   defaultMinScale: 0.75,
   defaultMaxScale: 1.25,
+  defaultClusterCount: 5,
+  defaultClusterRadius: 3.6,
+});
+
+
+
+const GROUND_COVER_VARIANTS = [
+  {
+    id: 'grass.cluster-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.groundCover[0],
+    weight: 0.42,
+    createFallback: fallbackGroundCover,
+    minScale: 0.72,
+    maxScale: 1.22,
+  },
+  {
+    id: 'grass.cluster-b',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.groundCover[1],
+    weight: 0.4,
+    createFallback: fallbackGroundCover,
+    minScale: 0.68,
+    maxScale: 1.18,
+  },
+  {
+    id: 'flower.cluster-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.groundCover[2],
+    weight: 0.18,
+    createFallback: fallbackGroundCover,
+    minScale: 0.78,
+    maxScale: 1.12,
+  },
+] as const;
+
+const PUDDLE_VARIANTS = [
+  {
+    id: 'puddle.a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.puddles[0],
+    weight: 1,
+    createFallback(): THREE.Object3D {
+      const root = new THREE.Group();
+      root.name = 'pf6-fallback:voxel.puddle';
+      const material = createVoxelMaterial('#7FB7C8', {
+        pixelVariation: 0,
+        transparent: true,
+        opacity: 0.62,
+        roughness: 0.18,
+        depthWrite: false,
+      });
+      material.name = 'PB2_PuddleWater';
+      const mesh = new THREE.Mesh(new THREE.CylinderGeometry(0.72, 0.82, 0.035, 12), material);
+      mesh.position.y = 0.018;
+      mesh.scale.z = 0.62;
+      mesh.receiveShadow = true;
+      root.add(mesh);
+      return root;
+    },
+    minScale: 0.72,
+    maxScale: 1.35,
+    yOffset: 0.01,
+  },
+] as const;
+
+const CLOUD_VARIANTS = [
+  {
+    id: 'cloud.storm-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.clouds[0],
+    weight: 0.4,
+    createFallback: fallbackCloud,
+    minScale: 2.2,
+    maxScale: 3.6,
+    yOffset: 0.1,
+  },
+  {
+    id: 'cloud.storm-b',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.clouds[1],
+    weight: 0.4,
+    createFallback: fallbackCloud,
+    minScale: 2.0,
+    maxScale: 3.4,
+    yOffset: 0.35,
+  },
+  {
+    id: 'cloud.break-a',
+    assetId: VOXEL_PB1_NATURE_ASSET_IDS.clouds[2],
+    weight: 0.2,
+    createFallback: fallbackCloud,
+    minScale: 2.1,
+    maxScale: 3.2,
+    yOffset: 0.7,
+  },
+] as const;
+
+const createVoxelGroundCover = createDeterministicScatterLayerFactory({
+  name: 'voxel.groundCover',
+  variants: GROUND_COVER_VARIANTS,
+  placement: 'field',
+  defaultCount: 42,
+  defaultHalfWidth: 16.5,
+  defaultNearZ: -1.5,
+  defaultFarZ: -27,
+  defaultClearRadius: 3.2,
+  defaultMinScale: 0.68,
+  defaultMaxScale: 1.2,
+  defaultClusterCount: 9,
+  defaultClusterRadius: 2.1,
+});
+
+const createVoxelPuddles = createDeterministicScatterLayerFactory({
+  name: 'voxel.puddles',
+  variants: PUDDLE_VARIANTS,
+  placement: 'field',
+  defaultCount: 5,
+  defaultHalfWidth: 12.5,
+  defaultNearZ: -2.5,
+  defaultFarZ: -20,
+  defaultClearRadius: 2.4,
+  defaultMinScale: 0.72,
+  defaultMaxScale: 1.35,
+});
+
+const createVoxelClouds = createDeterministicScatterLayerFactory({
+  name: 'voxel.clouds',
+  variants: CLOUD_VARIANTS,
+  placement: 'field',
+  defaultCount: 7,
+  defaultHalfWidth: 18,
+  defaultNearZ: -16,
+  defaultFarZ: -34,
+  defaultClearRadius: 0,
+  defaultMinScale: 2,
+  defaultMaxScale: 3.5,
+  defaultClusterCount: 3,
+  defaultClusterRadius: 5.4,
 });
 
 const createVoxelForeground = createDeterministicScatterLayerFactory({
@@ -203,7 +355,10 @@ export const VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS: Readonly<Record<string, 
 
 export const VOXEL_PRODUCTION_COMPOSITION_LAYERS: Readonly<Record<string, SceneCompositionLayerFactory>> = {
   'layer.surface.ground': createVoxelGround,
+  'layer.surface.puddles': createVoxelPuddles,
   'layer.setDressing.nature': createVoxelNature,
+  'layer.setDressing.groundCover': createVoxelGroundCover,
   'layer.foreground.nature': createVoxelForeground,
+  'layer.world.clouds': createVoxelClouds,
   'layer.lighting.daylight': createVoxelDaylight,
 };

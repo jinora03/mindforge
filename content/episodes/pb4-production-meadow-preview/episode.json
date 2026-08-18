@@ -1,0 +1,180 @@
+{
+  "schemaVersion": "0.1",
+  "id": "pb4-production-meadow-preview",
+  "title": "PB4 Production Meadow Baseline",
+  "duration": 7.5,
+  "environment": "environment.compositionStage",
+  "metadata": {
+    "logline": "A short production-only camera pass proving the reusable authored meadow, wet materials, clouds, rain, mist and depth composition before Rainbow 2.0 assembly.",
+    "productionStatus": "pb4-environment-baseline",
+    "purpose": "visual-regression-preview"
+  },
+  "layers": [
+    {
+      "id": "clouds",
+      "factory": "layer.world.clouds",
+      "role": "world",
+      "parameters": {
+        "count": 7,
+        "halfWidth": 18,
+        "nearZ": -16,
+        "farZ": -34,
+        "y": 10.5
+      }
+    },
+    {
+      "id": "ground",
+      "factory": "layer.surface.ground",
+      "role": "surface",
+      "parameters": {
+        "width": 40,
+        "depth": 48,
+        "centerZ": -9
+      }
+    },
+    {
+      "id": "puddles",
+      "factory": "layer.surface.puddles",
+      "role": "surface",
+      "parameters": {
+        "count": 5,
+        "halfWidth": 12.5,
+        "nearZ": -2,
+        "farZ": -20,
+        "centerZ": -6
+      }
+    },
+    {
+      "id": "nature",
+      "factory": "layer.setDressing.nature",
+      "role": "setDressing",
+      "parameters": {
+        "count": 24,
+        "halfWidth": 17,
+        "nearZ": -4,
+        "farZ": -29,
+        "centerZ": -7,
+        "clearRadius": 6
+      }
+    },
+    {
+      "id": "groundCover",
+      "factory": "layer.setDressing.groundCover",
+      "role": "setDressing",
+      "parameters": {
+        "count": 46,
+        "halfWidth": 16,
+        "nearZ": -1.5,
+        "farZ": -27,
+        "centerZ": -7,
+        "clearRadius": 3.4
+      }
+    },
+    {
+      "id": "mist",
+      "factory": "layer.atmosphere.mist",
+      "role": "atmosphere",
+      "parameters": {
+        "density": 0.34,
+        "drift": 0.34,
+        "wind": 0.12
+      }
+    },
+    {
+      "id": "fog",
+      "factory": "layer.atmosphere.fog",
+      "role": "atmosphere",
+      "parameters": {
+        "density": 0.24
+      }
+    },
+    {
+      "id": "rain",
+      "factory": "layer.weather.heavyRain",
+      "role": "weather",
+      "parameters": {
+        "intensity": 0.78,
+        "wind": 0.18,
+        "centerZ": -8
+      }
+    },
+    {
+      "id": "daylight",
+      "factory": "layer.lighting.daylight",
+      "role": "lighting"
+    },
+    {
+      "id": "foreground",
+      "factory": "layer.foreground.nature",
+      "role": "foreground",
+      "parameters": {
+        "count": 5,
+        "halfWidth": 11,
+        "nearZ": 1.2,
+        "farZ": 5.8,
+        "sideInnerX": 6.6
+      }
+    },
+    {
+      "id": "materials",
+      "factory": "layer.utility.productionMaterials",
+      "role": "utility",
+      "parameters": {
+        "wetness": 0.88
+      }
+    }
+  ],
+  "entities": [
+    {
+      "id": "meadowFocus",
+      "type": "group",
+      "children": [],
+      "position": [
+        0,
+        0.9,
+        -10
+      ]
+    }
+  ],
+  "timeline": [
+    {
+      "id": "wide-pass",
+      "type": "camera",
+      "at": 0,
+      "duration": 3,
+      "preset": "camera.establish",
+      "target": "meadowFocus",
+      "fov": 45,
+      "easing": "easeInOut"
+    },
+    {
+      "id": "depth-pass",
+      "type": "camera",
+      "at": 3,
+      "duration": 2.4,
+      "preset": "camera.reveal",
+      "target": "meadowFocus",
+      "easing": "easeInOut",
+      "parameters": {
+        "radius": 9.2,
+        "height": 2.7,
+        "startAngle": -0.42,
+        "endAngle": 0.28,
+        "blendDuration": 0.35
+      }
+    },
+    {
+      "id": "wide-finish",
+      "type": "camera",
+      "at": 5.4,
+      "duration": 2.1,
+      "preset": "camera.pullBack",
+      "target": "meadowFocus",
+      "fov": 47,
+      "easing": "easeInOut",
+      "parameters": {
+        "blendDuration": 0.3
+      }
+    }
+  ]
+}

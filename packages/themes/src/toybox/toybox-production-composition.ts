@@ -59,6 +59,55 @@ function fallbackBush(): THREE.Object3D {
   return root;
 }
 
+
+
+function fallbackGroundCover(): THREE.Object3D {
+  const root = new THREE.Group();
+  root.name = 'pf6-fallback:toybox.groundCover';
+  for (const [x, z, h] of [[-0.16, 0.02, 0.42], [0.05, -0.04, 0.56], [0.2, 0.08, 0.36]] as const) {
+    const blade = mesh(
+      brickGeometry(0.08, h, 0.08),
+      plastic('#69A85F', { roughness: 0.54 }),
+      [x, h * 0.5, z],
+    );
+    root.add(blade);
+  }
+  return root;
+}
+
+function fallbackPuddle(): THREE.Object3D {
+  const root = new THREE.Group();
+  root.name = 'pf6-fallback:toybox.puddle';
+  const puddle = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.78, 0.88, 0.035, 20),
+    plastic('#78BDD3', { roughness: 0.16, transparent: true, opacity: 0.72 }),
+  );
+  puddle.position.y = 0.018;
+  puddle.scale.z = 0.62;
+  puddle.receiveShadow = true;
+  root.add(puddle);
+  return root;
+}
+
+function fallbackCloud(): THREE.Object3D {
+  const root = new THREE.Group();
+  root.name = 'pf6-fallback:toybox.cloud';
+  const material = plastic('#8797A4', { roughness: 0.78 });
+  const specs = [
+    [-0.95, 0, 0, 0.82],
+    [-0.35, 0.18, 0.02, 1.02],
+    [0.35, 0.14, -0.03, 0.92],
+    [0.95, -0.02, 0.02, 0.72],
+  ] as const;
+  for (const [x, y, z, radius] of specs) {
+    const cloud = mesh(ballGeometry(radius, 12), material.clone(), [x, y, z]);
+    cloud.castShadow = false;
+    cloud.receiveShadow = false;
+    root.add(cloud);
+  }
+  return root;
+}
+
 const createToyboxCompositionStage = createCompositionStageEnvironmentFactory({
   name: 'toybox',
   background: '#B9DDEA',
@@ -104,6 +153,58 @@ const createToyboxNature = createDeterministicScatterLayerFactory({
   defaultClearRadius: 5.5,
   defaultMinScale: 0.75,
   defaultMaxScale: 1.25,
+  defaultClusterCount: 5,
+  defaultClusterRadius: 3.6,
+});
+
+
+
+const GROUND_COVER_VARIANTS = [
+  { id: 'grass', weight: 0.82, createFallback: fallbackGroundCover, minScale: 0.72, maxScale: 1.2 },
+  { id: 'flower', weight: 0.18, createFallback: fallbackGroundCover, minScale: 0.78, maxScale: 1.08 },
+] as const;
+
+const createToyboxGroundCover = createDeterministicScatterLayerFactory({
+  name: 'toybox.groundCover',
+  variants: GROUND_COVER_VARIANTS,
+  placement: 'field',
+  defaultCount: 38,
+  defaultHalfWidth: 16.5,
+  defaultNearZ: -1.5,
+  defaultFarZ: -27,
+  defaultClearRadius: 3.2,
+  defaultMinScale: 0.7,
+  defaultMaxScale: 1.18,
+  defaultClusterCount: 9,
+  defaultClusterRadius: 2.1,
+});
+
+const createToyboxPuddles = createDeterministicScatterLayerFactory({
+  name: 'toybox.puddles',
+  variants: [{ id: 'puddle', createFallback: fallbackPuddle, minScale: 0.72, maxScale: 1.32 }],
+  placement: 'field',
+  defaultCount: 5,
+  defaultHalfWidth: 12.5,
+  defaultNearZ: -2.5,
+  defaultFarZ: -20,
+  defaultClearRadius: 2.4,
+  defaultMinScale: 0.72,
+  defaultMaxScale: 1.32,
+});
+
+const createToyboxClouds = createDeterministicScatterLayerFactory({
+  name: 'toybox.clouds',
+  variants: [{ id: 'stormCloud', createFallback: fallbackCloud, minScale: 2, maxScale: 3.25 }],
+  placement: 'field',
+  defaultCount: 7,
+  defaultHalfWidth: 18,
+  defaultNearZ: -16,
+  defaultFarZ: -34,
+  defaultClearRadius: 0,
+  defaultMinScale: 2,
+  defaultMaxScale: 3.25,
+  defaultClusterCount: 3,
+  defaultClusterRadius: 5.4,
 });
 
 const createToyboxForeground = createDeterministicScatterLayerFactory({
@@ -143,8 +244,11 @@ const createToyboxProductionMaterials: SceneCompositionLayerFactory = () => {
 
 export const TOYBOX_PRODUCTION_COMPOSITION_LAYERS: Readonly<Record<string, SceneCompositionLayerFactory>> = {
   'layer.surface.ground': createToyboxGround,
+  'layer.surface.puddles': createToyboxPuddles,
   'layer.setDressing.nature': createToyboxNature,
+  'layer.setDressing.groundCover': createToyboxGroundCover,
   'layer.foreground.nature': createToyboxForeground,
+  'layer.world.clouds': createToyboxClouds,
   'layer.lighting.daylight': createToyboxDaylight,
   'layer.utility.productionMaterials': createToyboxProductionMaterials,
 };

@@ -163,3 +163,7 @@ PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`
 With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. PB2 adds their reusable physical/wet material baseline through `layer.utility.productionMaterials`. See `docs/pb1-production-assets.md` and `docs/pb2-production-materials.md`.
 
 - **PB3 production effects:** reusable layered light beam, refraction, spectrum, rain impact, atmospheric reveal and continuous rainbow arc (`docs/pb3-production-effects.md`).
+
+### PB4 production meadow
+
+The first reusable production environment baseline composes authored PB1 nature, ground cover, puddles and clouds with PB2 wet materials, PF5 atmosphere/weather and PF6 scene layers. Use the `productionMeadow` PF8 world preset or inspect `pb4-production-meadow-preview` before assembling hero episodes. See `docs/pb4-production-meadow.md`.
