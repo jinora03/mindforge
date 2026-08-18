@@ -138,7 +138,7 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 ## Current limitations (v0.1)
 
-- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB2 will raise the new GLBs from baseline embedded PBR materials to the intended cinematic wet/optical surface quality. Demo SFX/reference narration likewise remain replaceable production assets.
+- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB2 adds the reusable Voxel production-material layer, physical puddle/optical glass treatment, and deterministic wet/light response for the new GLBs. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - The bundled themes still ship one procedural character (`character.observer`). PF7 now supports authored production humanoids, but no curated production character GLB is bundled yet; authored locomotion remains in-place.
@@ -160,4 +160,6 @@ PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`
 
 ## Production Baseline
 
-With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. See `docs/pb1-production-assets.md`.
+With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. PB2 adds their reusable physical/wet material baseline through `layer.utility.productionMaterials`. See `docs/pb1-production-assets.md` and `docs/pb2-production-materials.md`.
+
+- **PB3 production effects:** reusable layered light beam, refraction, spectrum, rain impact, atmospheric reveal and continuous rainbow arc (`docs/pb3-production-effects.md`).

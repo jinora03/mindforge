@@ -47,9 +47,10 @@ FLOWER_YELLOW = mat('PB1_FlowerYellow', (224, 181, 60), roughness=0.8)
 CLOUD_DARK = mat('PB1_StormCloudDark', (77, 91, 104), roughness=1.0)
 CLOUD_MID = mat('PB1_StormCloudMid', (104, 120, 132), roughness=1.0)
 CLOUD_LIGHT = mat('PB1_CloudBreak', (174, 189, 196), roughness=1.0)
-WATER = mat('PB1_WaterPlaceholder', (98, 164, 191), roughness=0.22, alpha=150)
-GLASS = mat('PB1_OpticalGlassPlaceholder', (172, 224, 242), roughness=0.12, alpha=92)
-GLASS_EDGE = mat('PB1_OpticalEdge', (115, 184, 214), roughness=0.22, alpha=122)
+WATER = mat('PB2_PuddleWater', (98, 164, 191), roughness=0.16, alpha=190)
+WATER_GLASS = mat('PB2_OpticalWaterGlass', (188, 231, 245), roughness=0.08, alpha=232)
+PRISM_GLASS = mat('PB2_OpticalPrismGlass', (196, 234, 247), roughness=0.06, alpha=238)
+GLASS_EDGE = mat('PB2_OpticalEdge', (115, 184, 214), roughness=0.16, alpha=210)
 
 
 def set_material(mesh: trimesh.Trimesh, material: PBRMaterial) -> trimesh.Trimesh:
@@ -345,7 +346,7 @@ def cloud_scene(seed, break_cloud=False) -> trimesh.Scene:
 
 
 def hero_drop_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,teardrop_mesh(1.0),'HeroDroplet',GLASS)
+    s=trimesh.Scene(); add(s,teardrop_mesh(1.0),'HeroDroplet',WATER_GLASS)
     # Thin faceted inner lens breaks the single-primitive read even before PB2 shaders.
     inner=teardrop_mesh(.76); inner.apply_scale([.94,1,.94]); add(s,inner,'InnerLens',GLASS_EDGE)
     empty(s,'MF_Anchor_Center',(0,0,0)); empty(s,'MF_Anchor_Input',(-.72,.145,0)); empty(s,'MF_Anchor_Bend',(-.2,-.095,0)); empty(s,'MF_Anchor_Reflect',(.14,-.655,0)); empty(s,'MF_Anchor_Exit',(.62,-.335,0))
@@ -354,11 +355,11 @@ def hero_drop_scene() -> trimesh.Scene:
 
 
 def small_drop_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,teardrop_mesh(.36),'RainDroplet',GLASS); empty(s,'MF_Anchor_Center',(0,0,0)); return s
+    s=trimesh.Scene(); add(s,teardrop_mesh(.36),'RainDroplet',WATER_GLASS); empty(s,'MF_Anchor_Center',(0,0,0)); return s
 
 
 def prism_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,triangular_prism(),'OpticalPrism',GLASS)
+    s=trimesh.Scene(); add(s,triangular_prism(),'OpticalPrism',PRISM_GLASS)
     empty(s,'MF_Anchor_Center',(0,0,0)); empty(s,'MF_Anchor_Input',(-.9,.05,0)); empty(s,'MF_Anchor_Exit',(.9,.0,0)); empty(s,'MF_Anchor_OpticalCenter',(0,0,0))
     return s
 

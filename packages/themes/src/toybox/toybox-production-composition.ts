@@ -130,9 +130,21 @@ export const TOYBOX_PRODUCTION_COMPOSITION_ENVIRONMENTS: Readonly<Record<string,
   'environment.compositionStage': createToyboxCompositionStage,
 };
 
+const createToyboxProductionMaterials: SceneCompositionLayerFactory = () => {
+  const object3d = new THREE.Group();
+  object3d.name = 'toybox.productionMaterials';
+
+  return {
+    object3d,
+    update() {},
+    dispose() {},
+  };
+};
+
 export const TOYBOX_PRODUCTION_COMPOSITION_LAYERS: Readonly<Record<string, SceneCompositionLayerFactory>> = {
   'layer.surface.ground': createToyboxGround,
   'layer.setDressing.nature': createToyboxNature,
   'layer.foreground.nature': createToyboxForeground,
   'layer.lighting.daylight': createToyboxDaylight,
+  'layer.utility.productionMaterials': createToyboxProductionMaterials,
 };

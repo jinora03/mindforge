@@ -59,14 +59,16 @@ The authoring utility uses fixed construction values so rebuilding the source fi
 
 PB1 includes embedded baseline PBR material assignments so every GLB is self-contained and inspectable. These are deliberately not presented as final surface quality.
 
-PB2 owns:
+PB2 now owns:
 
 - wet/dry material response
 - bark/leaf/stone surface refinement
-- proper optical glass/transmission treatment
+- physical optical glass/transmission treatment
 - puddle/water response
-- storm-cloud shading
+- restrained storm-cloud response
 - material reaction to PF4 influence channels
+
+See `docs/pb2-production-materials.md`.
 
 PB1's gate is geometry, silhouette, scale, origin, anchors, provenance, budgets and reusable registration.
 

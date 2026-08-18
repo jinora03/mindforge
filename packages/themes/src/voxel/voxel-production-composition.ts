@@ -76,9 +76,11 @@ const createVoxelGround = createSurfaceLayerFactory({
   defaultWidth: 38,
   defaultDepth: 46,
   createSurface(width: number, depth: number): THREE.Object3D {
+    const material = createBlockMaterial('grassTop', { size: [width, 0.5, depth] });
+    material.name = 'MF_VoxelSurface_Grass';
     const mesh = new THREE.Mesh(
       new THREE.BoxGeometry(width, 0.5, depth),
-      createBlockMaterial('grassTop', { size: [width, 0.5, depth] }),
+      material,
     );
     mesh.position.y = -0.25;
     mesh.receiveShadow = true;

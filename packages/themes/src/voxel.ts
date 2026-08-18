@@ -2,6 +2,7 @@ import type { AssetDescriptor, AssetPackDescriptor } from '@mindforge/engine';
 import type { MindForgeTheme } from './ThemeTypes';
 import { VOXEL_CHARACTER_FACTORIES } from './voxel/VoxelCharacter';
 import { VOXEL_EFFECT_FACTORIES } from './voxel/voxel-effects';
+import { VOXEL_PB3_EFFECT_FACTORIES } from './voxel/voxel-production-effects';
 import { VOXEL_ENVIRONMENT_FACTORIES } from './voxel/voxel-environments';
 import { VOXEL_PREFAB_FACTORIES } from './voxel/voxel-prefabs';
 import { VOXEL_PRESENTATION } from './voxel/voxel-style';
@@ -138,7 +139,7 @@ export const VOXEL_THEME: MindForgeTheme = {
   description: 'Original block-built gameplay visuals with warm materials and chunky semantic effects.',
   characters: VOXEL_CHARACTER_FACTORIES,
   prefabs: VOXEL_PREFAB_FACTORIES,
-  effects: VOXEL_EFFECT_FACTORIES,
+  effects: { ...VOXEL_EFFECT_FACTORIES, ...VOXEL_PB3_EFFECT_FACTORIES },
   environments: { ...VOXEL_ENVIRONMENT_FACTORIES, ...VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS },
   sceneLayers: { ...VOXEL_SCENE_LAYER_FACTORIES, ...VOXEL_PRODUCTION_COMPOSITION_LAYERS },
   assets: VOXEL_ASSETS,
@@ -149,6 +150,7 @@ export const VOXEL_THEME: MindForgeTheme = {
 export {
   VOXEL_CHARACTER_FACTORIES,
   VOXEL_EFFECT_FACTORIES,
+  VOXEL_PB3_EFFECT_FACTORIES,
   VOXEL_ENVIRONMENT_FACTORIES,
   VOXEL_PREFAB_FACTORIES,
   VOXEL_SCENE_LAYER_FACTORIES,
@@ -156,6 +158,10 @@ export {
   VOXEL_PRODUCTION_COMPOSITION_LAYERS,
   VOXEL_PRESENTATION,
 };
+export {
+  createVoxelProductionMaterialLayer,
+  VOXEL_PB2_MATERIAL_LAYER_ID,
+} from './voxel/voxel-production-materials';
 export {
   VOXEL_PALETTE,
   voxelToneColor,

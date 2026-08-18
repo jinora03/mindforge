@@ -91,6 +91,12 @@ export const DEFAULT_COMPOSITION_VOCABULARY: CompositionVocabulary = {
     reactionBurst: 'effect.reaction.burst',
     informationStream: 'effect.informationStream',
     insightFlash: 'effect.insight.flash',
+    lightBeam: 'effect.light.beam',
+    refraction: 'effect.light.refraction',
+    spectrum: 'effect.light.spectrum',
+    rainImpact: 'effect.weather.rainImpact',
+    atmosphericReveal: 'effect.reveal.atmospheric',
+    rainbowArc: 'effect.optics.rainbowArc',
   },
   cameras: {
     establish: 'camera.establish',

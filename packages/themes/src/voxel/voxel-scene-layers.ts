@@ -6,6 +6,10 @@ import {
   createRainLayerFactory,
 } from '../shared/weather-layer-runtime';
 import { createVoxelMaterial } from './voxel-style';
+import {
+  createVoxelProductionMaterialLayer,
+  VOXEL_PB2_MATERIAL_LAYER_ID,
+} from './voxel-production-materials';
 
 const rainMaterial = (color: THREE.ColorRepresentation, opacity: number) =>
   createVoxelMaterial(new THREE.Color(color).getStyle(), {
@@ -97,4 +101,5 @@ export const VOXEL_SCENE_LAYER_FACTORIES: Readonly<Record<string, SceneCompositi
   'layer.weather.heavyRain': createVoxelHeavyRain,
   'layer.atmosphere.mist': createVoxelMist,
   'layer.atmosphere.fog': createVoxelFog,
+  [VOXEL_PB2_MATERIAL_LAYER_ID]: createVoxelProductionMaterialLayer,
 };

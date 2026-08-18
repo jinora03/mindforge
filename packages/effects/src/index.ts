@@ -8,6 +8,7 @@ import type { EffectFactory } from '@mindforge/engine';
 
 export * from './EffectTypes';
 export * from './LayeredEffect';
+export * from './ProductionEffects';
 export { createSignalPath } from './SignalPath';
 export { createPredictionSignal } from './PredictionSignal';
 export { createGhostMovement } from './GhostMovement';
