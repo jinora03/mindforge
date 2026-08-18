@@ -11,6 +11,8 @@ import {
   createVoxelLighting,
   createVoxelMaterial,
 } from './voxel-style';
+import { createVoxelRainMeadow } from './voxel-rain-meadow';
+export { createVoxelRainMeadow };
 
 function cameraState(
   position: [number, number, number],
@@ -333,90 +335,6 @@ export const createVoxelCanyon: EnvironmentFactory = ({ services }): Environment
 };
 
 /** Rainy open meadow with deterministic falling streaks and a low sun break. */
-export const createVoxelRainMeadow: EnvironmentFactory = ({ services }): EnvironmentInstance => {
-  const scene = services.scene;
-  const group = new THREE.Group();
-  group.name = 'voxel.environment.rainMeadow';
-  scene.background = new THREE.Color('#789CAF');
-  scene.fog = new THREE.Fog('#789CAF', 46, 112);
-
-  const grass = createVoxelMaterial('#5E8549', { pixelVariation: 0.09, roughness: 1 });
-  group.add(block([36, 0.48, 32], grass, [0, -0.27, -6], false));
-
-  // Layered terrain replaces the Wave 3 flat slabs with readable foreground/midground depth.
-  const grassDark = createVoxelMaterial('#476A3C', { pixelVariation: 0.07, roughness: 1 });
-  const grassLight = createVoxelMaterial('#6D9652', { pixelVariation: 0.08, roughness: 1 });
-  for (const [x, y, z, sx, sy, sz, material] of [
-    [-12, 0.8, -20, 11, 1.8, 9, grassDark],
-    [11.5, 1.15, -22, 12, 2.5, 9, grassDark],
-    [0, 0.55, -27, 18, 1.25, 7, grassDark],
-    [-13.5, 0.25, -8, 6, 0.7, 7, grassLight],
-    [13.5, 0.32, -10, 6, 0.8, 8, grassLight],
-  ] as const) group.add(block([sx, sy, sz], material, [x, y, z], false));
-
-  // Wet stepping path and puddles create surface variation and reflections.
-  const pathMat = createBlockMaterial('stoneBrick', { size: [2.2, 0.14, 1.5], tint: '#83928E' });
-  for (let i = 0; i < 7; i++) group.add(block([2.2, 0.14, 1.5], pathMat, [-3.2 + i * 0.95, 0.06, 4.2 - i * 2.45], false));
-  const puddle = createVoxelMaterial('#6FAFC6', { pixelVariation: 0, transparent: true, opacity: 0.62, roughness: 0.12, metalness: 0.08 });
-  for (const [x, z, sx, sz] of [[-7.3, 1.8, 3.8, 1.5], [6.8, -4.2, 4.5, 1.8], [1.8, -12.2, 3.0, 1.25]] as const) {
-    group.add(block([sx, 0.045, sz], puddle, [x, 0.028, z], false));
-  }
-
-  // Trees, fence, flowers and rocks keep the scene alive without stealing focus from the prism.
-  for (const [x, z, scale] of [[-11.5, -5.5, 1.1], [10.2, -7.5, 0.95], [-8.8, -16.5, 0.85], [8.3, -18.2, 0.9]] as const) voxelTree(group, x, z, scale);
-  const fence = createVoxelMaterial('#896848', { pixelVariation: 0.06, roughness: 1 });
-  for (const x of [-9, -6, -3, 0, 3, 6, 9]) group.add(block([0.18, 1.05, 0.18], fence, [x, 0.5, -14.2], false));
-  group.add(block([18.2, 0.16, 0.16], fence, [0, 0.72, -14.2], false));
-  group.add(block([18.2, 0.14, 0.14], fence, [0, 0.28, -14.2], false));
-
-  const flowerStem = createVoxelMaterial('#4E793F', { pixelVariation: 0.04, roughness: 1 });
-  const flowerColors = ['#F4D060', '#F28B9D', '#E7F2FF', '#A8D879'];
-  for (let i = 0; i < 18; i++) {
-    const x = ((i * 7) % 21) - 10;
-    const z = 2 - ((i * 11) % 15);
-    group.add(block([0.06, 0.34, 0.06], flowerStem, [x, 0.17, z], false));
-    group.add(block([0.22, 0.18, 0.22], createVoxelMaterial(flowerColors[i % flowerColors.length], { pixelVariation: 0.02, roughness: 0.8 }), [x, 0.42, z], false));
-  }
-  voxelRock(group, -9.0, -1.5, 0.8, '#77817A');
-  voxelRock(group, 9.4, -12.5, 1.0, '#68736E');
-
-  // Overhead storm layers frame a brighter gap around the low sun.
-  voxelCloud(group, -8.2, 10.8, -25.5, 1.3);
-  voxelCloud(group, 0.2, 11.8, -29, 1.55);
-  voxelCloud(group, 9.0, 10.4, -26, 1.15);
-  const sunMat = createVoxelMaterial('#FFF1A1', { pixelVariation: 0, emissive: '#FFE47A', emissiveIntensity: 1.25, roughness: 0.25 });
-  group.add(block([2.2, 2.2, 0.35], sunMat, [-10.5, 9.3, -28], false));
-  const sunFill = new THREE.DirectionalLight('#FFF0B8', 0.55);
-  sunFill.position.set(-8, 12, 4);
-  group.add(sunFill);
-
-  const rainMaterial = createVoxelMaterial('#BDEAFF', { pixelVariation: 0, transparent: true, opacity: 0.62, roughness: 0.1 });
-  rainMaterial.depthWrite = false;
-  const count = 88;
-  const rain = new THREE.InstancedMesh(new THREE.BoxGeometry(0.035, 0.82, 0.035), rainMaterial, count);
-  rain.name = 'voxel-rain';
-  rain.castShadow = false;
-  const bases = Array.from({ length: count }, (_, i) => ({
-    x: ((i * 37) % 33) - 16,
-    y: 1 + ((i * 19) % 14),
-    z: 5 - ((i * 23) % 34),
-  }));
-  const matrix = new THREE.Matrix4();
-  const updateRain = (time: number): void => {
-    for (let i = 0; i < count; i++) {
-      const base = bases[i];
-      const y = ((base.y - time * 8.3 + 28) % 14) + 0.45;
-      matrix.makeTranslation(base.x, y, base.z);
-      rain.setMatrixAt(i, matrix);
-    }
-    rain.instanceMatrix.needsUpdate = true;
-  };
-  updateRain(0);
-  group.add(rain);
-  group.add(createVoxelLighting({ shadowExtent: 24 }));
-  return finish(scene, group, cameraState([5.4, 4.2, 13.2], [0, 2.0, -7.5], 48), updateRain);
-};
-
 /** Night overlook with layered horizon silhouettes for perception demonstrations. */
 export const createVoxelNightOverlook: EnvironmentFactory = ({ services }): EnvironmentInstance => {
   const scene = services.scene;
