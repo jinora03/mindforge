@@ -1,43 +1,55 @@
-# Creative Brief — Artifact 015: The Split
+# Creative Brief — Artifact 015: The Split — PB6 Final Polish
 
 **Public title:** _Why does a rainbow appear?_
-**Domain:** Signal Ocean · **Artifact type:** Loom · **Duration:** 18.2s (9:16)
+**Domain:** Signal Ocean · **Artifact type:** Loom · **Duration:** 17.6s (9:16)
 
-## 1. The one idea
+## Unforgettable Visual
 
-Sunlight refracts as it enters a raindrop, reflects once inside, then refracts again as it leaves. Different wavelengths leave at slightly different angles, and many droplets send those separated colors toward the viewer.
+The signature frame is a full-width, saturated voxel rainbow spanning a dark storm meadow from a front-of-diorama camera position. Low stepped ridges and trees create depth beneath it, a small warm sun-break sits high in the sky, and the rainbow remains the only large multicolor/emissive event in frame.
 
-## 2. The unforgettable visual
+## 1. Production purpose
 
-One bright white ray visibly bends into a large stylized raindrop, reflects inside, exits, and only then separates into six colored paths. The explanation scales outward to many droplets before a restrained rainbow arc appears across the meadow.
+PB6 is a visual-production pass, not an architecture phase. It keeps the reusable PB1–PB5 systems and fixes the actual shot design: subject silhouette, portrait framing, value hierarchy, optical readability, caption scale and payoff composition. Artifact 001 (Heat) and Artifact 004 (Cold Battery) remain the visual family reference.
 
-## 3. Composition
+## 2. The one idea
 
-- No character; the droplet and spectrum are the protagonists.
-- Keep the entire colored fan inside portrait safe framing.
-- Rain must visibly move so the outdoor scene never feels frozen.
-- The internal bend → reflection → exit path must read before the spectrum appears.
-- The spectrum appears rapidly rather than one color sitting alone for seconds.
-- The final rainbow belongs to the landscape rather than floating as a UI-like particle effect.
+Light bends into a raindrop, reflects inside it, then bends again on the way out. Colors bend by different amounts. Across millions of droplets, the right viewing angle lines those colors up into a rainbow.
 
-## 4. Performance / timing
+## 3. Reusable production vocabulary
 
-Question lands by 0.1s, the white ray starts moving by ~1.6s, the spectrum begins by ~3.4s, the wavelength-angle explanation resolves around ~6.3s, many droplets arrive at ~9.2s, and the rainbow payoff begins at ~12.5s. The answer clears before the final clean visual hold; hard stop at 18.2s.
+- PB1 `pack.voxel.optics-production`, with an opaque saturated block-water hero that reads without fragile transmission.
+- `layer.setDressing.dioramaFrame`, extended with reusable low stepped background ridges for foreground/midground/background depth.
+- `prefab.storyLight` with optional authored color so focal lights can be cool/warm without adding episode-specific light prefabs.
+- PB3 beam/refraction/spectrum effects using fewer, longer block segments, contact flashes and restrained halos instead of dashed debug-line styling.
+- PB3 `effect.reveal.atmospheric` with target offsets so a sun-break can live in the sky rather than at the target origin.
+- PB3 `effect.optics.rainbowArc` with chunkier bands and a restrained halo.
+- Resolution-aware deterministic export captions so the 1080×1920 output matches preview readability.
 
-## 5. Text strategy
+## 4. Shot progression
 
-Every caption overlaps a visible transition. No caption gets a dedicated waiting shot.
+1. **0–1.5s — Hook:** saturated voxel raindrop, dark framed meadow, no competing effect.
+2. **1.1–3.6s — Light path:** warm entry ribbon plus internal refraction/reflection contacts.
+3. **3.2–5.85s — Spectrum:** camera frames hero and the complete color fan together.
+4. **5.85–7.55s — Exit angle:** short close explanation at the exit point.
+5. **7.3–10.55s — Many drops:** one drop becomes a smaller, cleaner field of fourteen authored droplets.
+6. **10.25–17.6s — Payoff:** high sky sun-break, front-of-diorama wide shot, full rainbow and clean final hold.
 
-## 6. Reusable production assets
+## 5. Composition rules
 
-Uses `environment.rainMeadow`, `prefab.prismDrop`, `prefab.rainDropletField`, `prefab.rainbowArc`, `audio.ambience.rain`, and `audio.sfx.prismSplit`. The separated optical pieces are reusable for refraction, dispersion, many-particle scale-up, and landscape rainbow payoffs.
+- One focal subject per shot.
+- Keep the central optics lane clear; side dressing and ridges frame, never intersect, the explanation.
+- Opaque saturated water is preferred to milky transparent glass when transparency hurts readability.
+- Glow belongs only to semantic light, optical contact points and the final rainbow.
+- Camera distance is chosen from the portrait horizontal FOV, not only from vertical framing.
+- Final rainbow must fit entirely inside the 9:16 horizontal field with margin.
+- Captions must remain readable at 1080×1920 export scale and stay clear of the hero/payoff.
 
-## 7. Success criteria
+## 6. Success criteria
 
-- Entire episode is 18.2 seconds and remains under the 20-second production ceiling.
-- Internal refraction/reflection path is unmistakable before ~3.4s.
-- Spectrum is unmistakable by ~4.8s.
-- Final rainbow arc is visible in the meadow by ~13.3s.
-- Rain remains in motion.
-- No idle humanoid appears.
-- At least one meaningful visual change occurs every ~1–2 seconds.
+- No black-frame material corruption.
+- Hero reads as a raindrop before effects begin.
+- Spectrum is fully visible in the portrait frame instead of clipping off-screen.
+- Storm atmosphere supports contrast rather than whitening the frame.
+- Final camera fits the entire rainbow horizontally.
+- Export captions scale from the logical CSS stage to video resolution.
+- `pnpm check` is green before the stage is called complete.

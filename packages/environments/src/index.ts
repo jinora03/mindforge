@@ -1,12 +1,12 @@
 /**
- * @mindforge/environments — reusable domains from the Universe Bible. The
- * Forge is a dimension, not one place: each environment shares canon laws
- * (violet cosmic identity, meaningful light) while staging different concept
- * families. Environments are not locked to a single topic.
+ * @mindforge/environments — generic reusable environment capabilities and
+ * production-composition mechanics. Visual themes own presentation; this
+ * package stays renderer/runtime oriented and theme-blind.
  */
 import type { EnvironmentFactory } from '@mindforge/engine';
 
 export * from './EnvironmentTypes';
+export * from './ProductionComposition';
 export { createCosmicVoid } from './CosmicVoid';
 export { createArtifactStage } from './ArtifactStage';
 export { createDreamGarden } from './DreamGarden';

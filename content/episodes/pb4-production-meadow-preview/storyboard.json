@@ -1,0 +1,35 @@
+{
+  "episode": "pb4-production-meadow-preview",
+  "title": "PB4 Production Meadow Baseline",
+  "aspect": "9:16",
+  "durationSeconds": 7.5,
+  "shots": [
+    {
+      "id": "s1-wide",
+      "t": [0, 3],
+      "beat": "Read the authored meadow as a complete world",
+      "intent": "Open wide enough to judge foreground, hero clearing, midground dressing, storm clouds, rain and atmospheric depth together.",
+      "camera": { "preset": "camera.establish", "target": "meadowFocus" },
+      "effects": [],
+      "text": []
+    },
+    {
+      "id": "s2-depth",
+      "t": [3, 5.4],
+      "beat": "Expose the depth layers",
+      "intent": "Move laterally just enough to reveal parallax between foreground nature, ground cover, puddles, midground trees and far cloud masses.",
+      "camera": { "preset": "camera.reveal", "target": "meadowFocus" },
+      "effects": [],
+      "text": []
+    },
+    {
+      "id": "s3-finish",
+      "t": [5.4, 7.5],
+      "beat": "Finish on the reusable production composition",
+      "intent": "Pull back to judge whether the complete rainy meadow reads as an intentional stylized game environment without relying on a hero object.",
+      "camera": { "preset": "camera.pullBack", "target": "meadowFocus" },
+      "effects": [],
+      "text": []
+    }
+  ]
+}

@@ -61,6 +61,8 @@ describe('PQ7 final production polish', () => {
     );
     expect(calls).toContain('fillBackdrop');
     expect(calls.indexOf('fillBackdrop')).toBeLessThan(calls.indexOf('fillText'));
+    const fontPx = Number(/ ([\d.]+)px /.exec(context.font)?.[1] ?? 0);
+    expect(fontPx).toBeGreaterThan(48);
   });
 
   it('keeps the Rainbow mix restrained and lands the reveal accent on the payoff', () => {
@@ -71,8 +73,8 @@ describe('PQ7 final production polish', () => {
     const split = episode.timeline.find((event) => event.id === 'split-sfx');
     const reveal = episode.timeline.find((event) => event.id === 'answer-sfx');
     expect(ambience).toMatchObject({ cue: 'audio.ambience.rain', volume: 0.3 });
-    expect(split).toMatchObject({ cue: 'audio.sfx.prismSplit', volume: 0.7 });
-    expect(reveal).toMatchObject({ cue: 'audio.sfx.insight', at: 12.46, volume: 0.52 });
+    expect(split).toMatchObject({ cue: 'audio.sfx.prismSplit', volume: 0.66 });
+    expect(reveal).toMatchObject({ cue: 'audio.sfx.insight', at: 11.12, volume: 0.48 });
   });
 
   it('keeps preview caption boxes border-box so padding cannot escape the safe width', () => {

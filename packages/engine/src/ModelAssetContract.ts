@@ -27,6 +27,19 @@ export function validateRuntimeModelContract(
     }
   }
 
+  for (const [semanticName, nodeName] of Object.entries(descriptor.character?.joints ?? {})) {
+    const count = nodeCounts.get(nodeName) ?? 0;
+    if (count === 0) {
+      errors.push(
+        `missing authored character joint node "${nodeName}" for semantic joint "${semanticName}"`,
+      );
+    } else if (count > 1) {
+      errors.push(
+        `authored character joint node "${nodeName}" for semantic joint "${semanticName}" is not unique (${count} matches)`,
+      );
+    }
+  }
+
   const clipCounts = countClipNames(animations);
   for (const [semanticName, clipName] of Object.entries(descriptor.model?.clips ?? {})) {
     const count = clipCounts.get(clipName) ?? 0;

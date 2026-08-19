@@ -45,7 +45,7 @@ if (failures > 0) {
   console.error(`Asset validation failed: ${failures} problem(s).`);
   process.exit(1);
 }
-console.log('All asset descriptors, packs and authored model files satisfy the PF2 contract.');
+console.log('All asset descriptors, packs and authored model files satisfy the PF2/PF7 production contract.');
 
 function validateAuthoredModel(themeId: string, asset: AssetDescriptor): void {
   const path = resolveLocalModelPath(asset.url ?? '');
@@ -86,6 +86,16 @@ function validateInspection(
       fail(
         themeId,
         `${asset.id}: anchor ${semanticName} -> ${nodeName} must match exactly one GLTF node (found ${matches})`,
+      );
+    }
+  }
+
+  for (const [semanticName, nodeName] of Object.entries(asset.character?.joints ?? {})) {
+    const matches = nodeCounts.get(nodeName) ?? 0;
+    if (matches !== 1) {
+      fail(
+        themeId,
+        `${asset.id}: character joint ${semanticName} -> ${nodeName} must match exactly one GLTF node (found ${matches})`,
       );
     }
   }

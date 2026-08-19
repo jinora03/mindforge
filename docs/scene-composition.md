@@ -81,30 +81,25 @@ runs in reverse order.
 
 ## Theme boundary
 
-The same semantic ids should eventually exist in every production theme:
+PF5 now supplies the first shared semantic weather surface in every production
+theme:
 
 ```text
+layer.weather.rain
 layer.weather.heavyRain
 layer.atmosphere.mist
-layer.lighting.storm
+layer.atmosphere.fog
 ```
 
-Voxel and Toybox may render those layers very differently. Episode JSON does not
-know how either implementation is built.
+Voxel and Toybox render those layers differently. Episode JSON does not know how
+either implementation is built. PF4's influence bus is evaluated before PF1
+layers, so these PF5 systems can react to light, fog-scattering, emissive, and
+wind impulses on the same deterministic frame. See
+`docs/weather-atmosphere-runtime.md`.
 
-PF1 deliberately registers no production weather/atmosphere implementations yet.
-Those belong to PF5. PF4 will add composable timeline effects and, later, an
-influence mechanism that lets effects such as lightning temporarily affect
-weather/atmosphere/lighting layers without hard-coding those meanings into the
-Engine.
+PF1 itself remains only the composition/lifecycle foundation; the Engine still
+has no rain, fog, Voxel, Toybox, or weather-specific branches.
 
-## Deliberate non-goals of PF1
+## PF6 production composition
 
-- no new rain implementation
-- no lightning implementation
-- no effect graph yet
-- no influence bus yet
-- no asset-pack expansion
-- no changes to existing episode visuals
-
-PF1 is the composition/lifecycle foundation those systems will plug into.
+PF6 adds a minimal `environment.compositionStage` plus reusable surface, set-dressing, foreground, and daylight layers. These compose directly with PF5 weather/atmosphere while preserving the same PF1 deterministic layer stack. See `docs/environment-composition.md`.

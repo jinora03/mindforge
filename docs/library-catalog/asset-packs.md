@@ -7,3 +7,5 @@ Default-theme production/fallback asset groupings. A pack becomes `production` o
 - `pack.voxel.core-fallback` — fallback — Voxel Core Fallback (7 assets) — Current procedural core assets kept as deterministic fallbacks while authored production replacements are onboarded.
 - `pack.voxel.experiments-fallback` — fallback — Voxel Experiment Fallbacks (14 assets) — Reusable experiment props and rooms awaiting authored production-model replacements.
 - `pack.voxel.worlds-fallback` — fallback — Voxel World Fallbacks (10 assets) — Current procedural world and hero assets to replace pack-by-pack with inspected authored models.
+- `pack.voxel.nature-production` — production — Voxel Nature Core v1 (16 assets) — Reusable block-game nature baseline: orthogonal trees, rocks, shrubs, ground cover, stepped puddles and clustered clouds.
+- `pack.voxel.optics-production` — production — Voxel Optics Core v1 (3 assets) — Reusable block-game optics baseline: stepped droplets and prism geometry designed for selective, transmission-free optical accents.

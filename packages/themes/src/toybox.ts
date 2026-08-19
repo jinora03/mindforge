@@ -2,9 +2,15 @@ import type { AssetDescriptor, AssetPackDescriptor } from '@mindforge/engine';
 import type { MindForgeTheme } from './ThemeTypes';
 import { TOYBOX_CHARACTER_FACTORIES } from './toybox/ToyboxCharacter';
 import { TOYBOX_EFFECT_FACTORIES } from './toybox/toybox-effects';
+import { TOYBOX_PB3_EFFECT_FACTORIES } from './toybox/toybox-production-effects';
 import { TOYBOX_ENVIRONMENT_FACTORIES } from './toybox/toybox-environments';
 import { TOYBOX_PREFAB_FACTORIES } from './toybox/toybox-prefabs';
 import { TOYBOX_PRESENTATION } from './toybox/toybox-style';
+import { TOYBOX_SCENE_LAYER_FACTORIES } from './toybox/toybox-scene-layers';
+import {
+  TOYBOX_PRODUCTION_COMPOSITION_ENVIRONMENTS,
+  TOYBOX_PRODUCTION_COMPOSITION_LAYERS,
+} from './toybox/toybox-production-composition';
 
 export { TOYBOX_PALETTE, toyboxToneColor, plastic, toyMetal } from './toybox/toybox-style';
 
@@ -137,12 +143,17 @@ export const TOYBOX_THEME: MindForgeTheme = {
     'Original modular toy language: glossy moulded parts, studded plates, and built places.',
   characters: TOYBOX_CHARACTER_FACTORIES,
   prefabs: TOYBOX_PREFAB_FACTORIES,
-  effects: TOYBOX_EFFECT_FACTORIES,
-  environments: TOYBOX_ENVIRONMENT_FACTORIES,
-  // PF1 establishes the composition surface; PF5 will populate production
-  // weather/atmosphere implementations without changing episode semantics.
-  sceneLayers: {},
+  effects: { ...TOYBOX_EFFECT_FACTORIES, ...TOYBOX_PB3_EFFECT_FACTORIES },
+  environments: { ...TOYBOX_ENVIRONMENT_FACTORIES, ...TOYBOX_PRODUCTION_COMPOSITION_ENVIRONMENTS },
+  sceneLayers: { ...TOYBOX_SCENE_LAYER_FACTORIES, ...TOYBOX_PRODUCTION_COMPOSITION_LAYERS },
   assets: TOYBOX_ASSETS,
   assetPacks: TOYBOX_ASSET_PACKS,
   presentation: TOYBOX_PRESENTATION,
+};
+
+export {
+  TOYBOX_PB3_EFFECT_FACTORIES,
+  TOYBOX_SCENE_LAYER_FACTORIES,
+  TOYBOX_PRODUCTION_COMPOSITION_ENVIRONMENTS,
+  TOYBOX_PRODUCTION_COMPOSITION_LAYERS,
 };

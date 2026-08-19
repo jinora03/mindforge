@@ -69,12 +69,10 @@ describe('production content sprint wave 3', () => {
     expect((echo.timeline as Array<Record<string, unknown>>).some((event) => event.from === 'rig.reflector' && event.to === 'rig.listener')).toBe(true);
 
     const rainbow = loadEpisodeInput('artifact-015-rainbow');
-    const spectrumTargets = new Set((rainbow.timeline as Array<Record<string, unknown>>)
-      .filter((event) => event.property === 'scale' && typeof event.target === 'string')
-      .map((event) => event.target));
-    for (const color of ['red', 'orange', 'yellow', 'green', 'blue', 'violet']) {
-      expect(spectrumTargets.has(`prism.${color}`), color).toBe(true);
-    }
+    const rainbowTimeline = rainbow.timeline as Array<Record<string, unknown>>;
+    expect(rainbowTimeline.some((event) => event.effect === 'effect.light.refraction')).toBe(true);
+    expect(rainbowTimeline.some((event) => event.effect === 'effect.light.spectrum')).toBe(true);
+    expect(rainbowTimeline.some((event) => event.effect === 'effect.optics.rainbowArc')).toBe(true);
 
     const moon = loadEpisodeInput('artifact-016-moon-horizon');
     expect((moon.timeline as Array<Record<string, unknown>>).some((event) => event.target === 'moons.horizonFrame' && event.property === 'scale')).toBe(true);

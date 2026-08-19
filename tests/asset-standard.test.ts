@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import {
   BrowserAssetRuntime,
+  HUMANOID_ANCHORS,
+  HUMANOID_JOINTS,
   MODEL_BUDGET_PRESETS,
   validateAssetCatalog,
   type AssetDescriptor,
@@ -31,9 +33,16 @@ function authoredSource(): ModelSource {
   mesh.name = 'Body';
   root.add(mesh);
 
-  const anchor = new THREE.Object3D();
-  anchor.name = 'MF_Anchor_Grip';
-  root.add(anchor);
+  for (const name of HUMANOID_ANCHORS) {
+    const anchor = new THREE.Object3D();
+    anchor.name = `MF_Anchor_${name}`;
+    root.add(anchor);
+  }
+  for (const name of HUMANOID_JOINTS) {
+    const joint = new THREE.Bone();
+    joint.name = `Rig_${name}`;
+    root.add(joint);
+  }
   return { scene: root, animations: [new THREE.AnimationClip('WalkCycle', 1, [])] };
 }
 
@@ -41,7 +50,9 @@ const AUTHORED_MODEL: AssetDescriptor = {
   id: 'model.test.authoredCharacter',
   kind: 'model',
   url: 'assets/test/authored-character.glb',
-  anchors: { grip: 'MF_Anchor_Grip' },
+  anchors: Object.fromEntries(
+    HUMANOID_ANCHORS.map((name) => [name, `MF_Anchor_${name}`]),
+  ),
   model: {
     category: 'character',
     quality: 'standard',
@@ -55,6 +66,13 @@ const AUTHORED_MODEL: AssetDescriptor = {
     budget: MODEL_BUDGET_PRESETS.standard,
     castShadow: true,
     receiveShadow: true,
+  },
+  character: {
+    rig: 'humanoid',
+    rootMotion: 'in-place',
+    joints: Object.fromEntries(
+      HUMANOID_JOINTS.map((name) => [name, `Rig_${name}`]),
+    ) as Record<(typeof HUMANOID_JOINTS)[number], string>,
   },
   provenance: { source: 'original', license: 'MindForge original' },
 };
@@ -100,7 +118,8 @@ describe('PF2 production asset/model standard', () => {
     const model = assets.instantiateModel(AUTHORED_MODEL.id);
     expect(model.object3d.scale.toArray()).toEqual([2, 2, 2]);
     expect(model.object3d.position.toArray()).toEqual([1, 0, 0]);
-    expect(model.anchors.grip?.name).toBe('MF_Anchor_Grip');
+    expect(model.anchors.handRight?.name).toBe('MF_Anchor_handRight');
+    expect(model.characterJoints?.head?.name).toBe('Rig_head');
     expect(model.clips.walk?.name).toBe('WalkCycle');
     expect(model.clips.walk).toBe(model.animations[0]);
 

@@ -6,7 +6,7 @@ a small runtime engine, a library of reusable systems, and validated JSON conten
 episodes are mostly *composed* rather than re-coded.
 
 > This is the **v0.1 scaffold**: a small but fully working vertical slice that proves the
-> architecture. Current bundled theme visuals are still procedural fallbacks, but authored GLB/GLTF loading, validation, semantic anchors/clips, and asset-pack metadata are production-ready.
+> architecture. PF1–PF8 provide the reusable production foundation, and PB1 now ships the first original authored Voxel GLB packs alongside the older explicit procedural fallbacks.
 
 ## Platform hierarchy
 
@@ -120,6 +120,8 @@ is reconstructed from Engine time after pause, seek, restart, and speed changes.
 
 PF3 evaluates authored GLB/GLTF clips from authoritative Engine time. Episode JSON targets semantic clip ids rather than DCC names, and seek/restart/fixed-frame export all use the same absolute-time sampler. One-shot/loop timing, speed, offsets, and deterministic blend windows are documented in [`docs/animation-runtime.md`](docs/animation-runtime.md).
 
+PF7 connects authored character skeletons to MindForge's canonical humanoid joints/anchors. Production characters can combine PF3 semantic clips with the existing deterministic `PoseableRig` motion vocabulary while keeping DCC bone names and model files out of episode JSON. See [`docs/character-production.md`](docs/character-production.md).
+
 ## Production workflow
 
 Production episodes use a four-file package: `creative-brief.md`, `storyboard.json`, `episode.json`, and `text.json`. Studio discovers complete episode folders automatically and exposes storyboard shot navigation beside the deterministic preview.
@@ -136,10 +138,10 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 ## Current limitations (v0.1)
 
-- Bundled Voxel/Toybox model descriptors still resolve to procedural fallbacks; PF2 now provides the authored GLB/GLTF contract and validation pipeline, but the first curated production model pack is not bundled yet. Demo SFX/reference narration likewise remain replaceable production assets.
+- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB5A promotes the proven Heat/Cold Battery block-game language across those production GLBs: block-built silhouettes, authoring-owned nearest-filtered pixel textures, alpha-safe puddles/optics, and selective emissive accents. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
-- One character (`character.observer`); the walk cycle is stationary (in-place).
+- The bundled themes still ship one procedural character (`character.observer`). PF7 now supports authored production humanoids, but no curated production character GLB is bundled yet; authored locomotion remains in-place.
 
 ## Tech
 
@@ -147,3 +149,34 @@ pnpm workspaces · Vite · TypeScript (strict) · Three.js + post-processing · 
 ESLint · Prettier. React is used **only** in MindForge Studio.
 
 PF4 layered effect runtime: see `docs/effect-runtime.md`.
+PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`.
+
+- **PF6 Production Environment Composition:** `environment.compositionStage` plus deterministic surface, nature dressing, foreground framing, and reactive daylight layers; PF2 authored models can replace explicit fallbacks without changing scene semantics.
+- **PF7 Character Production Pipeline:** PF2-authored humanoid models map semantic anchors/joints/clips into PF3 animation plus deterministic procedural motions; see `docs/character-production.md`.
+
+### PF8 semantic scene composition
+
+`@mindforge/composer` can now compile higher-level `world + actors + props + beats` JSON into the ordinary deterministic `EpisodeScript`. AI/human authoring stays outside the Engine; the compiled result still passes through the same schema, registry, Studio, Player, and export runtime. See [`docs/scene-composer.md`](docs/scene-composer.md).
+
+## Production Baseline
+
+With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. PB2 defines their reusable material vocabulary; PB5A keeps `layer.utility.productionMaterials` as a compatibility seam while the Voxel GLBs own their stable pixel surfaces at authoring time. PB5A then aligns those packs with the canonical block-game visual baseline proven by Artifacts 001 and 004. See `docs/pb1-production-assets.md`, `docs/pb2-production-materials.md`, and `docs/pb5a-voxel-production-baseline.md`.
+
+- **PB3 production effects:** reusable layered light beam, refraction, spectrum, rain impact, atmospheric reveal and theme-owned rainbow payoff (`docs/pb3-production-effects.md`).
+
+### PB4 production meadow
+
+The first reusable production environment baseline composes authored PB1 nature, ground cover, puddles and clouds with PB2 wet materials, PF5 atmosphere/weather and PF6 scene layers. Use the `productionMeadow` PF8 world preset or inspect `pb4-production-meadow-preview` before assembling hero episodes. See `docs/pb4-production-meadow.md`.
+
+### PB5 Rainbow 2.0 assembly
+
+Artifact 015 now assembles the PB1–PB4 production vocabulary into the first flagship video: authored Voxel droplet assets, the production meadow, renderer-safe wet/optical materials, layered optics and atmospheric reveal. PB5A renders the optics/rainbow with the same crisp block-game language as the reference Heat/Cold Battery episodes instead of a generic low-poly/glass look. See `docs/pb5-rainbow-assembly.md` and `docs/pb5a-voxel-production-baseline.md`.
+
+
+## PB5B — Rainbow Art Direction
+
+Artifact 015 now applies the reusable Voxel baseline as a framed explainer diorama: darker composition-stage lighting, `layer.setDressing.dioramaFrame`, authoring-owned cyan optical assets, segmented semantic light effects, and selective story-light accents. See `docs/pb5b-rainbow-art-direction.md`.
+
+## PB6 — Final Polish
+
+Artifact 015 now uses the production-first Rainbow polish pass: a saturated silhouette-first hero droplet, portrait-aware spectrum framing, deeper authored diorama wings, restrained semantic optical glow, a full-width payoff camera calculated for 9:16 horizontal FOV, and resolution-aware deterministic export captions. PB6 intentionally adds no new Engine foundation. See `docs/pb6-final-polish.md`.

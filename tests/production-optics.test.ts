@@ -6,7 +6,6 @@ import { loadEpisodeInput } from './helpers/content';
 
 const REQUIRED_OPTIC_ANCHORS = [
   'input', 'center', 'bend', 'reflect', 'exit',
-  'entryBeam', 'refractBeam', 'reflectionBeam', 'exitBeam',
   'red', 'orange', 'yellow', 'green', 'blue', 'violet',
 ] as const;
 
@@ -50,33 +49,43 @@ describe('PQ5 production rainbow optics', () => {
     expect(visibleSegments).toBeGreaterThanOrEqual(180);
   });
 
-  it('directs the internal ray before dispersion and uses real scene objects for the many-drop/payoff beats', () => {
+  it('directs the authored droplet through layered PB3 optics before the many-drop/payoff beats', () => {
     const input = loadEpisodeInput('artifact-015-rainbow');
     expect(input.duration).toBeLessThanOrEqual(20);
+    expect(input.environment).toBe('environment.compositionStage');
     expect((input.entities as Array<Record<string, unknown>>).some((entity) => entity.id === 'droplets' && entity.factory === 'prefab.rainDropletField')).toBe(true);
-    expect((input.entities as Array<Record<string, unknown>>).some((entity) => entity.id === 'rainbow' && entity.factory === 'prefab.rainbowArc')).toBe(true);
+    expect((input.entities as Array<Record<string, unknown>>).some((entity) => entity.factory === 'prefab.rainbowArc')).toBe(false);
     const timeline = input.timeline as Array<Record<string, unknown>>;
     const byId = new Map(timeline.map((event) => [event.id, event]));
 
-    for (const id of ['entry-ray', 'refract-ray', 'reflection-ray', 'exit-ray']) {
-      expect(byId.has(id), id).toBe(true);
-    }
-    expect(Number(byId.get('exit-ray')?.at)).toBeLessThan(Number(byId.get('red-reveal')?.at));
+    expect(byId.get('sun-beam')?.effect).toBe('effect.light.beam');
+    expect(byId.get('refraction-path')?.effect).toBe('effect.light.refraction');
+    expect(byId.get('refraction-path')?.through).toEqual([
+      'prism.input', 'prism.bend', 'prism.reflect', 'prism.exit',
+    ]);
+    expect(byId.get('spectrum')?.effect).toBe('effect.light.spectrum');
+    expect(byId.get('sun-break')?.effect).toBe('effect.reveal.atmospheric');
+    expect(byId.get('rainbow-payoff')?.effect).toBe('effect.optics.rainbowArc');
     expect(timeline.some((event) => event.target === 'droplets' && event.type === 'visibility')).toBe(true);
-    expect(timeline.some((event) => event.target === 'rainbow' && event.type === 'visibility')).toBe(true);
-    expect(timeline.some((event) => event.id === 'rain-spectrum' || event.effect === 'effect.reaction.burst')).toBe(false);
-    expect(byId.get('cam-hook')?.target).toBe('prism.center');
+    expect(timeline.some((event) => typeof event.target === 'string' && /prism\.(entryBeam|refractBeam|reflectionBeam|exitBeam)/.test(event.target))).toBe(false);
+    expect(byId.get('cam-hook')?.target).toBe('prism');
     expect(byId.get('cam-many')?.target).toBe('droplets');
-    expect(byId.get('cam-answer')?.target).toBe('rainbow');
+    expect(byId.get('cam-answer')?.target).toBe('rainbowStage');
   });
 
-  it('keeps all six spectrum bands as individually directed timeline targets', () => {
+  it('uses the reusable spectrum effect rather than six property-driven debug beams', () => {
     const input = loadEpisodeInput('artifact-015-rainbow');
-    const targets = new Set((input.timeline as Array<Record<string, unknown>>)
-      .filter((event) => event.property === 'scale')
-      .map((event) => event.target));
-    for (const color of ['red', 'orange', 'yellow', 'green', 'blue', 'violet']) {
-      expect(targets.has(`prism.${color}`), color).toBe(true);
-    }
+    const timeline = input.timeline as Array<Record<string, unknown>>;
+    const spectrum = timeline.find((event) => event.id === 'spectrum');
+    expect(spectrum).toMatchObject({
+      type: 'effect',
+      effect: 'effect.light.spectrum',
+      from: 'prism.exit',
+    });
+    expect(spectrum?.parameters).toMatchObject({ length: 4.55, spread: 1.52 });
+    const oldSpectrumTargets = timeline.filter((event) =>
+      typeof event.target === 'string' && /^prism\.(red|orange|yellow|green|blue|violet)$/.test(event.target),
+    );
+    expect(oldSpectrumTargets).toEqual([]);
   });
 });

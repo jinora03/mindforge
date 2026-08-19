@@ -23,6 +23,7 @@ export default defineConfig({
       '@mindforge/environments': pkg('environments'),
       '@mindforge/library': pkg('library'),
       '@mindforge/themes': pkg('themes'),
+      '@mindforge/composer': pkg('composer'),
       '@content': fileURLToPath(new URL('./content', import.meta.url)),
       '@mindforge/video-export': pkg('video-export'),
     },

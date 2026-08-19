@@ -2,9 +2,17 @@ import type { AssetDescriptor, AssetPackDescriptor } from '@mindforge/engine';
 import type { MindForgeTheme } from './ThemeTypes';
 import { VOXEL_CHARACTER_FACTORIES } from './voxel/VoxelCharacter';
 import { VOXEL_EFFECT_FACTORIES } from './voxel/voxel-effects';
+import { VOXEL_PB3_EFFECT_FACTORIES } from './voxel/voxel-production-effects';
 import { VOXEL_ENVIRONMENT_FACTORIES } from './voxel/voxel-environments';
 import { VOXEL_PREFAB_FACTORIES } from './voxel/voxel-prefabs';
 import { VOXEL_PRESENTATION } from './voxel/voxel-style';
+import { VOXEL_SCENE_LAYER_FACTORIES } from './voxel/voxel-scene-layers';
+import {
+  VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS,
+  VOXEL_PRODUCTION_COMPOSITION_LAYERS,
+} from './voxel/voxel-production-composition';
+import { VOXEL_PB1_ASSET_PACKS, VOXEL_PB1_PRODUCTION_ASSETS } from './voxel/voxel-production-assets';
+import { VOXEL_PRODUCTION_BASELINE } from './voxel/voxel-production-baseline';
 
 const VOXEL_ASSETS: AssetDescriptor[] = [
   {
@@ -54,6 +62,7 @@ const VOXEL_ASSETS: AssetDescriptor[] = [
   { id: 'model.prop.moonPair', kind: 'model', procedural: true, description: 'Reusable equal-size Moon perception comparison rig' },
   { id: 'model.prop.starPlanetPair', kind: 'model', procedural: true, description: 'Reusable star-versus-planet atmosphere comparison rig' },
 ];
+VOXEL_ASSETS.push(...VOXEL_PB1_PRODUCTION_ASSETS);
 
 export const VOXEL_ASSET_PACKS: AssetPackDescriptor[] = [
   {
@@ -118,6 +127,7 @@ export const VOXEL_ASSET_PACKS: AssetPackDescriptor[] = [
     tags: ['world', 'hero', 'fallback'],
   },
 ];
+VOXEL_ASSET_PACKS.push(...VOXEL_PB1_ASSET_PACKS);
 
 /**
  * Primary MindForge visual system: an original, block-built gameplay language.
@@ -130,11 +140,9 @@ export const VOXEL_THEME: MindForgeTheme = {
   description: 'Original block-built gameplay visuals with warm materials and chunky semantic effects.',
   characters: VOXEL_CHARACTER_FACTORIES,
   prefabs: VOXEL_PREFAB_FACTORIES,
-  effects: VOXEL_EFFECT_FACTORIES,
-  environments: VOXEL_ENVIRONMENT_FACTORIES,
-  // PF1 establishes the composition surface; PF5 will populate production
-  // weather/atmosphere implementations without changing episode semantics.
-  sceneLayers: {},
+  effects: { ...VOXEL_EFFECT_FACTORIES, ...VOXEL_PB3_EFFECT_FACTORIES },
+  environments: { ...VOXEL_ENVIRONMENT_FACTORIES, ...VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS },
+  sceneLayers: { ...VOXEL_SCENE_LAYER_FACTORIES, ...VOXEL_PRODUCTION_COMPOSITION_LAYERS },
   assets: VOXEL_ASSETS,
   assetPacks: VOXEL_ASSET_PACKS,
   presentation: VOXEL_PRESENTATION,
@@ -143,10 +151,19 @@ export const VOXEL_THEME: MindForgeTheme = {
 export {
   VOXEL_CHARACTER_FACTORIES,
   VOXEL_EFFECT_FACTORIES,
+  VOXEL_PB3_EFFECT_FACTORIES,
   VOXEL_ENVIRONMENT_FACTORIES,
   VOXEL_PREFAB_FACTORIES,
+  VOXEL_SCENE_LAYER_FACTORIES,
+  VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS,
+  VOXEL_PRODUCTION_COMPOSITION_LAYERS,
   VOXEL_PRESENTATION,
+  VOXEL_PRODUCTION_BASELINE,
 };
+export {
+  createVoxelProductionMaterialLayer,
+  VOXEL_PB2_MATERIAL_LAYER_ID,
+} from './voxel/voxel-production-materials';
 export {
   VOXEL_PALETTE,
   voxelToneColor,

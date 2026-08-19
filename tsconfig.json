@@ -16,6 +16,7 @@
       "@mindforge/environments": ["packages/environments/src/index.ts"],
       "@mindforge/library": ["packages/library/src/index.ts"],
       "@mindforge/themes": ["packages/themes/src/index.ts"],
+      "@mindforge/composer": ["packages/composer/src/index.ts"],
       "@content/*": ["content/*"]
     }
   },

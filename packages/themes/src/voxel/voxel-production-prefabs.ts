@@ -327,7 +327,20 @@ export const createVoxelSoundRig: PrefabFactory = (): PrefabInstance => {
 };
 
 /** Production optical rig: faceted raindrop, internal ray path, spectrum, many-droplet field and final rainbow arc. */
-export const createVoxelPrismDrop: PrefabFactory = (): PrefabInstance => {
+export const createVoxelPrismDrop: PrefabFactory = ({ services }): PrefabInstance => {
+  const productionAssetId = 'model.prop.prismDrop.production';
+  if (services.assets.has(productionAssetId)) {
+    const authored = services.assets.instantiateModel(productionAssetId);
+    authored.object3d.name = 'voxel.prismDrop.production';
+    authored.object3d.userData.mindforgeCompositionSource = 'authored';
+    authored.object3d.userData.mindforgeAssetId = productionAssetId;
+    return {
+      object3d: authored.object3d,
+      anchors: authored.anchors,
+      animationClips: authored.clips,
+    };
+  }
+
   const root = new THREE.Group();
   root.name = 'voxel.prismDrop';
 
@@ -432,19 +445,41 @@ export const createVoxelPrismDrop: PrefabFactory = (): PrefabInstance => {
 };
 
 /** Reusable field of stylized raindrops used when one optical path scales to many drops. */
-export const createVoxelRainDropletField: PrefabFactory = (): PrefabInstance => {
+export const createVoxelRainDropletField: PrefabFactory = ({ services }): PrefabInstance => {
   const root = new THREE.Group();
   root.name = 'voxel.rainDropletField';
+  const productionAssetId = 'model.prop.rainDropletSmall.production';
+
+  if (services.assets.has(productionAssetId)) {
+    for (let i = 0; i < 14; i++) {
+      const authored = services.assets.instantiateModel(productionAssetId);
+      const droplet = authored.object3d;
+      droplet.name = `voxel.rainDropletField.production.${i}`;
+      droplet.position.set(
+        (((i * 37) % 17) - 8) * 0.5,
+        -1.0 + ((i * 19) % 13) * 0.27,
+        -1.2 - (i % 5) * 0.9,
+      );
+      const size = 0.42 + (i % 4) * 0.06;
+      droplet.scale.setScalar(size);
+      droplet.rotation.z = ((i % 5) - 2) * 0.08;
+      droplet.userData.mindforgeCompositionSource = 'authored';
+      droplet.userData.mindforgeAssetId = productionAssetId;
+      root.add(droplet);
+    }
+    return { object3d: root };
+  }
+
   const fieldGlass = createVoxelMaterial('#CDECF2', { pixelVariation: 0, transparent: true, opacity: 0.34, roughness: 0.12, emissive: '#7ECDE0', emissiveIntensity: 0.05 });
   fieldGlass.depthWrite = false;
-  const dropletMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.35, 1), fieldGlass, 24);
+  const dropletMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.35, 1), fieldGlass, 14);
   const matrix = new THREE.Matrix4();
   const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 4));
   const position = new THREE.Vector3();
   const scale = new THREE.Vector3();
-  for (let i = 0; i < 24; i++) {
-    position.set(((i * 37) % 17 - 8) * 0.38, -1.05 + ((i * 19) % 13) * 0.31, -1.4 - (i % 5) * 0.75);
-    const size = 0.12 + (i % 4) * 0.025;
+  for (let i = 0; i < 14; i++) {
+    position.set(((i * 37) % 17 - 8) * 0.5, -1.0 + ((i * 19) % 13) * 0.27, -1.2 - (i % 5) * 0.9);
+    const size = 0.11 + (i % 4) * 0.02;
     scale.setScalar(size);
     matrix.compose(position, quaternion, scale);
     dropletMesh.setMatrixAt(i, matrix);
