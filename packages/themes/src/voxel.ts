@@ -12,6 +12,7 @@ import {
   VOXEL_PRODUCTION_COMPOSITION_LAYERS,
 } from './voxel/voxel-production-composition';
 import { VOXEL_PB1_ASSET_PACKS, VOXEL_PB1_PRODUCTION_ASSETS } from './voxel/voxel-production-assets';
+import { VOXEL_PRODUCTION_BASELINE } from './voxel/voxel-production-baseline';
 
 const VOXEL_ASSETS: AssetDescriptor[] = [
   {
@@ -157,6 +158,7 @@ export {
   VOXEL_PRODUCTION_COMPOSITION_ENVIRONMENTS,
   VOXEL_PRODUCTION_COMPOSITION_LAYERS,
   VOXEL_PRESENTATION,
+  VOXEL_PRODUCTION_BASELINE,
 };
 export {
   createVoxelProductionMaterialLayer,

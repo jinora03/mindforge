@@ -68,7 +68,7 @@ describe('PQ5 production rainbow optics', () => {
     expect(byId.get('rainbow-payoff')?.effect).toBe('effect.optics.rainbowArc');
     expect(timeline.some((event) => event.target === 'droplets' && event.type === 'visibility')).toBe(true);
     expect(timeline.some((event) => typeof event.target === 'string' && /prism\.(entryBeam|refractBeam|reflectionBeam|exitBeam)/.test(event.target))).toBe(false);
-    expect(byId.get('cam-hook')?.target).toBe('prism.center');
+    expect(byId.get('cam-hook')?.target).toBe('prism');
     expect(byId.get('cam-many')?.target).toBe('droplets');
     expect(byId.get('cam-answer')?.target).toBe('rainbowStage');
   });
@@ -82,7 +82,7 @@ describe('PQ5 production rainbow optics', () => {
       effect: 'effect.light.spectrum',
       from: 'prism.exit',
     });
-    expect(spectrum?.parameters).toMatchObject({ length: 4.5, spread: 1.62 });
+    expect(spectrum?.parameters).toMatchObject({ length: 4.55, spread: 1.52 });
     const oldSpectrumTargets = timeline.filter((event) =>
       typeof event.target === 'string' && /^prism\.(red|orange|yellow|green|blue|violet)$/.test(event.target),
     );

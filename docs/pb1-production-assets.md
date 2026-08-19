@@ -9,11 +9,11 @@ PB1 is the first production-quality content pass after the PF1–PF8 foundation.
 `pack.voxel.nature-production` contains 16 original GLB assets:
 
 - four tree silhouettes: two broad-canopy trees, one pine, one young tree
-- three faceted rock variants
+- three block-built rock variants
 - two bush variants
 - two grass clusters
 - one flower cluster
-- one irregular puddle mesh
+- one stepped block puddle
 - two storm-cloud families
 - one broken-cloud / sun-opening family
 
@@ -25,9 +25,9 @@ Ground cover, puddles and cloud families are registered now for PB4 environment 
 
 `pack.voxel.optics-production` contains three original GLBs:
 
-- `model.prop.prismDrop.production` — hero rain droplet with a custom faceted teardrop silhouette, inner lens and semantic optics anchors
+- `model.prop.prismDrop.production` — hero rain droplet with a stepped block silhouette, restrained optical core and semantic optics anchors
 - `model.prop.rainDropletSmall.production` — reusable smaller droplet
-- `model.prop.opticalPrism.production` — reusable triangular glass prism
+- `model.prop.opticalPrism.production` — reusable stepped optical wedge
 
 The hero droplet exposes:
 
@@ -63,7 +63,7 @@ PB2 now owns:
 
 - wet/dry material response
 - bark/leaf/stone surface refinement
-- physical optical glass/transmission treatment
+- renderer-safe stylized optical treatment
 - puddle/water response
 - restrained storm-cloud response
 - material reaction to PF4 influence channels

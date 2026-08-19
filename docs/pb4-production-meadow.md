@@ -26,7 +26,7 @@ Voxel PB4 consumes the PB1 production pack through the PF2 preload/clone boundar
 - authored puddles for PB2 wet/reflection response;
 - authored storm/broken-cloud families for far-world depth.
 
-If an authored model is unavailable the factory retains an explicit theme fallback. The fallback is never labeled as production art.
+If an authored model is unavailable the factory retains an explicit theme fallback. PB5A makes those Voxel fallbacks use the same canonical block textures and orthogonal silhouettes, while still never labeling fallback geometry as a production asset.
 
 ## Composition policy
 

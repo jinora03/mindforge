@@ -21,7 +21,7 @@ const EXPECTED_PRODUCTION_LAYERS = [
   'layer.world.clouds',
   'layer.surface.ground',
   'layer.surface.puddles',
-  'layer.setDressing.nature',
+  'layer.setDressing.dioramaFrame',
   'layer.setDressing.groundCover',
   'layer.atmosphere.mist',
   'layer.atmosphere.fog',
@@ -63,8 +63,10 @@ describe('PB5 Rainbow 2.0 assembly', () => {
     expect((episode.layers as Array<Record<string, unknown>>).map((layer) => layer.factory)).toEqual(
       EXPECTED_PRODUCTION_LAYERS,
     );
-    expect((episode.layers as Array<Record<string, unknown>>).find((layer) => layer.factory === 'layer.utility.productionMaterials')?.parameters)
-      .toMatchObject({ wetness: 0.88 });
+    const materials = (episode.layers as Array<Record<string, unknown>>)
+      .find((layer) => layer.factory === 'layer.utility.productionMaterials');
+    expect(materials?.parameters).toMatchObject({ wetness: 0.42 });
+    expect(materials?.enabled).not.toBe(false);
   });
 
   it('uses PB3 layered optics and world reveal instead of property-driven debug beams and the old visible rainbow prefab', () => {
@@ -109,10 +111,10 @@ describe('PB5 Rainbow 2.0 assembly', () => {
     expect(Object.keys(hero.anchors ?? {}).sort()).toEqual([
       'bend', 'blue', 'center', 'exit', 'green', 'input', 'orange', 'red', 'reflect', 'violet', 'yellow',
     ]);
-    expect(field.object3d.children).toHaveLength(18);
+    expect(field.object3d.children).toHaveLength(14);
     expect(field.object3d.children.every((child) => child.userData.mindforgeCompositionSource === 'authored')).toBe(true);
     expect(instantiated.filter((id) => id === 'model.prop.prismDrop.production')).toHaveLength(1);
-    expect(instantiated.filter((id) => id === 'model.prop.rainDropletSmall.production')).toHaveLength(18);
+    expect(instantiated.filter((id) => id === 'model.prop.rainDropletSmall.production')).toHaveLength(14);
   });
 
   it('remains deterministic and seek-safe through the normal runtime path before final PB6 polish', () => {

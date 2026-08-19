@@ -8,14 +8,17 @@ export function renderExportCaptions(
   width: number,
   height: number,
 ): void {
+  const cssScale = resolveExportCssScale(width, height);
+  const logicalHeight = height / cssScale;
+
   for (const text of texts) {
     const style = presentation.typography[text.style];
-    const fontSize = resolveCssSize(style.fontSize, height, 32);
+    const fontSize = resolveCssSize(style.fontSize, logicalHeight, 32) * cssScale;
     const fontWeight = style.fontWeight ?? 700;
     const family = typeof style.fontFamily === 'string' ? style.fontFamily : 'system-ui, sans-serif';
     const lineHeight = typeof style.lineHeight === 'number' ? style.lineHeight : 1.2;
     const panelWidth = width * presentation.safeZones.centralWidth;
-    const padding = resolvePadding(style.padding, fontSize);
+    const padding = resolvePadding(style.padding, fontSize, cssScale);
     const maxTextWidth = Math.max(1, panelWidth - padding.horizontal * 2);
     const content = style.textTransform === 'uppercase' ? text.content.toUpperCase() : text.content;
 
@@ -41,7 +44,7 @@ export function renderExportCaptions(
       const backdropWidth = Math.min(panelWidth, contentWidth + padding.horizontal * 2);
       const backdropHeight = contentHeight + padding.vertical * 2;
       const radius = Math.min(
-        resolveCssLength(style.borderRadius, fontSize, fontSize * 0.58),
+        resolveCssLength(style.borderRadius, fontSize, fontSize * 0.58, cssScale),
         backdropHeight / 2,
         backdropWidth / 2,
       );
@@ -91,21 +94,30 @@ function wrapText(context: CanvasRenderingContext2D, content: string, maxWidth: 
   return lines;
 }
 
-function resolvePadding(value: unknown, fontSize: number): { vertical: number; horizontal: number } {
+function resolvePadding(
+  value: unknown,
+  fontSize: number,
+  pxScale: number,
+): { vertical: number; horizontal: number } {
   if (typeof value !== 'string') return { vertical: 0, horizontal: 0 };
   const parts = value.trim().split(/\s+/);
   if (!parts.length || parts.length > 2) return { vertical: 0, horizontal: 0 };
-  const vertical = resolveCssLength(parts[0], fontSize, 0);
-  const horizontal = resolveCssLength(parts[1] ?? parts[0], fontSize, 0);
+  const vertical = resolveCssLength(parts[0], fontSize, 0, pxScale);
+  const horizontal = resolveCssLength(parts[1] ?? parts[0], fontSize, 0, pxScale);
   return { vertical, horizontal };
 }
 
-function resolveCssLength(value: unknown, fontSize: number, fallback: number): number {
-  if (typeof value === 'number') return value;
+function resolveCssLength(
+  value: unknown,
+  fontSize: number,
+  fallback: number,
+  pxScale = 1,
+): number {
+  if (typeof value === 'number') return value * pxScale;
   if (typeof value !== 'string') return fallback;
   const trimmed = value.trim();
   const px = /^([\d.]+)px$/.exec(trimmed);
-  if (px) return Number(px[1]);
+  if (px) return Number(px[1]) * pxScale;
   const em = /^([\d.]+)em$/.exec(trimmed);
   if (em) return Number(em[1]) * fontSize;
   return fallback;
@@ -131,6 +143,13 @@ function roundedRect(
   context.lineTo(x, y + r);
   context.quadraticCurveTo(x, y, x + r, y);
   context.closePath();
+}
+
+function resolveExportCssScale(width: number, height: number): number {
+  // Theme typography is authored in CSS pixels for a roughly 360x640 stage.
+  // Export canvases are commonly 1080x1920; treating the CSS max values as
+  // raw video pixels made otherwise-correct captions microscopic in Shorts.
+  return Math.max(1, Math.min(width / 360, height / 640));
 }
 
 function resolveCssSize(value: unknown, viewportHeight: number, fallback: number): number {

@@ -61,6 +61,8 @@ describe('PQ7 final production polish', () => {
     );
     expect(calls).toContain('fillBackdrop');
     expect(calls.indexOf('fillBackdrop')).toBeLessThan(calls.indexOf('fillText'));
+    const fontPx = Number(/ ([\d.]+)px /.exec(context.font)?.[1] ?? 0);
+    expect(fontPx).toBeGreaterThan(48);
   });
 
   it('keeps the Rainbow mix restrained and lands the reveal accent on the payoff', () => {

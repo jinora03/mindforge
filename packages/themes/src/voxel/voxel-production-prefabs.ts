@@ -451,18 +451,18 @@ export const createVoxelRainDropletField: PrefabFactory = ({ services }): Prefab
   const productionAssetId = 'model.prop.rainDropletSmall.production';
 
   if (services.assets.has(productionAssetId)) {
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 14; i++) {
       const authored = services.assets.instantiateModel(productionAssetId);
       const droplet = authored.object3d;
       droplet.name = `voxel.rainDropletField.production.${i}`;
       droplet.position.set(
-        (((i * 37) % 19) - 9) * 0.42,
-        -1.15 + ((i * 19) % 17) * 0.25,
-        -1.45 - (i % 6) * 0.72,
+        (((i * 37) % 17) - 8) * 0.5,
+        -1.0 + ((i * 19) % 13) * 0.27,
+        -1.2 - (i % 5) * 0.9,
       );
-      const size = 0.5 + (i % 4) * 0.08;
+      const size = 0.42 + (i % 4) * 0.06;
       droplet.scale.setScalar(size);
-      droplet.rotation.z = ((i % 5) - 2) * 0.07;
+      droplet.rotation.z = ((i % 5) - 2) * 0.08;
       droplet.userData.mindforgeCompositionSource = 'authored';
       droplet.userData.mindforgeAssetId = productionAssetId;
       root.add(droplet);
@@ -472,14 +472,14 @@ export const createVoxelRainDropletField: PrefabFactory = ({ services }): Prefab
 
   const fieldGlass = createVoxelMaterial('#CDECF2', { pixelVariation: 0, transparent: true, opacity: 0.34, roughness: 0.12, emissive: '#7ECDE0', emissiveIntensity: 0.05 });
   fieldGlass.depthWrite = false;
-  const dropletMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.35, 1), fieldGlass, 24);
+  const dropletMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1.35, 1), fieldGlass, 14);
   const matrix = new THREE.Matrix4();
   const quaternion = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, 0, Math.PI / 4));
   const position = new THREE.Vector3();
   const scale = new THREE.Vector3();
-  for (let i = 0; i < 24; i++) {
-    position.set(((i * 37) % 17 - 8) * 0.38, -1.05 + ((i * 19) % 13) * 0.31, -1.4 - (i % 5) * 0.75);
-    const size = 0.12 + (i % 4) * 0.025;
+  for (let i = 0; i < 14; i++) {
+    position.set(((i * 37) % 17 - 8) * 0.5, -1.0 + ((i * 19) % 13) * 0.27, -1.2 - (i % 5) * 0.9);
+    const size = 0.11 + (i % 4) * 0.02;
     scale.setScalar(size);
     matrix.compose(position, quaternion, scale);
     dropletMesh.setMatrixAt(i, matrix);

@@ -236,7 +236,11 @@ export const createVoxelInformationShard: PrefabFactory = ({ parameters }): Pref
 export const createVoxelStoryLight: PrefabFactory = ({ parameters }): PrefabInstance => {
   const intensity = typeof parameters.intensity === 'number' ? parameters.intensity : 8;
   const distance = typeof parameters.distance === 'number' ? parameters.distance : 18;
-  const color = parameters.role === 'subject' ? '#FFE2B3' : VOXEL_PALETTE.cream;
+  const color = typeof parameters.color === 'string'
+    ? parameters.color
+    : parameters.role === 'subject'
+      ? '#FFE2B3'
+      : VOXEL_PALETTE.cream;
   const light = new THREE.PointLight(new THREE.Color(color), intensity, distance, 2);
   light.name = 'voxel.storyLight';
   return { object3d: light };

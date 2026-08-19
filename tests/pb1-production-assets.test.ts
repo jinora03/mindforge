@@ -57,6 +57,7 @@ describe('PB1 production asset baseline', () => {
       expect(inspection.format).toBe('glb');
       expect(inspection.meshCount, `${id} should contain authored geometry`).toBeGreaterThan(0);
       expect(inspection.materialCount, `${id} should contain embedded material data`).toBeGreaterThan(0);
+      expect(inspection.textureCount, `${id} should carry its Voxel pixel surface in the GLB`).toBeGreaterThan(0);
       expect(inspection.externalUris).toEqual([]);
       expect(inspection.remoteUris).toEqual([]);
       expect(inspection.triangleCount).toBeLessThanOrEqual(descriptor.model!.budget.maxTriangles);
@@ -72,13 +73,15 @@ describe('PB1 production asset baseline', () => {
     }
   });
 
-  it('gives the Rainbow hero droplet a non-primitive authored silhouette and full optics anchor surface', () => {
+  it('gives the Rainbow hero droplet a stepped block-built silhouette and full optics anchor surface', () => {
     const droplet = asset('model.prop.prismDrop.production');
     const inspection = inspectGltfFile(resolve(root, 'public', droplet.url!));
 
     expect(droplet.model?.quality).toBe('hero');
-    expect(inspection.meshCount).toBeGreaterThanOrEqual(2);
-    expect(inspection.triangleCount).toBeGreaterThanOrEqual(400);
+    expect(inspection.meshCount).toBeGreaterThanOrEqual(8);
+    expect(inspection.triangleCount).toBeGreaterThanOrEqual(80);
+    expect(inspection.triangleCount).toBeLessThanOrEqual(180);
+    expect(inspection.nodeNames.some((name) => name.startsWith('HeroDroplet_Block_'))).toBe(true);
     expect(Object.keys(droplet.anchors ?? {}).sort()).toEqual([
       'bend',
       'blue',

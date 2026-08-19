@@ -1,17 +1,23 @@
 #!/usr/bin/env python3
-"""Offline PB1 asset authoring for the first MindForge production baseline.
+"""Offline authoring for the MindForge Voxel production baseline.
 
-This script creates original, embedded-material GLB assets. It is an authoring
-utility only: MindForge never runs it at playback/export time.
+PB5A promotes the block-game language already proven by Artifact 001 (Heat) and
+Artifact 004 (Cold Battery) into the reusable production asset packs.  These
+GLBs are deliberately built from chunky orthogonal forms with UVs and embedded
+16x16 pixel surfaces so they arrive in the runtime already matching the Voxel
+world. No scene-wide material replacement is required during playback/export.
 
+This script is authoring-only; MindForge never runs it during playback/export.
 Requires: Python 3, numpy, trimesh.
 """
 from __future__ import annotations
 
 from pathlib import Path
-import math
+import json
+import struct
 import numpy as np
 import trimesh
+from PIL import Image
 from trimesh.visual.material import PBRMaterial
 from trimesh.visual.texture import TextureVisuals
 
@@ -20,41 +26,97 @@ NATURE = ROOT / 'public/assets/voxel/nature/production'
 OPTICS = ROOT / 'public/assets/voxel/props/production'
 
 
-def mat(name: str, rgb: tuple[int, int, int], *, roughness=0.82, metallic=0.0, alpha=255) -> PBRMaterial:
+TEXTURE_SIZE = 16
+_TEXTURE_CACHE: dict[str, Image.Image] = {}
+
+
+def pixel_texture(family: str) -> Image.Image:
+    """Small neutral texture baked into each GLB; baseColorFactor supplies the family tint."""
+    cached = _TEXTURE_CACHE.get(family)
+    if cached is not None:
+        return cached
+
+    rng = np.random.default_rng(sum((i + 1) * ord(ch) for i, ch in enumerate(family)))
+    image = Image.new('RGB', (TEXTURE_SIZE, TEXTURE_SIZE))
+    pixels: list[tuple[int, int, int]] = []
+    for y in range(TEXTURE_SIZE):
+        for x in range(TEXTURE_SIZE):
+            if family == 'bark':
+                value = 205 + ((x // 3 + y // 7) % 3) * 15 + int(rng.integers(-8, 9))
+            elif family == 'leaves':
+                value = 205 + ((x // 4 + y // 4) % 2) * 26 + int(rng.integers(-12, 13))
+            elif family == 'grass':
+                value = 212 + ((x + y // 3) % 4) * 9 + int(rng.integers(-10, 11))
+            elif family == 'stone':
+                value = 198 + int(rng.integers(-26, 28))
+            elif family == 'cloud':
+                value = 224 + int(rng.integers(-14, 18))
+            elif family == 'water':
+                value = 215 + ((y + (x // 4)) % 4) * 10 + int(rng.integers(-6, 7))
+            elif family == 'flower':
+                value = 232 + int(rng.integers(-8, 12))
+            else:
+                value = 242
+            value = max(128, min(255, value))
+            pixels.append((value, value, value))
+    image.putdata(pixels)
+    _TEXTURE_CACHE[family] = image
+    return image
+
+
+def mat(
+    name: str,
+    rgb: tuple[int, int, int],
+    *,
+    texture: str,
+    roughness=0.88,
+    metallic=0.0,
+    alpha=255,
+    emissive: tuple[int, int, int] | None = None,
+) -> PBRMaterial:
     return PBRMaterial(
         name=name,
         baseColorFactor=[*rgb, alpha],
+        baseColorTexture=pixel_texture(texture),
         metallicFactor=metallic,
         roughnessFactor=roughness,
+        emissiveFactor=None if emissive is None else [channel / 255 for channel in emissive],
         alphaMode='BLEND' if alpha < 255 else 'OPAQUE',
         doubleSided=False,
     )
 
-BARK_DARK = mat('PB1_BarkDark', (87, 61, 40), roughness=0.96)
-BARK_WARM = mat('PB1_BarkWarm', (112, 78, 47), roughness=0.94)
-BARK_PALE = mat('PB1_BarkPale', (166, 154, 126), roughness=0.9)
-LEAF_DARK = mat('PB1_LeafDark', (48, 92, 55), roughness=0.88)
-LEAF_MID = mat('PB1_LeafMid', (65, 119, 66), roughness=0.86)
-LEAF_LIGHT = mat('PB1_LeafLight', (91, 146, 78), roughness=0.84)
-LEAF_PINE = mat('PB1_Pine', (38, 83, 61), roughness=0.9)
-ROCK_DARK = mat('PB1_RockDark', (87, 94, 98), roughness=0.95)
-ROCK_MID = mat('PB1_RockMid', (111, 119, 120), roughness=0.93)
-ROCK_LIGHT = mat('PB1_RockLight', (137, 142, 139), roughness=0.91)
-GRASS_DARK = mat('PB1_GrassDark', (55, 103, 52), roughness=0.91)
-GRASS_MID = mat('PB1_GrassMid', (76, 130, 61), roughness=0.9)
-FLOWER_WHITE = mat('PB1_FlowerWhite', (229, 228, 205), roughness=0.84)
-FLOWER_YELLOW = mat('PB1_FlowerYellow', (224, 181, 60), roughness=0.8)
-CLOUD_DARK = mat('PB1_StormCloudDark', (77, 91, 104), roughness=1.0)
-CLOUD_MID = mat('PB1_StormCloudMid', (104, 120, 132), roughness=1.0)
-CLOUD_LIGHT = mat('PB1_CloudBreak', (174, 189, 196), roughness=1.0)
-WATER = mat('PB2_PuddleWater', (98, 164, 191), roughness=0.16, alpha=190)
-WATER_GLASS = mat('PB2_OpticalWaterGlass', (188, 231, 245), roughness=0.08, alpha=232)
-PRISM_GLASS = mat('PB2_OpticalPrismGlass', (196, 234, 247), roughness=0.06, alpha=238)
-GLASS_EDGE = mat('PB2_OpticalEdge', (115, 184, 214), roughness=0.16, alpha=210)
+
+# Keep the established semantic material names, but bake the Voxel pixel surface
+# directly into the reusable GLB. Runtime scene traversal is intentionally not
+# required to make a production asset look like it belongs to the Voxel theme.
+BARK_DARK = mat('PB1_BarkDark', (87, 61, 40), texture='bark', roughness=.96)
+BARK_WARM = mat('PB1_BarkWarm', (112, 78, 47), texture='bark', roughness=.94)
+BARK_PALE = mat('PB1_BarkPale', (166, 154, 126), texture='bark', roughness=.90)
+LEAF_DARK = mat('PB1_LeafDark', (48, 92, 55), texture='leaves', roughness=.90)
+LEAF_MID = mat('PB1_LeafMid', (65, 119, 66), texture='leaves', roughness=.88)
+LEAF_LIGHT = mat('PB1_LeafLight', (91, 146, 78), texture='leaves', roughness=.86)
+LEAF_PINE = mat('PB1_Pine', (38, 83, 61), texture='leaves', roughness=.92)
+ROCK_DARK = mat('PB1_RockDark', (87, 94, 98), texture='stone', roughness=.96)
+ROCK_MID = mat('PB1_RockMid', (111, 119, 120), texture='stone', roughness=.94)
+ROCK_LIGHT = mat('PB1_RockLight', (137, 142, 139), texture='stone', roughness=.92)
+GRASS_DARK = mat('PB1_GrassDark', (55, 103, 52), texture='grass', roughness=.92)
+GRASS_MID = mat('PB1_GrassMid', (76, 130, 61), texture='grass', roughness=.90)
+FLOWER_WHITE = mat('PB1_FlowerWhite', (229, 228, 205), texture='flower', roughness=.86)
+FLOWER_YELLOW = mat('PB1_FlowerYellow', (224, 181, 60), texture='flower', roughness=.82)
+CLOUD_DARK = mat('PB1_StormCloudDark', (54, 64, 74), texture='cloud', roughness=1.0)
+CLOUD_MID = mat('PB1_StormCloudMid', (76, 89, 100), texture='cloud', roughness=1.0)
+CLOUD_LIGHT = mat('PB1_CloudBreak', (137, 154, 162), texture='cloud', roughness=1.0)
+WATER = mat('PB2_PuddleWater', (66, 126, 151), texture='water', roughness=.42, alpha=225)
+WATER_GLASS = mat('PB2_OpticalWaterGlass', (42, 137, 178), texture='water', roughness=.74, alpha=255)
+WATER_GLASS_LIGHT = mat('PB2_OpticalWaterGlassLight', (82, 190, 216), texture='water', roughness=.68, alpha=255)
+WATER_GLASS_DARK = mat('PB2_OpticalWaterGlassDark', (25, 82, 121), texture='water', roughness=.80, alpha=255)
+PRISM_GLASS = mat('PB2_OpticalPrismGlass', (74, 157, 193), texture='water', roughness=.72, alpha=255)
+GLASS_EDGE = mat('PB2_OpticalEdge', (66, 181, 219), texture='flat', roughness=.52, alpha=255, emissive=(12, 45, 64))
 
 
 def set_material(mesh: trimesh.Trimesh, material: PBRMaterial) -> trimesh.Trimesh:
-    mesh.visual = TextureVisuals(material=material)
+    uv = getattr(mesh.visual, 'uv', None)
+    mesh.visual = TextureVisuals(uv=uv, material=material)
     return mesh
 
 
@@ -64,336 +126,338 @@ def add(scene: trimesh.Scene, mesh: trimesh.Trimesh, node: str, material: PBRMat
 
 
 def empty(scene: trimesh.Scene, name: str, position=(0.0, 0.0, 0.0)) -> None:
-    m = np.eye(4)
-    m[:3, 3] = np.asarray(position, dtype=float)
-    scene.graph.update(frame_from='world', frame_to=name, matrix=m)
+    matrix = np.eye(4)
+    matrix[:3, 3] = np.asarray(position, dtype=float)
+    scene.graph.update(frame_from='world', frame_to=name, matrix=matrix)
 
 
+def voxel_box(size, center=(0.0, 0.0, 0.0)) -> trimesh.Trimesh:
+    """Box with per-triangle UVs and guaranteed outward winding."""
+    size = np.asarray(size, dtype=float)
+    center = np.asarray(center, dtype=float)
+    base = trimesh.creation.box(extents=size)
+    verts: list[np.ndarray] = []
+    faces: list[list[int]] = []
+    uvs: list[tuple[float, float]] = []
+    half = np.maximum(size * .5, 1e-6)
 
-def lowpoly_blob(radius: float, position, scale_xyz=(1, 1, 1), subdivisions=1) -> trimesh.Trimesh:
-    mesh = trimesh.creation.icosphere(subdivisions=subdivisions, radius=radius)
-    mesh.apply_scale(np.asarray(scale_xyz, dtype=float))
-    mesh.apply_translation(np.asarray(position, dtype=float))
-    return mesh
+    for face, normal in zip(base.faces, base.face_normals):
+        start = len(verts)
+        for vertex_index in face:
+            p = base.vertices[vertex_index]
+            verts.append(p + center)
+            axis = int(np.argmax(np.abs(normal)))
+            if axis == 0:
+                u, v = p[2] / half[2], p[1] / half[1]
+            elif axis == 1:
+                u, v = p[0] / half[0], p[2] / half[2]
+            else:
+                u, v = p[0] / half[0], p[1] / half[1]
+            uvs.append(((u + 1) * .5, (v + 1) * .5))
+        faces.append([start, start + 1, start + 2])
 
-
-def cylinder_between(p0, p1, radius: float, sections=8) -> trimesh.Trimesh:
-    p0 = np.asarray(p0, dtype=float)
-    p1 = np.asarray(p1, dtype=float)
-    vec = p1 - p0
-    length = float(np.linalg.norm(vec))
-    if length < 1e-6:
-        raise ValueError('zero-length cylinder')
-    mesh = trimesh.creation.cylinder(radius=radius, height=length, sections=sections)
-    align = trimesh.geometry.align_vectors([0, 0, 1], vec / length)
-    mesh.apply_transform(align)
-    mesh.apply_translation((p0 + p1) * 0.5)
-    return mesh
-
-
-def tapered_y(y0: float, y1: float, r0: float, r1: float, *, sides=9, center=(0, 0)) -> trimesh.Trimesh:
-    cx, cz = center
-    verts = []
-    for y, r in ((y0, r0), (y1, r1)):
-        for i in range(sides):
-            a = 2 * math.pi * i / sides
-            verts.append((cx + math.cos(a) * r, y, cz + math.sin(a) * r))
-    faces = []
-    for i in range(sides):
-        j = (i + 1) % sides
-        faces.extend(((i, j, sides + j), (i, sides + j, sides + i)))
-    # Triangulated caps keep the GLB primitive strictly triangle-based.
-    bottom_center = len(verts)
-    top_center = bottom_center + 1
-    verts.extend(((cx, y0, cz), (cx, y1, cz)))
-    for i in range(sides):
-        j = (i + 1) % sides
-        faces.append((bottom_center, j, i))
-        faces.append((top_center, sides + i, sides + j))
-    return trimesh.Trimesh(vertices=np.array(verts), faces=np.array(faces), process=True)
+    return trimesh.Trimesh(
+        vertices=np.asarray(verts),
+        faces=np.asarray(faces),
+        visual=TextureVisuals(uv=np.asarray(uvs)),
+        process=False,
+    )
 
 
-def cone_y(radius: float, height: float, y: float, *, sections=10) -> trimesh.Trimesh:
-    mesh = trimesh.creation.cone(radius=radius, height=height, sections=sections)
-    rot = trimesh.transformations.rotation_matrix(-math.pi / 2, [1, 0, 0])
-    mesh.apply_transform(rot)
-    mesh.apply_translation([0, y + height * 0.5, 0])
-    return mesh
+def add_box(scene: trimesh.Scene, node: str, material: PBRMaterial, size, center) -> None:
+    add(scene, voxel_box(size, center), node, material)
 
 
-def irregular_rock(seed: int, scale_xyz=(1.0, 0.7, 0.9), subdivisions=1) -> trimesh.Trimesh:
-    rng = np.random.default_rng(seed)
-    mesh = trimesh.creation.icosphere(subdivisions=subdivisions, radius=1.0)
-    verts = mesh.vertices.copy()
-    # coherent-enough fixed authored faceting: noise by vertex direction and height
-    noise = rng.uniform(0.78, 1.18, len(verts))
-    noise *= 1.0 + 0.06 * np.sign(verts[:, 1])
-    verts *= noise[:, None]
-    mesh.vertices = verts
-    mesh.apply_scale(np.asarray(scale_xyz, dtype=float))
-    mesh.apply_translation([0, -mesh.bounds[0, 1], 0])
-    return mesh
+def nearest_sampler_glb(data: bytes) -> bytes:
+    """Attach one repeat + nearest sampler to every embedded base-color texture."""
+    magic, version, total = struct.unpack_from('<III', data, 0)
+    if magic != 0x46546C67 or version != 2:
+        raise ValueError('Expected a glTF 2.0 GLB')
 
-
-def blade_mesh(x: float, z: float, height: float, width: float, lean: float, angle: float) -> trimesh.Trimesh:
-    # Thin diamond-prism blade: visible from every camera angle without requiring double-sided material.
-    base = np.array([
-        [-width * .5, 0, -width * .12],
-        [ width * .5, 0, -width * .12],
-        [ width * .5, 0,  width * .12],
-        [-width * .5, 0,  width * .12],
-    ])
-    top = np.array([
-        [-width * .11 + lean, height, -width * .04],
-        [ width * .11 + lean, height, -width * .04],
-        [ width * .11 + lean, height,  width * .04],
-        [-width * .11 + lean, height,  width * .04],
-    ])
-    verts = np.vstack([base, top])
-    faces = np.array([
-        [0,1,5],[0,5,4], [1,2,6],[1,6,5], [2,3,7],[2,7,6], [3,0,4],[3,4,7],
-        [4,5,6],[4,6,7], [0,3,2],[0,2,1]
-    ])
-    mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=True)
-    mesh.apply_transform(trimesh.transformations.rotation_matrix(angle, [0,1,0]))
-    mesh.apply_translation([x,0,z])
-    return mesh
-
-
-def petal_mesh(radius=0.12, length=0.32) -> trimesh.Trimesh:
-    mesh = lowpoly_blob(1.0, (0,0,0), (length, 0.045, radius), subdivisions=1)
-    return mesh
-
-
-def ensure_outward_winding(mesh: trimesh.Trimesh) -> trimesh.Trimesh:
-    """Normalize closed authored meshes to outward-facing winding before GLB export."""
-    if mesh.is_watertight and mesh.volume < 0:
-        mesh.invert()
-    return mesh
-
-
-def teardrop_mesh(scale_factor=1.0) -> trimesh.Trimesh:
-    profile = [
-        (-1.05, .18), (-.92, .40), (-.58, .64), (-.08, .72),
-        (.38, .63), (.78, .44), (1.10, .20), (1.34, .045), (1.42, 0.0),
-    ]
-    segments = 16
-    verts = []
-    for y, r in profile:
-        if r == 0:
-            verts.append((0, y, 0))
+    offset = 12
+    json_doc: dict | None = None
+    binary_chunks: list[tuple[int, bytes]] = []
+    while offset < total:
+        length, chunk_type = struct.unpack_from('<II', data, offset)
+        offset += 8
+        payload = data[offset:offset + length]
+        offset += length
+        if chunk_type == 0x4E4F534A:
+            json_doc = json.loads(payload.decode('utf8').rstrip(' \x00'))
         else:
-            for i in range(segments):
-                a = 2 * math.pi * i / segments
-                # slightly asymmetrical X/Z footprint prevents primitive-perfect silhouette
-                rr = r * (1.0 + 0.035 * math.cos(a * 3))
-                verts.append((math.cos(a) * rr, y, math.sin(a) * rr * .94))
-    faces = []
-    ring_starts=[]
-    idx=0
-    for _, r in profile:
-        ring_starts.append(idx)
-        idx += 1 if r == 0 else segments
-    for p in range(len(profile)-1):
-        r0, r1 = profile[p][1], profile[p+1][1]
-        s0,s1=ring_starts[p],ring_starts[p+1]
-        if r0 != 0 and r1 != 0:
-            for i in range(segments):
-                j=(i+1)%segments
-                faces.extend(((s0+i,s0+j,s1+j),(s0+i,s1+j,s1+i)))
-        elif r1 == 0:
-            tip=s1
-            for i in range(segments):
-                j=(i+1)%segments
-                faces.append((s0+i,s0+j,tip))
-    # bottom cap
-    bottom_center=len(verts); verts.append((0, profile[0][0]-0.02, 0))
-    s=ring_starts[0]
-    for i in range(segments):
-        j=(i+1)%segments
-        faces.append((bottom_center,s+j,s+i))
-    mesh=trimesh.Trimesh(vertices=np.array(verts)*scale_factor, faces=np.array(faces), process=True)
-    mesh.apply_translation([0, -0.175 * scale_factor, 0])
-    return ensure_outward_winding(mesh)
+            binary_chunks.append((chunk_type, payload))
 
+    if json_doc is None:
+        raise ValueError('GLB is missing its JSON chunk')
+    if json_doc.get('textures'):
+        # trimesh emits one embedded image per material even when several
+        # materials share the same authored texture family. Deduplicate those
+        # texture records so PF2 budgets describe real GPU texture variety, not
+        # exporter duplication. Unused bufferViews can stay in the BIN safely.
+        bin_payload = next((payload for chunk_type, payload in binary_chunks if chunk_type == 0x004E4942), b'')
+        image_keys: list[bytes] = []
+        for image in json_doc.get('images', []):
+            view = json_doc['bufferViews'][image['bufferView']]
+            start = int(view.get('byteOffset', 0))
+            end = start + int(view['byteLength'])
+            image_keys.append(bin_payload[start:end])
 
-def triangular_prism(length=1.8, height=1.4, depth=0.9) -> trimesh.Trimesh:
-    # Prism points along X, triangular section in Y/Z.
-    x0,x1=-length/2,length/2
-    yz=[(-height/2,-depth/2),(-height/2,depth/2),(height/2,0)]
-    verts=[(x,y,z) for x in (x0,x1) for y,z in yz]
-    faces=np.array([
-        [0,2,1],[3,4,5],
-        [0,3,5],[0,5,2],
-        [1,4,3],[1,3,0],
-        [2,5,4],[2,4,1],
-    ])
-    return ensure_outward_winding(trimesh.Trimesh(vertices=np.array(verts), faces=faces, process=True))
+        texture_map: dict[int, int] = {}
+        canonical_by_image: dict[bytes, int] = {}
+        new_images: list[dict] = []
+        new_textures: list[dict] = []
+        for old_index, texture in enumerate(json_doc['textures']):
+            source = int(texture['source'])
+            key = image_keys[source]
+            canonical = canonical_by_image.get(key)
+            if canonical is None:
+                canonical = len(new_textures)
+                canonical_by_image[key] = canonical
+                new_images.append(json_doc['images'][source])
+                new_textures.append({'source': canonical, 'sampler': 0})
+            texture_map[old_index] = canonical
 
+        for material in json_doc.get('materials', []):
+            pbr = material.get('pbrMetallicRoughness', {})
+            base = pbr.get('baseColorTexture')
+            if base is not None:
+                base['index'] = texture_map[int(base['index'])]
 
-def irregular_puddle(seed=77, radius=1.25, thickness=.035, points=14) -> trimesh.Trimesh:
-    rng=np.random.default_rng(seed)
-    angles=np.linspace(0,2*math.pi,points,endpoint=False)
-    radii=radius*rng.uniform(.72,1.08,points)
-    ring=np.column_stack([np.cos(angles)*radii, np.zeros(points), np.sin(angles)*radii*rng.uniform(.7,.95)])
-    top=np.column_stack([ring[:,0], np.full(points, thickness), ring[:,2]])
-    bottom=ring.copy()
-    verts=np.vstack([bottom,top,[[0,0,0],[0,thickness,0]]])
-    bcenter=points*2; tcenter=bcenter+1
-    faces=[]
-    for i in range(points):
-        j=(i+1)%points
-        faces.extend(((tcenter,points+i,points+j),(bcenter,j,i),(i,j,points+j),(i,points+j,points+i)))
-    return trimesh.Trimesh(vertices=verts,faces=np.array(faces),process=True)
+        json_doc['images'] = new_images
+        json_doc['textures'] = new_textures
+        json_doc['samplers'] = [{
+            'magFilter': 9728,       # NEAREST
+            'minFilter': 9986,       # NEAREST_MIPMAP_LINEAR
+            'wrapS': 10497,          # REPEAT
+            'wrapT': 10497,
+        }]
+
+    json_bytes = json.dumps(json_doc, separators=(',', ':')).encode('utf8')
+    json_bytes += b' ' * ((4 - len(json_bytes) % 4) % 4)
+    chunks = [struct.pack('<II', len(json_bytes), 0x4E4F534A) + json_bytes]
+    for chunk_type, payload in binary_chunks:
+        payload += b'\x00' * ((4 - len(payload) % 4) % 4)
+        chunks.append(struct.pack('<II', len(payload), chunk_type) + payload)
+    body = b''.join(chunks)
+    return struct.pack('<III', 0x46546C67, 2, 12 + len(body)) + body
 
 
 def export(scene: trimesh.Scene, path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    data=scene.export(file_type='glb')
+    data = nearest_sampler_glb(scene.export(file_type='glb'))
     path.write_bytes(data)
-    print(f'{path.relative_to(ROOT)}  {len(data)/1024:.1f} KiB')
+    print(f'{path.relative_to(ROOT)}  {len(data) / 1024:.1f} KiB')
 
+
+# ---------------------------------------------------------------- nature ---
 
 def tree_oak_a() -> trimesh.Scene:
-    s=trimesh.Scene()
-    add(s,tapered_y(0,3.25,.32,.21,sides=10),'Trunk',BARK_WARM)
-    for i,(p0,p1,r) in enumerate([
-        ((0,1.85,0),(-.9,2.75,.15),.12),((.05,2.05,0),(.92,2.92,-.15),.115),
-        ((0,2.35,.02),(-.35,3.22,-.70),.095),((0,2.55,0),(.35,3.28,.68),.09),
-    ]): add(s,cylinder_between(p0,p1,r,8),f'Branch_{i+1}',BARK_DARK)
-    blobs=[(-.72,3.15,.05,1.05,.78,.88),(.62,3.25,-.08,1.08,.82,.92),(0,3.72,.05,1.15,.82,.98),(-.1,4.18,-.2,.85,.64,.78)]
-    for i,(x,y,z,sx,sy,sz) in enumerate(blobs): add(s,lowpoly_blob(1,(x,y,z),(sx,sy,sz),1),f'Canopy_{i+1}',[LEAF_DARK,LEAF_MID,LEAF_LIGHT,LEAF_MID][i])
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Trunk',(0,1.65,0)); empty(s,'MF_Anchor_Canopy',(0,3.55,0))
+    s = trimesh.Scene()
+    add_box(s, 'Trunk', BARK_WARM, (.58, 3.2, .58), (0, 1.6, 0))
+    add_box(s, 'Canopy_Base', LEAF_DARK, (2.7, 1.0, 2.35), (0, 3.15, 0))
+    add_box(s, 'Canopy_Left', LEAF_MID, (1.75, .9, 1.75), (-.62, 3.82, .05))
+    add_box(s, 'Canopy_Right', LEAF_MID, (1.75, .9, 1.75), (.62, 3.75, -.12))
+    add_box(s, 'Canopy_Cap', LEAF_LIGHT, (1.55, .78, 1.48), (0, 4.38, -.05))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Trunk', (0, 1.6, 0)); empty(s, 'MF_Anchor_Canopy', (0, 3.75, 0))
     return s
 
 
 def tree_oak_b() -> trimesh.Scene:
-    s=trimesh.Scene()
-    add(s,tapered_y(0,1.8,.36,.27,sides=9),'TrunkBase',BARK_DARK)
-    add(s,cylinder_between((-.02,1.55,0),(-.55,3.25,.05),.20,9),'TrunkLeft',BARK_WARM)
-    add(s,cylinder_between((.05,1.62,0),(.58,3.38,-.12),.19,9),'TrunkRight',BARK_WARM)
-    for i,(p0,p1) in enumerate([((-.38,2.25,.02),(-1.05,3.05,.38)),((.4,2.35,-.08),(1.05,3.15,-.4)),((.2,2.55,0),(.1,3.5,.6))]):
-        add(s,cylinder_between(p0,p1,.085,8),f'Branch_{i+1}',BARK_DARK)
-    blobs=[(-.95,3.3,.2,1.0,.72,.85),(-.1,3.72,.3,1.15,.82,.92),(.82,3.4,-.25,1.08,.78,.9),(.2,4.15,-.1,.9,.68,.82)]
-    for i,(x,y,z,sx,sy,sz) in enumerate(blobs): add(s,lowpoly_blob(1,(x,y,z),(sx,sy,sz),1),f'Canopy_{i+1}',[LEAF_MID,LEAF_LIGHT,LEAF_DARK,LEAF_MID][i])
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Trunk',(0,1.7,0)); empty(s,'MF_Anchor_Canopy',(0,3.6,0))
+    s = trimesh.Scene()
+    add_box(s, 'Trunk_Base', BARK_DARK, (.66, 2.2, .62), (0, 1.1, 0))
+    add_box(s, 'Trunk_Left', BARK_WARM, (.42, 1.7, .42), (-.28, 2.55, .02))
+    add_box(s, 'Trunk_Right', BARK_WARM, (.42, 1.9, .42), (.32, 2.62, -.04))
+    add_box(s, 'Canopy_Left', LEAF_MID, (2.15, 1.2, 1.9), (-.72, 3.62, .08))
+    add_box(s, 'Canopy_Right', LEAF_DARK, (2.1, 1.15, 1.85), (.76, 3.72, -.12))
+    add_box(s, 'Canopy_Cap', LEAF_LIGHT, (1.65, .9, 1.55), (.08, 4.48, -.04))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Trunk', (0, 1.7, 0)); empty(s, 'MF_Anchor_Canopy', (0, 3.8, 0))
     return s
 
 
 def tree_pine_a() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,tapered_y(0,4.7,.25,.12,sides=9),'Trunk',BARK_DARK)
-    layers=[(1.35,1.45,1.05),(2.05,1.3,.95),(2.75,1.08,.86),(3.42,.86,.72),(4.0,.62,.58)]
-    for i,(y,r,h) in enumerate(layers):
-        m=cone_y(r,h,y-h*.2,sections=11); m.apply_scale([1,.92,.88]); add(s,m,f'Needles_{i+1}',LEAF_PINE if i%2==0 else LEAF_DARK)
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Trunk',(0,2.25,0)); empty(s,'MF_Anchor_Canopy',(0,3.0,0))
+    s = trimesh.Scene()
+    add_box(s, 'Trunk', BARK_DARK, (.46, 4.65, .46), (0, 2.325, 0))
+    for i, (y, size) in enumerate([(1.7, 2.65), (2.45, 2.25), (3.18, 1.8), (3.82, 1.35), (4.36, .85)]):
+        material = LEAF_PINE if i % 2 == 0 else LEAF_DARK
+        add_box(s, f'Needles_{i + 1}', material, (size, .62, size), (0, y, 0))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Trunk', (0, 2.25, 0)); empty(s, 'MF_Anchor_Canopy', (0, 3.0, 0))
     return s
 
 
 def tree_young_a() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,tapered_y(0,2.45,.16,.1,sides=8),'Trunk',BARK_PALE)
-    add(s,cylinder_between((0,1.55,0),(-.48,2.24,.05),.065,7),'BranchLeft',BARK_PALE)
-    add(s,cylinder_between((0,1.72,0),(.5,2.35,-.05),.06,7),'BranchRight',BARK_PALE)
-    for i,(x,y,z,sc) in enumerate([(-.48,2.45,.06,.62),(.48,2.55,-.08,.65),(0,2.92,.05,.72)]): add(s,lowpoly_blob(1,(x,y,z),(sc,.55,sc*.9),1),f'Canopy_{i+1}',LEAF_LIGHT if i==2 else LEAF_MID)
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Trunk',(0,1.2,0)); empty(s,'MF_Anchor_Canopy',(0,2.6,0))
+    s = trimesh.Scene()
+    add_box(s, 'Trunk', BARK_PALE, (.38, 2.45, .38), (0, 1.225, 0))
+    add_box(s, 'Canopy_Low', LEAF_MID, (1.45, .72, 1.28), (0, 2.3, 0))
+    add_box(s, 'Canopy_Left', LEAF_DARK, (.92, .7, .9), (-.42, 2.78, .04))
+    add_box(s, 'Canopy_Right', LEAF_MID, (.92, .72, .9), (.42, 2.82, -.05))
+    add_box(s, 'Canopy_Cap', LEAF_LIGHT, (.86, .66, .82), (0, 3.28, 0))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Trunk', (0, 1.2, 0)); empty(s, 'MF_Anchor_Canopy', (0, 2.72, 0))
     return s
 
 
-def rock_scene(seed, dims, cluster=False) -> trimesh.Scene:
-    s=trimesh.Scene()
-    add(s,irregular_rock(seed,dims,1),'Rock_Main',ROCK_MID)
+def rock_scene(seed: int, dims, cluster=False) -> trimesh.Scene:
+    # Seed remains part of the authoring signature even though PB5A intentionally
+    # uses orthogonal silhouettes rather than noisy low-poly displacement.
+    s = trimesh.Scene()
+    sx, sy, sz = dims
+    add_box(s, 'Rock_Main', ROCK_MID, (sx * 1.55, sy * 1.3, sz * 1.45), (0, sy * .65, 0))
+    add_box(s, 'Rock_Top', ROCK_LIGHT, (sx * .9, sy * .65, sz * .9), (sx * .18, sy * 1.38, -sz * .08))
     if cluster:
-        m=irregular_rock(seed+1,(dims[0]*.52,dims[1]*.52,dims[2]*.52),1); m.apply_translation([dims[0]*.62,0,-dims[2]*.18]); add(s,m,'Rock_SideA',ROCK_DARK)
-        m=irregular_rock(seed+2,(dims[0]*.38,dims[1]*.35,dims[2]*.42),1); m.apply_translation([-dims[0]*.58,0,dims[2]*.3]); add(s,m,'Rock_SideB',ROCK_LIGHT)
-    empty(s,'MF_Anchor_Center',(0,dims[1]*.55,0)); return s
+        add_box(s, 'Rock_SideA', ROCK_DARK, (sx * .78, sy * .85, sz * .74), (sx * .92, sy * .43, -sz * .18))
+        add_box(s, 'Rock_SideB', ROCK_LIGHT, (sx * .62, sy * .6, sz * .66), (-sx * .86, sy * .3, sz * .28))
+    empty(s, 'MF_Anchor_Center', (0, sy * .72, 0))
+    return s
 
 
-def bush_scene(seed, wide=False) -> trimesh.Scene:
-    rng=np.random.default_rng(seed); s=trimesh.Scene()
-    for i in range(3):
-        x=(-.38+i*.38)*(1.25 if wide else 1); z=rng.uniform(-.18,.18); y=.55+rng.uniform(-.04,.12)
-        add(s,lowpoly_blob(1,(x,y,z),(.62,.58,.55),1),f'Bush_{i+1}',[LEAF_DARK,LEAF_MID,LEAF_LIGHT][i])
-    for i in range(4):
-        x=rng.uniform(-.55,.55); z=rng.uniform(-.3,.3); add(s,cylinder_between((x,0,z),(x+rng.uniform(-.12,.12),.65,z+rng.uniform(-.12,.12)),.035,6),f'Twig_{i+1}',BARK_DARK)
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Canopy',(0,.65,0)); return s
+def bush_scene(seed: int, wide=False) -> trimesh.Scene:
+    s = trimesh.Scene(); spread = 1.2 if wide else 1.0
+    add_box(s, 'Bush_Left', LEAF_DARK, (.9 * spread, .78, .92), (-.4 * spread, .42, .04))
+    add_box(s, 'Bush_Right', LEAF_MID, (.98 * spread, .82, .94), (.4 * spread, .45, -.05))
+    add_box(s, 'Bush_Cap', LEAF_LIGHT, (.9 * spread, .7, .82), (0, .92, 0))
+    add_box(s, 'Twig', BARK_DARK, (.18, .55, .18), (0, .28, 0))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Canopy', (0, .68, 0))
+    return s
 
 
-def grass_scene(seed, count=13, broad=False) -> trimesh.Scene:
-    rng=np.random.default_rng(seed); s=trimesh.Scene()
+def grass_scene(seed: int, count=8, broad=False) -> trimesh.Scene:
+    s = trimesh.Scene(); rng = np.random.default_rng(seed)
+    spread = .58 if broad else .44
     for i in range(count):
-        angle=rng.uniform(-math.pi,math.pi); radius=rng.uniform(.05,.55 if broad else .42); x=math.cos(angle)*radius; z=math.sin(angle)*radius
-        h=rng.uniform(.45,.9 if broad else .72); w=rng.uniform(.045,.085); lean=rng.uniform(-.12,.12)
-        add(s,blade_mesh(x,z,h,w,lean,rng.uniform(-math.pi,math.pi)),f'Blade_{i+1}',GRASS_MID if i%3 else GRASS_DARK)
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Center',(0,.35,0)); return s
+        x = float(rng.uniform(-spread, spread)); z = float(rng.uniform(-spread, spread))
+        h = float(rng.uniform(.34, .72 if broad else .58))
+        w = float(rng.choice([.08, .1, .12]))
+        add_box(s, f'Blade_{i + 1}', GRASS_MID if i % 3 else GRASS_DARK, (w, h, w), (x, h * .5, z))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Center', (0, .3, 0))
+    return s
 
 
-def flower_scene(seed) -> trimesh.Scene:
-    rng=np.random.default_rng(seed); s=trimesh.Scene()
-    for f in range(5):
-        a=2*math.pi*f/5+rng.uniform(-.2,.2); dist=.18+.12*(f%2); x=math.cos(a)*dist; z=math.sin(a)*dist; h=rng.uniform(.48,.75)
-        add(s,cylinder_between((x,0,z),(x,h,z),.022,6),f'Stem_{f+1}',GRASS_DARK)
-        add(s,lowpoly_blob(.065,(x,h,z),(1,.45,1),1),f'Center_{f+1}',FLOWER_YELLOW)
-        for p in range(6):
-            pa=2*math.pi*p/6; pet=petal_mesh(.07,.18); pet.apply_transform(trimesh.transformations.rotation_matrix(pa,[0,1,0])); pet.apply_translation([x+math.cos(pa)*.13,h,z+math.sin(pa)*.13]); add(s,pet,f'Flower_{f+1}_Petal_{p+1}',FLOWER_WHITE)
-    empty(s,'MF_Anchor_Root',(0,0,0)); empty(s,'MF_Anchor_Center',(0,.55,0)); return s
+def flower_scene(seed: int) -> trimesh.Scene:
+    s = trimesh.Scene(); rng = np.random.default_rng(seed)
+    for i in range(4):
+        x = float(rng.uniform(-.35, .35)); z = float(rng.uniform(-.35, .35)); h = float(rng.uniform(.42, .68))
+        add_box(s, f'Stem_{i + 1}', GRASS_DARK, (.07, h, .07), (x, h * .5, z))
+        add_box(s, f'Flower_{i + 1}', FLOWER_WHITE, (.24, .10, .24), (x, h + .07, z))
+        add_box(s, f'Center_{i + 1}', FLOWER_YELLOW, (.10, .13, .10), (x, h + .12, z))
+    empty(s, 'MF_Anchor_Root', (0, 0, 0)); empty(s, 'MF_Anchor_Center', (0, .5, 0))
+    return s
 
 
 def puddle_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,irregular_puddle(), 'Puddle', WATER); empty(s,'MF_Anchor_Center',(0,.04,0)); return s
+    s = trimesh.Scene()
+    # Stepped tile footprint: visually consistent with the block ground and much
+    # cheaper/more legible than an irregular smooth polygon.
+    add_box(s, 'Puddle_Core', WATER, (1.7, .055, 1.05), (0, .028, 0))
+    add_box(s, 'Puddle_Left', WATER, (.75, .05, .7), (-1.05, .025, .05))
+    add_box(s, 'Puddle_Right', WATER, (.65, .05, .6), (.98, .025, -.18))
+    empty(s, 'MF_Anchor_Center', (0, .04, 0)); return s
 
 
-def cloud_scene(seed, break_cloud=False) -> trimesh.Scene:
-    rng=np.random.default_rng(seed); s=trimesh.Scene()
-    positions=[(-1.05,0,.05),(-.45,.25,0),(.15,.12,-.05),(.78,.2,.04),(1.25,-.02,.0),(-.15,-.18,.05)]
-    if break_cloud: positions=[p for i,p in enumerate(positions) if i not in (2,)]
-    for i,(x,y,z) in enumerate(positions):
-        sx=rng.uniform(.75,1.12); sy=rng.uniform(.42,.68); sz=rng.uniform(.65,.95)
-        material=CLOUD_LIGHT if break_cloud and i in (1,2) else (CLOUD_MID if i%2 else CLOUD_DARK)
-        add(s,lowpoly_blob(1,(x,y,z),(sx,sy,sz),1),f'CloudMass_{i+1}',material)
-    empty(s,'MF_Anchor_Center',(0,0,0)); empty(s,'MF_Anchor_Underside',(0,-.45,0)); return s
+def cloud_scene(seed: int, break_cloud=False) -> trimesh.Scene:
+    s = trimesh.Scene()
+    masses = [
+        (-1.15, 0, 0, 1.8, .66, 1.0),
+        (-.42, .32, -.04, 1.55, .72, 1.08),
+        (.38, .20, .02, 1.8, .72, 1.05),
+        (1.18, .03, -.02, 1.55, .62, .92),
+        (0, -.28, .06, 2.15, .5, .88),
+    ]
+    if break_cloud:
+        masses = [m for i, m in enumerate(masses) if i != 2]
+    for i, (x, y, z, sx, sy, sz) in enumerate(masses):
+        material = CLOUD_LIGHT if break_cloud and i in (1, 2) else (CLOUD_MID if i % 2 else CLOUD_DARK)
+        add_box(s, f'CloudBlock_{i + 1}', material, (sx, sy, sz), (x, y, z))
+    empty(s, 'MF_Anchor_Center', (0, 0, 0)); empty(s, 'MF_Anchor_Underside', (0, -.45, 0)); return s
 
+
+# ---------------------------------------------------------------- optics ---
 
 def hero_drop_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,teardrop_mesh(1.0),'HeroDroplet',WATER_GLASS)
-    # Thin faceted inner lens breaks the single-primitive read even before PB2 shaders.
-    inner=teardrop_mesh(.76); inner.apply_scale([.94,1,.94]); add(s,inner,'InnerLens',GLASS_EDGE)
-    empty(s,'MF_Anchor_Center',(0,0,0)); empty(s,'MF_Anchor_Input',(-.72,.145,0)); empty(s,'MF_Anchor_Bend',(-.2,-.095,0)); empty(s,'MF_Anchor_Reflect',(.14,-.655,0)); empty(s,'MF_Anchor_Exit',(.62,-.335,0))
-    for name,pos in [('Red',(.66,-.125,.12)),('Orange',(.68,-.175,.08)),('Yellow',(.70,-.225,.04)),('Green',(.72,-.275,0)),('Blue',(.74,-.325,-.05)),('Violet',(.76,-.375,-.10))]: empty(s,f'MF_Anchor_{name}',pos)
+    s = trimesh.Scene()
+    # PB6 hero: intentionally opaque, saturated and silhouette-first.  The
+    # optics are explained by semantic light paths, so the raindrop does not
+    # need fragile glass transparency to read as water.  A broad lower body,
+    # narrow neck and explicit tip make the shape legible at Shorts scale.
+    tiers = [
+        (-.86, .24, .54, WATER_GLASS_DARK),
+        (-.64, .30, .88, WATER_GLASS),
+        (-.38, .34, 1.18, WATER_GLASS_LIGHT),
+        (-.08, .38, 1.38, WATER_GLASS),
+        (.23, .34, 1.18, WATER_GLASS_LIGHT),
+        (.51, .28, .88, WATER_GLASS),
+        (.74, .22, .60, WATER_GLASS_DARK),
+        (.92, .18, .36, WATER_GLASS),
+        (1.06, .14, .18, WATER_GLASS_DARK),
+    ]
+    for i, (y, h, width, material) in enumerate(tiers):
+        add_box(s, f'HeroDroplet_Block_{i + 1}', material, (width, h, width * .72), (0, y, 0))
+
+    # A non-emissive front-face highlight gives the block volume a readable
+    # water sheen.  Only the tiny optical core uses emissive material.
+    add_box(s, 'HeroDroplet_Highlight', WATER_GLASS_LIGHT, (.24, .44, .09), (-.28, .18, .48))
+    add_box(s, 'OpticalCore_Lower', GLASS_EDGE, (.26, .20, .20), (-.08, -.24, .34))
+    add_box(s, 'OpticalCore_Upper', GLASS_EDGE, (.18, .18, .18), (.06, .04, .36))
+
+    empty(s, 'MF_Anchor_Center', (0, .02, 0)); empty(s, 'MF_Anchor_Input', (-.68, .18, .16)); empty(s, 'MF_Anchor_Bend', (-.24, .02, .20)); empty(s, 'MF_Anchor_Reflect', (.12, -.50, .20)); empty(s, 'MF_Anchor_Exit', (.66, -.22, .18))
+    for name, pos in [
+        ('Red', (.72, -.02, .16)), ('Orange', (.74, -.09, .11)), ('Yellow', (.76, -.16, .06)),
+        ('Green', (.78, -.23, 0)), ('Blue', (.80, -.30, -.06)), ('Violet', (.82, -.37, -.12)),
+    ]:
+        empty(s, f'MF_Anchor_{name}', pos)
     return s
 
 
 def small_drop_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,teardrop_mesh(.36),'RainDroplet',WATER_GLASS); empty(s,'MF_Anchor_Center',(0,0,0)); return s
+    s = trimesh.Scene()
+    tiers = [
+        (-.27, .12, .26, WATER_GLASS_DARK),
+        (-.15, .16, .42, WATER_GLASS),
+        (0, .18, .56, WATER_GLASS_LIGHT),
+        (.16, .16, .42, WATER_GLASS),
+        (.29, .11, .24, WATER_GLASS_DARK),
+        (.38, .08, .12, WATER_GLASS_DARK),
+    ]
+    for i, (y, h, width, material) in enumerate(tiers):
+        add_box(s, f'RainDroplet_Block_{i + 1}', material, (width, h, width * .72), (0, y, 0))
+    empty(s, 'MF_Anchor_Center', (0, 0, 0)); return s
 
 
 def prism_scene() -> trimesh.Scene:
-    s=trimesh.Scene(); add(s,triangular_prism(),'OpticalPrism',PRISM_GLASS)
-    empty(s,'MF_Anchor_Center',(0,0,0)); empty(s,'MF_Anchor_Input',(-.9,.05,0)); empty(s,'MF_Anchor_Exit',(.9,.0,0)); empty(s,'MF_Anchor_OpticalCenter',(0,0,0))
+    s = trimesh.Scene()
+    # A stepped wedge rather than a smooth triangular prism; useful for future
+    # optics scenes without breaking the block-world silhouette language.
+    widths = [1.8, 1.46, 1.12, .78]
+    for i, width in enumerate(widths):
+        y = -.48 + i * .32
+        add_box(s, f'OpticalPrism_Block_{i + 1}', PRISM_GLASS, (width, .30, .9), (0, y, 0))
+    add_box(s, 'OpticalPrism_Core', GLASS_EDGE, (.42, .34, .36), (0, -.02, 0))
+    empty(s, 'MF_Anchor_Center', (0, 0, 0)); empty(s, 'MF_Anchor_Input', (-.9, -.25, 0)); empty(s, 'MF_Anchor_Exit', (.9, .20, 0)); empty(s, 'MF_Anchor_OpticalCenter', (0, 0, 0))
     return s
 
 
 def main() -> None:
     assets = [
-        (NATURE/'tree-oak-a.glb', tree_oak_a()),
-        (NATURE/'tree-oak-b.glb', tree_oak_b()),
-        (NATURE/'tree-pine-a.glb', tree_pine_a()),
-        (NATURE/'tree-young-a.glb', tree_young_a()),
-        (NATURE/'rock-a.glb', rock_scene(101,(.82,.58,.72))),
-        (NATURE/'rock-b.glb', rock_scene(205,(1.12,.72,.86))),
-        (NATURE/'rock-cluster-a.glb', rock_scene(309,(.78,.52,.68),True)),
-        (NATURE/'bush-a.glb', bush_scene(401,False)),
-        (NATURE/'bush-b.glb', bush_scene(503,True)),
-        (NATURE/'grass-cluster-a.glb', grass_scene(601,12,False)),
-        (NATURE/'grass-cluster-b.glb', grass_scene(703,18,True)),
-        (NATURE/'flower-cluster-a.glb', flower_scene(809)),
-        (NATURE/'puddle-a.glb', puddle_scene()),
-        (NATURE/'cloud-storm-a.glb', cloud_scene(907,False)),
-        (NATURE/'cloud-storm-b.glb', cloud_scene(1009,False)),
-        (NATURE/'cloud-break-a.glb', cloud_scene(1103,True)),
-        (OPTICS/'hero-rain-droplet.glb', hero_drop_scene()),
-        (OPTICS/'rain-droplet-small.glb', small_drop_scene()),
-        (OPTICS/'optical-prism.glb', prism_scene()),
+        (NATURE / 'tree-oak-a.glb', tree_oak_a()),
+        (NATURE / 'tree-oak-b.glb', tree_oak_b()),
+        (NATURE / 'tree-pine-a.glb', tree_pine_a()),
+        (NATURE / 'tree-young-a.glb', tree_young_a()),
+        (NATURE / 'rock-a.glb', rock_scene(101, (.82, .58, .72))),
+        (NATURE / 'rock-b.glb', rock_scene(205, (1.12, .72, .86))),
+        (NATURE / 'rock-cluster-a.glb', rock_scene(309, (.78, .52, .68), True)),
+        (NATURE / 'bush-a.glb', bush_scene(401, False)),
+        (NATURE / 'bush-b.glb', bush_scene(503, True)),
+        (NATURE / 'grass-cluster-a.glb', grass_scene(601, 8, False)),
+        (NATURE / 'grass-cluster-b.glb', grass_scene(703, 11, True)),
+        (NATURE / 'flower-cluster-a.glb', flower_scene(809)),
+        (NATURE / 'puddle-a.glb', puddle_scene()),
+        (NATURE / 'cloud-storm-a.glb', cloud_scene(907, False)),
+        (NATURE / 'cloud-storm-b.glb', cloud_scene(1009, False)),
+        (NATURE / 'cloud-break-a.glb', cloud_scene(1103, True)),
+        (OPTICS / 'hero-rain-droplet.glb', hero_drop_scene()),
+        (OPTICS / 'rain-droplet-small.glb', small_drop_scene()),
+        (OPTICS / 'optical-prism.glb', prism_scene()),
     ]
-    for path, scene in assets: export(scene,path)
+    for path, scene in assets:
+        export(scene, path)
 
 
 if __name__ == '__main__':

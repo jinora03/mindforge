@@ -9,33 +9,33 @@
     },
     {
       "id": "input",
-      "content": "Sunlight bends, reflects inside, then bends again.",
+      "content": "Light bends in, reflects once, then bends out.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "split",
-      "content": "White light separates into colors as it leaves.",
+      "content": "Colors bend by different amounts.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "bend",
-      "content": "Each color exits at a slightly different angle.",
+      "content": "So each color leaves at a different angle.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "many",
-      "content": "Millions of raindrops do this at once.",
+      "content": "Millions of raindrops repeat the same split.",
       "style": "explanation",
       "placement": "lower"
     },
     {
       "id": "answer",
-      "content": "Together, those colors reach you as a rainbow.",
+      "content": "From the right angle, the colors line up as a rainbow.",
       "style": "explanation",
-      "placement": "center"
+      "placement": "lower"
     }
   ]
 }

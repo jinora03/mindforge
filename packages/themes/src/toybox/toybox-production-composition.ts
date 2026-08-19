@@ -221,6 +221,101 @@ const createToyboxForeground = createDeterministicScatterLayerFactory({
   sideFrameInnerX: 6.5,
 });
 
+const createToyboxDioramaFrame: SceneCompositionLayerFactory = (ctx) => {
+  const root = new THREE.Group();
+  root.name = `mindforge-composition:toybox.dioramaFrame:${ctx.id}`;
+
+  const slots: readonly {
+    readonly create: () => THREE.Object3D;
+    readonly position: readonly [number, number, number];
+    readonly scale: number;
+    readonly yaw: number;
+  }[] = [
+    {
+      create: fallbackTree,
+      position: [-7.1, 0, -11.8],
+      scale: 1.06,
+      yaw: 0.18,
+    },
+    {
+      create: fallbackTree,
+      position: [7.3, 0, -12.5],
+      scale: 1.0,
+      yaw: -0.2,
+    },
+    {
+      create: fallbackTree,
+      position: [-8.8, 0, -19.0],
+      scale: 0.86,
+      yaw: -0.1,
+    },
+    {
+      create: fallbackTree,
+      position: [8.7, 0, -18.6],
+      scale: 0.92,
+      yaw: 0.12,
+    },
+    {
+      create: fallbackBush,
+      position: [-5.4, 0, -8.6],
+      scale: 0.9,
+      yaw: 0.24,
+    },
+    {
+      create: fallbackBush,
+      position: [5.7, 0, -9.2],
+      scale: 0.88,
+      yaw: -0.28,
+    },
+    {
+      create: fallbackRock,
+      position: [-4.9, 0, -15.3],
+      scale: 0.82,
+      yaw: -0.14,
+    },
+    {
+      create: fallbackRock,
+      position: [4.8, 0, -16.0],
+      scale: 0.8,
+      yaw: 0.2,
+    },
+  ];
+
+  for (const slot of slots) {
+    const object = slot.create();
+
+    object.position.set(...slot.position);
+    object.scale.multiplyScalar(slot.scale);
+    object.rotation.y += slot.yaw;
+
+    root.add(object);
+  }
+
+  return {
+    object3d: root,
+
+    update(): void {},
+
+    dispose(): void {
+      root.traverse((object) => {
+        if (!(object instanceof THREE.Mesh)) return;
+
+        object.geometry.dispose();
+
+        const materials = Array.isArray(object.material)
+          ? object.material
+          : [object.material];
+
+        for (const material of materials) {
+          material.dispose();
+        }
+      });
+
+      root.removeFromParent();
+    },
+  };
+};
+
 const createToyboxDaylight = createReactiveLightingLayerFactory({
   name: 'toybox.daylight',
   flashBoost: 0.36,
@@ -246,6 +341,7 @@ export const TOYBOX_PRODUCTION_COMPOSITION_LAYERS: Readonly<Record<string, Scene
   'layer.surface.ground': createToyboxGround,
   'layer.surface.puddles': createToyboxPuddles,
   'layer.setDressing.nature': createToyboxNature,
+  'layer.setDressing.dioramaFrame': createToyboxDioramaFrame,
   'layer.setDressing.groundCover': createToyboxGroundCover,
   'layer.foreground.nature': createToyboxForeground,
   'layer.world.clouds': createToyboxClouds,

@@ -9,7 +9,7 @@ Artifact 015 now uses:
 - `environment.compositionStage` rather than the monolithic `environment.rainMeadow`.
 - PB4 reusable clouds, ground, puddles, nature, ground cover and foreground layers.
 - PF5 heavy rain, mist and fog.
-- PB2 `layer.utility.productionMaterials` with wetness enabled.
+- PB2 `layer.utility.productionMaterials` compatibility seam with authoring-owned Voxel pixel materials.
 - PB1 authored hero/small-droplet models when those assets are available.
 - PB3 layered `effect.light.beam`, `effect.light.refraction`, `effect.light.spectrum`, `effect.reveal.atmospheric`, and `effect.optics.rainbowArc`.
 
@@ -57,3 +57,8 @@ pnpm check
 ```
 
 Then export Artifact 015 in Voxel at 1080×1920 / 60 FPS and inspect the real video. The technical gate alone is insufficient for PB5.
+
+
+## PB5A Voxel baseline correction
+
+PB5A keeps this semantic assembly but changes the Voxel art implementation to match the established Heat/Cold Battery visual identity. PB1 nature/optics GLBs are block-built with embedded pixel materials, PB2 optics are transmission-free and scene-scan-free, and the Voxel beam/refraction/spectrum/rainbow effects use crisp block geometry with selective halos. See `docs/pb5a-voxel-production-baseline.md`.

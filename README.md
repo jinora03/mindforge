@@ -138,7 +138,7 @@ The current 14-video production content sprint is defined in [`docs/production-s
 
 ## Current limitations (v0.1)
 
-- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB2 adds the reusable Voxel production-material layer, physical puddle/optical glass treatment, and deterministic wet/light response for the new GLBs. Demo SFX/reference narration likewise remain replaceable production assets.
+- Voxel now ships the PB1 Nature Core and Optics Core authored GLB packs, but most older content and all Toybox models still use explicit procedural fallbacks. PB5A promotes the proven Heat/Cold Battery block-game language across those production GLBs: block-built silhouettes, authoring-owned nearest-filtered pixel textures, alpha-safe puddles/optics, and selective emissive accents. Demo SFX/reference narration likewise remain replaceable production assets.
 - Deterministic browser video export is available through Studio Creator Export, with MP4/WebM selection, portrait/landscape/square layouts, 720p/1080p, 30/60 FPS, range controls, captions, audio buses, and quality presets. See [`docs/creator-export.md`](docs/creator-export.md).
 - The Studio is a previewer/inspector — no timeline editing, keyframe editing, or node graphs.
 - The bundled themes still ship one procedural character (`character.observer`). PF7 now supports authored production humanoids, but no curated production character GLB is bundled yet; authored locomotion remains in-place.
@@ -160,9 +160,9 @@ PF5 reusable weather/atmosphere layers: see `docs/weather-atmosphere-runtime.md`
 
 ## Production Baseline
 
-With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. PB2 adds their reusable physical/wet material baseline through `layer.utility.productionMaterials`. See `docs/pb1-production-assets.md` and `docs/pb2-production-materials.md`.
+With PF1–PF8 established, production work now focuses on visible quality rather than more foundation architecture. PB1 adds the first original authored GLB packs: `Voxel Nature Core v1` and `Voxel Optics Core v1`. PB2 defines their reusable material vocabulary; PB5A keeps `layer.utility.productionMaterials` as a compatibility seam while the Voxel GLBs own their stable pixel surfaces at authoring time. PB5A then aligns those packs with the canonical block-game visual baseline proven by Artifacts 001 and 004. See `docs/pb1-production-assets.md`, `docs/pb2-production-materials.md`, and `docs/pb5a-voxel-production-baseline.md`.
 
-- **PB3 production effects:** reusable layered light beam, refraction, spectrum, rain impact, atmospheric reveal and continuous rainbow arc (`docs/pb3-production-effects.md`).
+- **PB3 production effects:** reusable layered light beam, refraction, spectrum, rain impact, atmospheric reveal and theme-owned rainbow payoff (`docs/pb3-production-effects.md`).
 
 ### PB4 production meadow
 
@@ -170,4 +170,13 @@ The first reusable production environment baseline composes authored PB1 nature,
 
 ### PB5 Rainbow 2.0 assembly
 
-Artifact 015 now assembles the PB1–PB4 production vocabulary into the first flagship video: authored Voxel droplet assets, the production meadow, wet/physical materials, layered optics, atmospheric reveal and the continuous rainbow payoff. The old monolithic Rain Meadow and property-driven optical beam path are no longer used by the visible episode. See `docs/pb5-rainbow-assembly.md`.
+Artifact 015 now assembles the PB1–PB4 production vocabulary into the first flagship video: authored Voxel droplet assets, the production meadow, renderer-safe wet/optical materials, layered optics and atmospheric reveal. PB5A renders the optics/rainbow with the same crisp block-game language as the reference Heat/Cold Battery episodes instead of a generic low-poly/glass look. See `docs/pb5-rainbow-assembly.md` and `docs/pb5a-voxel-production-baseline.md`.
+
+
+## PB5B — Rainbow Art Direction
+
+Artifact 015 now applies the reusable Voxel baseline as a framed explainer diorama: darker composition-stage lighting, `layer.setDressing.dioramaFrame`, authoring-owned cyan optical assets, segmented semantic light effects, and selective story-light accents. See `docs/pb5b-rainbow-art-direction.md`.
+
+## PB6 — Final Polish
+
+Artifact 015 now uses the production-first Rainbow polish pass: a saturated silhouette-first hero droplet, portrait-aware spectrum framing, deeper authored diorama wings, restrained semantic optical glow, a full-width payoff camera calculated for 9:16 horizontal FOV, and resolution-aware deterministic export captions. PB6 intentionally adds no new Engine foundation. See `docs/pb6-final-polish.md`.

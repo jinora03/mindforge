@@ -105,13 +105,17 @@ describe('PB3 production effect baseline', () => {
     const instance = factory({ event: event('effect.light.beam', { from: 'from', to: 'to' }), services, seed: 11 });
     instance.update(action(1));
 
-    const core = instance.object3d.getObjectByName('pb3.lightBeam.core') as THREE.Mesh;
-    const halo = instance.object3d.getObjectByName('pb3.lightBeam.halo') as THREE.Mesh;
-    const scatter = instance.object3d.getObjectByName('pb3.lightBeam.scatter') as THREE.InstancedMesh;
-    expect(core).toBeDefined();
-    expect(halo).toBeDefined();
-    expect(scatter.count).toBe(10);
-    expect((core.material as THREE.MeshBasicMaterial).blending).toBe(THREE.AdditiveBlending);
+    const core = instance.object3d.getObjectByName('pb6.voxelLightBeam.core') as THREE.InstancedMesh;
+    const halo = instance.object3d.getObjectByName('pb6.voxelLightBeam.halo') as THREE.InstancedMesh;
+    const scatter = instance.object3d.getObjectByName('pb6.voxelLightBeam.particles') as THREE.InstancedMesh;
+    expect(core).toBeInstanceOf(THREE.InstancedMesh);
+    expect(halo).toBeInstanceOf(THREE.InstancedMesh);
+    expect(scatter).toBeInstanceOf(THREE.InstancedMesh);
+    expect(core.count).toBe(8);
+    expect(halo.count).toBe(8);
+    expect(scatter.count).toBe(5);
+    expect(core.geometry).toBeInstanceOf(THREE.BoxGeometry);
+    expect((core.material as THREE.MeshBasicMaterial).blending).toBe(THREE.NormalBlending);
     expect((halo.material as THREE.MeshBasicMaterial).opacity).toBeGreaterThan(0);
     instance.dispose();
   });
@@ -125,16 +129,16 @@ describe('PB3 production effect baseline', () => {
       seed: 22,
     });
     instance.update(action(0.7));
-    expect(instance.object3d.getObjectByName('pb3.refraction.core.0')).toBeDefined();
-    expect(instance.object3d.getObjectByName('pb3.refraction.contact.0')).toBeDefined();
-    const first = instance.object3d.getObjectByName('pb3.refraction.core.0') as THREE.Mesh;
-    const third = instance.object3d.getObjectByName('pb3.refraction.core.2') as THREE.Mesh;
+    expect(instance.object3d.getObjectByName('pb6.voxelRefraction.core.0')).toBeDefined();
+    expect(instance.object3d.getObjectByName('pb6.voxelRefraction.contact.0')).toBeDefined();
+    const first = instance.object3d.getObjectByName('pb6.voxelRefraction.core.0') as THREE.InstancedMesh;
+    const third = instance.object3d.getObjectByName('pb6.voxelRefraction.core.2') as THREE.InstancedMesh;
     expect((first.material as THREE.MeshBasicMaterial).opacity).toBeGreaterThan(0.5);
     expect((third.material as THREE.MeshBasicMaterial).opacity).toBeLessThan(0.05);
     instance.dispose();
   });
 
-  it('creates a six-band soft spectrum with independent luminous cores and halos', () => {
+  it('creates a six-band Voxel spectrum with crisp block cores and restrained halos', () => {
     const { services } = createServices();
     const factory = getTheme('voxel').effects['effect.light.spectrum'];
     const instance = factory({
@@ -144,8 +148,12 @@ describe('PB3 production effect baseline', () => {
     });
     instance.update(action(1.4));
     for (let band = 0; band < 6; band++) {
-      expect(instance.object3d.getObjectByName(`pb3.spectrum.core.${band}`)).toBeDefined();
-      expect(instance.object3d.getObjectByName(`pb3.spectrum.halo.${band}`)).toBeDefined();
+      const core = instance.object3d.getObjectByName(`pb6.voxelSpectrum.core.${band}`);
+      const halo = instance.object3d.getObjectByName(`pb6.voxelSpectrum.halo.${band}`);
+      expect(core).toBeInstanceOf(THREE.InstancedMesh);
+      expect(halo).toBeInstanceOf(THREE.InstancedMesh);
+      expect((core as THREE.InstancedMesh).count).toBe(10);
+      expect((halo as THREE.InstancedMesh).count).toBe(10);
     }
     instance.dispose();
   });
@@ -159,7 +167,7 @@ describe('PB3 production effect baseline', () => {
       seed: 404,
     });
     instance.update(action(0.45, 0, 1.2));
-    const splash = instance.object3d.getObjectByName('pb3.rainImpact.splash') as THREE.InstancedMesh;
+    const splash = instance.object3d.getObjectByName('pb5a.voxelRainImpact.splash') as THREE.InstancedMesh;
     const first = matrixSnapshot(splash, 4);
     instance.update(action(1.05, 0, 1.2));
     instance.update(action(0.45, 0, 1.2));
@@ -180,14 +188,15 @@ describe('PB3 production effect baseline', () => {
     bus.beginFrame();
     instance.contributeInfluence?.(ctx, bus);
     const snapshot = bus.snapshot();
-    expect(snapshot.environmentLight).toBeGreaterThan(0.35);
-    expect(snapshot.fogScattering).toBeGreaterThan(0.4);
-    expect(snapshot.wetReflection).toBeGreaterThan(0.25);
-    expect(snapshot.screenExposure).toBeGreaterThan(0.05);
+    expect(snapshot.environmentLight).toBeCloseTo(0.162);
+    expect(snapshot.fogScattering).toBeCloseTo(0.108);
+    expect(snapshot.wetReflection).toBeCloseTo(0.09);
+    expect(snapshot.screenExposure).toBeCloseTo(0.018);
+    expect(instance.object3d.getObjectByName('pb5a.voxelAtmosphericReveal.core')?.type).toBe('Mesh');
     instance.dispose();
   });
 
-  it('uses continuous tube geometry for the rainbow payoff instead of segmented box strips', () => {
+  it('uses a stepped block arc for the Voxel rainbow payoff while retaining the shared semantic effect id', () => {
     const { services } = createServices();
     const factory = getTheme('voxel').effects['effect.optics.rainbowArc'];
     const instance = factory({
@@ -197,10 +206,11 @@ describe('PB3 production effect baseline', () => {
     });
     instance.update(action(1.2));
     for (let band = 0; band < 6; band++) {
-      const core = instance.object3d.getObjectByName(`pb3.rainbowArc.core.${band}`) as THREE.Mesh;
-      const halo = instance.object3d.getObjectByName(`pb3.rainbowArc.halo.${band}`) as THREE.Mesh;
-      expect(core.geometry).toBeInstanceOf(THREE.TubeGeometry);
-      expect(halo.geometry).toBeInstanceOf(THREE.TubeGeometry);
+      const core = instance.object3d.getObjectByName(`pb5a.voxelRainbowArc.core.${band}`) as THREE.InstancedMesh;
+      const halo = instance.object3d.getObjectByName(`pb5a.voxelRainbowArc.halo.${band}`) as THREE.InstancedMesh;
+      expect(core.geometry).toBeInstanceOf(THREE.BoxGeometry);
+      expect(halo.geometry).toBeInstanceOf(THREE.BoxGeometry);
+      expect(core.count).toBe(24);
       expect((core.material as THREE.MeshBasicMaterial).opacity).toBeGreaterThan(0);
     }
     instance.dispose();

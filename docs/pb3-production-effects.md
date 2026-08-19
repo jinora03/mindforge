@@ -4,12 +4,12 @@ PB3 establishes the first reusable production-grade effect vocabulary used by th
 
 ## Semantic effects
 
-- `effect.light.beam` — layered luminous core, halo, deterministic atmospheric scatter, and PF4 light/fog response.
-- `effect.light.refraction` — anchor-driven multi-segment optical path with luminous contact points.
-- `effect.light.spectrum` — six-band dispersion fan with independent soft cores and halos.
+- `effect.light.beam` — layered light core, restrained halo, deterministic scatter, and PF4 light/fog response; Voxel uses rectangular cores and cube particles.
+- `effect.light.refraction` — anchor-driven multi-segment optical path; Voxel uses block segments/contact cubes.
+- `effect.light.spectrum` — six-band dispersion fan; Voxel uses crisp rectangular bands with thin halos.
 - `effect.weather.rainImpact` — deterministic splash particles plus expanding surface ripples.
 - `effect.reveal.atmospheric` — localized reveal glow plus PF4 environment-light, fog, wet-reflection, exposure, emissive, and audio-impact influences.
-- `effect.optics.rainbowArc` — continuous spectral TubeGeometry bands with soft diffusion rather than segmented box strips.
+- `effect.optics.rainbowArc` — theme-owned spectral payoff: generic/Toybox may use smooth curves while Voxel uses a deliberately stepped block arc.
 
 ## Reuse boundary
 

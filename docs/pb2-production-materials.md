@@ -1,117 +1,63 @@
 # PB2 — Production Material Baseline
 
-PB2 turns the first PB1 authored models into a reusable Voxel material vocabulary. It does **not** add a new renderer or move material meaning into the Engine.
+PB2 defines the reusable material vocabulary for authored Voxel production assets. PB5A tightened the ownership rule after the Rainbow render regression: **production assets own their baseline surface at authoring time**. The Engine and scene-composition runtime do not scan the live scene and swap materials after attachment.
 
-## Reusable material response layer
+## Compatibility layer
 
-Voxel registers:
+Voxel still registers:
 
 ```text
 layer.utility.productionMaterials
 ```
 
-The layer recognizes MindForge-authored production material families and evaluates their response from the Engine's current frame plus PF4 influence channels.
+Existing episodes and composer output can keep this semantic layer id, but the Voxel implementation is intentionally inert. It does not traverse `Scene`, replace materials, or mutate PF2 model instances.
 
-A rainy scene can author a stable condition:
+This removes a renderer-sensitive lifecycle path that was proven to corrupt both Studio preview and fixed-frame export when the layer was enabled.
 
-```json
-{
-  "id": "materials",
-  "factory": "layer.utility.productionMaterials",
-  "role": "utility",
-  "parameters": {
-    "wetness": 0.85
-  }
-}
-```
+## Authoring-owned surfaces
 
-`wetness` is a scene condition, not an independent playback clock. The same timestamp and influence snapshot produce the same material state.
+The PB1/PB5A GLBs now embed their reusable Voxel surface directly:
 
-## Surface families
+- 16 × 16 deterministic pixel textures;
+- nearest magnification and nearest-mipmap minification;
+- repeat wrapping;
+- embedded textures only — no remote/external texture dependency;
+- rough matte bark, foliage, grass, flower, rock and cloud materials;
+- safe alpha puddle/droplet/prism materials;
+- restrained emissive optical-core accents only where the story calls for energy/optics.
 
-PB2 establishes restrained reusable responses for:
+This means a production model is already visually valid immediately after `BrowserAssetRuntime.instantiateModel(...)`. It does not depend on an unrelated utility layer running later in the frame.
 
-- bark
-- foliage
-- grass / production ground
-- flowers
-- rock
-- storm clouds
-- puddle water
-- water/droplet optical glass
-- prism glass
-- optical edge/lens material
+## Renderer-safe optics
 
-Wet vegetation and rock become darker, smoother and more specular, but never turn into mirrors. Clouds intentionally remain highly rough so world flashes illuminate them without making them glossy.
+Hero droplets and prisms deliberately avoid `KHR_materials_transmission` and Three.js screen-space transmission. Their look comes from block geometry, embedded pixel surface, alpha transparency, and a restrained emissive core/edge.
 
-## Physical puddles and optical glass
+Puddles are also authored without a runtime physical-material replacement. The production baseline prioritizes deterministic preview/export parity over realistic glass simulation.
 
-PB1's embedded placeholder material names are upgraded at runtime to `MeshPhysicalMaterial` when the production-material layer is present.
+## Wetness and PF4
 
-Puddles use a water-like IOR, clearcoat and the Engine's existing PMREM reflection environment. PF4 `wetReflection` can temporarily lower surface roughness and increase reflection intensity.
+PB2 originally used `wetReflection`, `environmentLight`, and `emissiveBoost` to mutate live materials. That dynamic response is intentionally suspended for the Voxel production-asset path because the scene-wide mutation layer was the confirmed render-corruption boundary.
 
-Hero rain droplets use water-like IOR, clearcoat, reflection and stable alpha glass. Optical prisms use a higher glass-like IOR with their own clearcoat/opacity tuning. MindForge deliberately avoids high screen-space transmission for these hero optics because its EffectComposer preview/export path can otherwise produce black transmission-buffer artifacts; the two surfaces still retain distinct physical response instead of sharing one generic transparent-plastic treatment.
-
-PB2 is still not screen-space or planar reflection. A puddle reflects the environment lighting field, not a second exact render of every nearby tree. True hero planar reflections remain a later production choice only where the shot justifies their cost.
-
-## PF4 response
-
-The layer consumes:
-
-```text
-wetReflection
-environmentLight
-emissiveBoost
-```
-
-For example:
-
-```text
-Lightning / reveal effect
-        ↓
-PF4 influence bus
-        ↓
-wetReflection + environmentLight
-        ↓
-rock highlight increases
-wet leaves catch light
-puddle reflection strengthens
-optical glass catches the flash
-```
-
-The effect never contains `if tree`, `if rock`, or `if puddle` branches. Each material family owns its own response strength.
-
-## Determinism and seeking
-
-PB2 stores no semantic material time and never integrates `delta`. It recomputes material state from:
-
-```text
-authored wetness
-+
-current PF4 influence snapshot
-```
-
-Seeking away and back to the same timestamp reconstructs the same values.
+Weather, light and reveal effects still influence the world through their own reusable PF4/PB3 visuals. If dynamic wet-surface response is reintroduced later, it must be implemented at explicit asset/material ownership boundaries rather than by traversing the complete live scene.
 
 ## Deliberate limits
 
-PB2 does not add:
+PB2/PB5A does not add:
 
-- screen-space reflections
-- planar reflection cameras
-- dynamic cubemap probes per object
-- wetness accumulation over time
-- snow/dirt accumulation
-- global material remapping for third-party assets
-- episode-specific Rainbow shading hacks
-
-Those should only be added when a production shot proves they are necessary.
+- scene-wide material remapping;
+- screen-space transmission;
+- planar reflection cameras;
+- dynamic cubemap probes per object;
+- wetness accumulation;
+- third-party asset auto-restyling;
+- episode-specific Rainbow material hacks.
 
 ## Validation
 
 Run:
 
 ```bash
-pnpm vitest run tests/pb2-production-materials.test.ts --reporter=verbose
+pnpm vitest run tests/pb1-production-assets.test.ts tests/pb2-production-materials.test.ts --reporter=verbose
+pnpm validate:assets
 pnpm check
 ```

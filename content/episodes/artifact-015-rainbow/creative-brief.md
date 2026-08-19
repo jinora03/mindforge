@@ -1,61 +1,55 @@
-# Creative Brief — Artifact 015: The Split — PB5 Rainbow 2.0
+# Creative Brief — Artifact 015: The Split — PB6 Final Polish
 
 **Public title:** _Why does a rainbow appear?_
 **Domain:** Signal Ocean · **Artifact type:** Loom · **Duration:** 17.6s (9:16)
 
 ## Unforgettable Visual
 
-The signature image is the final rainbow reveal: the camera pulls back from the optical behavior of a single raindrop into a rain-filled meadow as sunlight breaks through the storm and a large, continuous rainbow resolves across the environment. The transition should feel like the microscopic explanation suddenly becoming a real-world phenomenon.
+The signature frame is a full-width, saturated voxel rainbow spanning a dark storm meadow from a front-of-diorama camera position. Low stepped ridges and trees create depth beneath it, a small warm sun-break sits high in the sky, and the rainbow remains the only large multicolor/emissive event in frame.
 
 ## 1. Production purpose
 
-This is the first flagship assembly after the PF1–PF8 foundation and PB1–PB4 production baselines. The episode must visibly prove that MindForge can combine reusable authored assets, production materials, layered effects, weather and deterministic environment composition into one coherent short.
+PB6 is a visual-production pass, not an architecture phase. It keeps the reusable PB1–PB5 systems and fixes the actual shot design: subject silhouette, portrait framing, value hierarchy, optical readability, caption scale and payoff composition. Artifact 001 (Heat) and Artifact 004 (Cold Battery) remain the visual family reference.
 
 ## 2. The one idea
 
-Sunlight refracts as it enters a raindrop, reflects inside, then refracts again as it leaves. Different wavelengths leave at slightly different angles, and many droplets send those separated colors toward the viewer.
+Light bends into a raindrop, reflects inside it, then bends again on the way out. Colors bend by different amounts. Across millions of droplets, the right viewing angle lines those colors up into a rainbow.
 
-## 3. Production vocabulary
+## 3. Reusable production vocabulary
 
-The episode deliberately reuses rather than re-implements:
+- PB1 `pack.voxel.optics-production`, with an opaque saturated block-water hero that reads without fragile transmission.
+- `layer.setDressing.dioramaFrame`, extended with reusable low stepped background ridges for foreground/midground/background depth.
+- `prefab.storyLight` with optional authored color so focal lights can be cool/warm without adding episode-specific light prefabs.
+- PB3 beam/refraction/spectrum effects using fewer, longer block segments, contact flashes and restrained halos instead of dashed debug-line styling.
+- PB3 `effect.reveal.atmospheric` with target offsets so a sun-break can live in the sky rather than at the target origin.
+- PB3 `effect.optics.rainbowArc` with chunkier bands and a restrained halo.
+- Resolution-aware deterministic export captions so the 1080×1920 output matches preview readability.
 
-- PB1 `pack.voxel.nature-production` and `pack.voxel.optics-production`.
-- PB2 `layer.utility.productionMaterials` for wet surfaces and optical glass.
-- PB3 `effect.light.beam`, `effect.light.refraction`, `effect.light.spectrum`, `effect.reveal.atmospheric`, and `effect.optics.rainbowArc`.
-- PF5 heavy rain, mist and fog.
-- PB4/PF6 meadow composition layers for clouds, ground, puddles, nature, ground cover and foreground framing.
+## 4. Shot progression
 
-The Voxel `prefab.prismDrop` should prefer `model.prop.prismDrop.production`; the procedural optical rig remains fallback-only. The many-droplet beat should likewise prefer the PB1 small-droplet asset.
-
-## 4. Visual progression
-
-1. **0–1.45s — Hook:** authored droplet in the production rainy meadow.
-2. **1.18–3.6s — Optics macro:** sunlight enters; layered refraction/reflection path becomes readable.
-3. **3.3–6.05s — Dispersion:** spectral bands emerge as luminous core + halo, not debug bars.
-4. **6.05–7.7s — Angle:** briefly emphasize the wavelength-dependent exit spread.
-5. **7.45–10.75s — Scale-up:** one droplet gives way to many authored droplets while camera pulls out.
-6. **10.35–17.6s — Payoff:** atmospheric sun break makes the wet meadow/mist react before a continuous landscape rainbow appears.
+1. **0–1.5s — Hook:** saturated voxel raindrop, dark framed meadow, no competing effect.
+2. **1.1–3.6s — Light path:** warm entry ribbon plus internal refraction/reflection contacts.
+3. **3.2–5.85s — Spectrum:** camera frames hero and the complete color fan together.
+4. **5.85–7.55s — Exit angle:** short close explanation at the exit point.
+5. **7.3–10.55s — Many drops:** one drop becomes a smaller, cleaner field of fourteen authored droplets.
+6. **10.25–17.6s — Payoff:** high sky sun-break, front-of-diorama wide shot, full rainbow and clean final hold.
 
 ## 5. Composition rules
 
-- No character; the droplet, light path and weather are the protagonists.
-- The hero droplet must not dominate the payoff frame.
-- PB4 foreground/midground/background depth remains visible around the hero.
-- Spectrum must remain inside portrait framing.
-- The final rainbow belongs to the world and should sit behind/among distant environment layers rather than reading like UI.
-- Caption clears by 15.93s, leaving the final ~1.7s visually clean.
+- One focal subject per shot.
+- Keep the central optics lane clear; side dressing and ridges frame, never intersect, the explanation.
+- Opaque saturated water is preferred to milky transparent glass when transparency hurts readability.
+- Glow belongs only to semantic light, optical contact points and the final rainbow.
+- Camera distance is chosen from the portrait horizontal FOV, not only from vertical framing.
+- Final rainbow must fit entirely inside the 9:16 horizontal field with margin.
+- Captions must remain readable at 1080×1920 export scale and stay clear of the hero/payoff.
 
-## 6. What PB5 is not
+## 6. Success criteria
 
-PB5 is the production assembly, not final cinematic polish. PB6 may still refine camera lenses/paths, exact lighting choreography, effect envelopes, audio and framing after we inspect the real PB5 export.
-
-## 7. Success criteria
-
-- Duration remains under 20 seconds.
-- `environment.rainMeadow` is no longer used by Artifact 015.
-- No old property-driven `entryBeam` / `refractBeam` / `reflectionBeam` / `exitBeam` animation remains.
-- No old prefab rainbow is used for the visible payoff.
-- Voxel runtime prefers the PB1 authored hero and small-droplet GLBs when preloaded.
-- PB3 layered beam/refraction/spectrum/reveal/rainbow effects are all exercised.
-- Rain, mist, wet materials and lighting visibly participate in the final reveal.
-- `pnpm check` remains green before PB6 begins.
+- No black-frame material corruption.
+- Hero reads as a raindrop before effects begin.
+- Spectrum is fully visible in the portrait frame instead of clipping off-screen.
+- Storm atmosphere supports contrast rather than whitening the frame.
+- Final camera fits the entire rainbow horizontally.
+- Export captions scale from the logical CSS stage to video resolution.
+- `pnpm check` is green before the stage is called complete.
